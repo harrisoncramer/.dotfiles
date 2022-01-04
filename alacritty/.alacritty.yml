@@ -1,0 +1,24 @@
+window:
+  decorations: buttonless
+font:
+  normal:
+    family: RobotoMono Nerd Font
+  size: 16.0
+cursor:
+  style:
+    shape: Block
+    blinking: Always
+  blink_interval: 500
+colors: # Based off the Kanagawa color scheme
+  primary:
+    background: "#1F1F28"
+    foreground: "#DCD7BA"
+  normal:
+    black: "#16161D"
+    red: "#C34043"
+    green: "#98BB6C"
+    yellow: "#E6C384"
+    blue: "#7E9CD8"
+    magenta: "#957FB8"
+    cyan: "#A3D4D5"
+    white: "#DCD7BA"
