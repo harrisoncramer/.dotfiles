@@ -5,9 +5,6 @@ fi
 
 export EDITOR="vim"
 
-ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
-
 # Aliases and Functions
 alias dkk='cd ~/Desktop'
 alias bat='batcat'
@@ -17,7 +14,12 @@ alias dotfiles='cd ~/.dotfiles'
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
 # oh-my-zsh
-source $ZSH/oh-my-zsh.sh
+source $HOME/oh-my-zsh/oh-my-zsh.sh
+ZSH_THEME="powerlevel10k/powerlevel10k"
+plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
+
+# the-fuck
+eval $(thefuck --alias)
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -34,9 +36,7 @@ if [[ $OSTYPE == 'linux-gnu' ]] then
   killall xcape
   xcape  -e 'Caps_Lock=Escape'
 
-  eval $(thefuck --alias)
-
-  # NVM
+  # Node version manager
   export NVM_DIR="$HOME/.nvm"
   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
   [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
