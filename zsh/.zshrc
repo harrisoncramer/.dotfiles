@@ -14,7 +14,7 @@ alias dotfiles='cd ~/.dotfiles'
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
 # oh-my-zsh
-source $HOME/oh-my-zsh/oh-my-zsh.sh
+source $HOME/.oh-my-zsh/oh-my-zsh.sh
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
 
