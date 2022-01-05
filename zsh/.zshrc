@@ -11,6 +11,7 @@ plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
 # Aliases and Functions
 alias dkk='cd ~/Desktop'
 alias bat='batcat'
+alias dotfiles='cd ~/.dotfiles'
 
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
