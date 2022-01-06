@@ -1,7 +1,9 @@
+window:
+  decorations: buttonless
 font:
   normal:
-    family: Hack Nerd Font
-  size: 13.0
+    family: RobotoMono Nerd Font
+  size: 16.0
 cursor:
   style:
     shape: Block
