@@ -8,6 +8,7 @@ fi
 
 
 OS=$(uname)
+ZSH_DIR="$HOME/.oh-my-zsh"
 
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
@@ -26,6 +27,18 @@ do
         stow "$DIR_NAME"
         git config --global core.excludesfile ~/.gitignore
         echo '  Added global gitignore.'
+        ;;
+      zsh)
+        if [ ! -d "$ZSH_DIR" ]; then
+          git clone https://github.com/ohmyzsh/ohmyzsh/ "$ZSH_DIR"
+          echo ' installed oh-my-zsh.'
+        fi
+        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting" &> /dev/null
+        git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_DIR/custom/plugins/zsh-autosuggestions" &> /dev/null
+        git clone https://github.com/paulirish/git-open.git "$ZSH_DIR/plugins/git-open" &> /dev/null
+        if [ ! -d "$ZSH_DIR/themes/powerlevel10k" ]; then
+          git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k" &> /dev/null
+        fi
         ;;
       *)
         stow "$DIR_NAME"

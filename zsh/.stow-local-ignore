@@ -1,0 +1,5 @@
+# It's important that .ozh_installer is present, from this list, so
+# in order for stow to ignore it.
+
+install
+\.git
