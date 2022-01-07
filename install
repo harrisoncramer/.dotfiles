@@ -1,6 +1,14 @@
 #!/bin/bash
 
-for dir in $(pwd)/*/     # list directories in the form "/tmux/"
+if ! command -v stow &> /dev/null
+then
+    echo "Stow must be installed first."
+    exit
+fi
+
+# By default we just use stow to install the directories as listed.
+# However, if any installations require customization, we can do that here.
+for dir in $(pwd)/*/
 do
     DIR_ROOT="${dir%*/}"
     DIR_NAME="${DIR_ROOT##*/}"
