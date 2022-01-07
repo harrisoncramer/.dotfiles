@@ -1,0 +1,17 @@
+#!/bin/bash
+
+for dir in $(pwd)/*/     # list directories in the form "/tmux/"
+do
+    DIR_ROOT="${dir%*/}"
+    DIR_NAME="${DIR_ROOT##*/}"
+    echo "Installing ${DIR_NAME}..."
+
+    case $DIR_NAME in
+      # alacritty)
+      #   ;;
+      *)
+        stow "$DIR_NAME"
+        ;;
+    esac
+
+done
