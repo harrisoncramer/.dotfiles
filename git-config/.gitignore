@@ -1,5 +1,0 @@
-# Global GitIgnore
-.DS_Store
-.vscode
-Session.vim
-*.session.vim

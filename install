@@ -6,6 +6,9 @@ then
     exit
 fi
 
+
+OS=$(uname)
+
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
 for dir in $(pwd)/*/
@@ -15,8 +18,15 @@ do
     echo "Installing ${DIR_NAME}..."
 
     case $DIR_NAME in
-      # alacritty)
-      #   ;;
+      executables)
+        stow "$DIR_NAME" -t ~/.local/bin
+        echo '  Added binaries and scripts to ~/.local/bin'
+        ;;
+      git)
+        stow "$DIR_NAME"
+        git config --global core.excludesfile ~/.gitignore
+        echo '  Added global gitignore.'
+        ;;
       *)
         stow "$DIR_NAME"
         ;;
