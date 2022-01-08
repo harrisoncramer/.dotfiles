@@ -19,6 +19,13 @@ do
     echo "Installing ${DIR_NAME}..."
 
     case $DIR_NAME in
+      alacritty)
+        if [ OS == 'Darwin' ]; then
+          ln -s "$(pwd)/alacritty/linux/.alacritty.yml" ~/.alacritty.yml
+        else
+          ln -s "$(pwd)/alacritty/mac/.alacritty.yml" ~/.alacritty.yml
+        fi
+        ;;
       executables)
         stow "$DIR_NAME" -t ~/.local/bin
         echo '  Added binaries and scripts to ~/.local/bin'
