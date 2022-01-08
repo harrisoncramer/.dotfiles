@@ -23,9 +23,6 @@ do
         stow "$DIR_NAME" -t ~/.local/bin
         echo '  Added binaries and scripts to ~/.local/bin'
         ;;
-      nvim)
-  	stow "$DIR_NAME" -t ~/.config
-        ;;
       git)
         stow "$DIR_NAME"
         git config --global core.excludesfile ~/.gitignore
