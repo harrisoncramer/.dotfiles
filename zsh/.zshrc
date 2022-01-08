@@ -32,9 +32,9 @@ eval $(thefuck --alias)
 if [[ $OSTYPE == 'linux-gnu' ]] then
 
   # Remap caps lock to escape, except on hold is CTRL
-  setxkbmap -option caps:ctrl_modifier -option grp:shifts_toggle
-  killall xcape
-  xcape  -e 'Caps_Lock=Escape'
+  # setxkbmap -option caps:ctrl_modifier -option grp:shifts_toggle
+  # killall xcape
+  # xcape  -e 'Caps_Lock=Escape'
 
   # Node version manager
   export NVM_DIR="$HOME/.nvm"
