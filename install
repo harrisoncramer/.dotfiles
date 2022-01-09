@@ -3,10 +3,12 @@
 NPM=false
 QUIET=false
 VERBOSE=false
+HOMEBREW=false
 while test $# != 0
 do
     case "$1" in
     --npm) NPM=true ;;
+    --brew) HOMEBREW=true ;;
     --q) QUIET=true ;;
     *)  usage ;;
     esac
@@ -100,4 +102,9 @@ if $NPM; then
   do
     installOrUpdateNpm "$PACKAGE"
   done
+fi
+
+if $HOMEBREW && [ "$OS" = "Darwin" ]; then
+  echo "Installing brews..."
+  brew install $(cat brews.txt)
 fi
