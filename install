@@ -6,6 +6,31 @@ then
     exit
 fi
 
+function pOnSuccess() {
+  if [ $? -eq 0 ]; then
+    echo "$1"
+  else
+    echo "$2"
+  fi
+}
+
+function cloneOrUpdate() {
+  local GIT_REPO=$(basename "$1")
+  if [ ! -d "$2" ]; then
+    git clone "$1" "$2" &> /dev/null
+    pOnSuccess "  cloned $GIT_REPO" "  could not clone $GIT_REPO"
+  else
+    (cd "$2"; git pull &> /dev/null)
+    pOnSuccess "  updated $GIT_REPO" "  could not update $GIT_REPO"
+  fi
+}
+
+function link() {
+  local FILE="$1"
+  local TARGET="$2"
+  ln -sf "$1" "$2"
+  pOnSuccess "  linked $2" "   could not link $2!"
+}
 
 OS=$(uname)
 ZSH_DIR="$HOME/.oh-my-zsh"
@@ -20,56 +45,31 @@ do
 
     case $DIR_NAME in
       alacritty)
-        if [ "$OS" == 'Darwin' ]; then
-          ln -sf "$(pwd)/alacritty/linux/.alacritty.yml" ~/.alacritty.yml
-          if [ $? -eq 0 ]; then
-            echo '  added/updated .alacritty configuration'
-          fi
+        if [ "$OS" = "Darwin" ]; then
+          link "$(pwd)/alacritty/mac/.alacritty.yml" ~/.alacritty.yml
         else
-          ln -sf "$(pwd)/alacritty/mac/.alacritty.yml" ~/.alacritty.yml
-          if [ $? -eq 0 ]; then
-            echo '  added/updated .alacritty configuration'
-          fi
+          link "$(pwd)/alacritty/linux/.alacritty.yml" ~/.alacritty.yml
         fi
         ;;
       executables)
         stow "$DIR_NAME" -t ~/.local/bin
-          if [ $? -eq 0 ]; then
-            echo '  added/updated binaries and scripts to ~/.local/bin'
-          fi
+        pOnSuccess "  stowed scripts to ~/.local/bin" "  could not stow scripts!"
         ;;
       git)
         stow "$DIR_NAME"
         git config --global core.excludesfile ~/.gitignore
-          if [ $? -eq 0 ]; then
-            echo '  added/updated global gitignore.'
-          fi
+        pOnSuccess "  updated git" "  could not update git!"
         ;;
       zsh)
-        if [ ! -d "$ZSH_DIR" ]; then
-          git clone https://github.com/ohmyzsh/ohmyzsh/ "$ZSH_DIR"
-          if [ $? -eq 0 ]; then
-            echo ' installed oh-my-zsh.'
-          fi
-        fi
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting" &> /dev/null
-          if [ $? -eq 0 ]; then
-            echo ' added zsh syntax highlighting'
-          fi
-        git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_DIR/custom/plugins/zsh-autosuggestions" &> /dev/null
-          if [ $? -eq 0 ]; then
-            echo ' added zsh-autosuggestions'
-          fi
-        git clone https://github.com/paulirish/git-open.git "$ZSH_DIR/plugins/git-open" &> /dev/null
-        if [ ! -d "$ZSH_DIR/themes/powerlevel10k" ]; then
-          git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k" &> /dev/null
-          if [ $? -eq 0 ]; then
-            echo '  added powerlevel10k'
-          fi
-        fi
+        cloneOrUpdate https://github.com/ohmyzsh/ohmyzsh.git "$ZSH_DIR"
+        cloneOrUpdate https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting"
+        cloneOrUpdate https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_DIR/custom/plugins/zsh-autosuggestions"
+        cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
+        cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         ;;
       *)
         stow "$DIR_NAME"
+        pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
         ;;
     esac
 
