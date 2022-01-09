@@ -20,31 +20,52 @@ do
 
     case $DIR_NAME in
       alacritty)
-        if [ OS == 'Darwin' ]; then
-          ln -s "$(pwd)/alacritty/linux/.alacritty.yml" ~/.alacritty.yml
+        if [ "$OS" == 'Darwin' ]; then
+          ln -sf "$(pwd)/alacritty/linux/.alacritty.yml" ~/.alacritty.yml
+          if [ $? -eq 0 ]; then
+            echo '  added/updated .alacritty configuration'
+          fi
         else
-          ln -s "$(pwd)/alacritty/mac/.alacritty.yml" ~/.alacritty.yml
+          ln -sf "$(pwd)/alacritty/mac/.alacritty.yml" ~/.alacritty.yml
+          if [ $? -eq 0 ]; then
+            echo '  added/updated .alacritty configuration'
+          fi
         fi
         ;;
       executables)
         stow "$DIR_NAME" -t ~/.local/bin
-        echo '  Added binaries and scripts to ~/.local/bin'
+          if [ $? -eq 0 ]; then
+            echo '  added/updated binaries and scripts to ~/.local/bin'
+          fi
         ;;
       git)
         stow "$DIR_NAME"
         git config --global core.excludesfile ~/.gitignore
-        echo '  Added global gitignore.'
+          if [ $? -eq 0 ]; then
+            echo '  added/updated global gitignore.'
+          fi
         ;;
       zsh)
         if [ ! -d "$ZSH_DIR" ]; then
           git clone https://github.com/ohmyzsh/ohmyzsh/ "$ZSH_DIR"
-          echo ' installed oh-my-zsh.'
+          if [ $? -eq 0 ]; then
+            echo ' installed oh-my-zsh.'
+          fi
         fi
         git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting" &> /dev/null
+          if [ $? -eq 0 ]; then
+            echo ' added zsh syntax highlighting'
+          fi
         git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_DIR/custom/plugins/zsh-autosuggestions" &> /dev/null
+          if [ $? -eq 0 ]; then
+            echo ' added zsh-autosuggestions'
+          fi
         git clone https://github.com/paulirish/git-open.git "$ZSH_DIR/plugins/git-open" &> /dev/null
         if [ ! -d "$ZSH_DIR/themes/powerlevel10k" ]; then
           git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k" &> /dev/null
+          if [ $? -eq 0 ]; then
+            echo '  added powerlevel10k'
+          fi
         fi
         ;;
       *)
