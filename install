@@ -1,14 +1,28 @@
 #!/bin/bash
 
+NPM=false
+QUIET=false
+VERBOSE=false
+while test $# != 0
+do
+    case "$1" in
+    --npm) NPM=true ;;
+    --q) QUIET=true ;;
+    *)  usage ;;
+    esac
+    shift
+done
+
 if ! command -v stow &> /dev/null
 then
     echo "Stow must be installed first."
     exit
 fi
 
+
 function pOnSuccess() {
   if [ $? -eq 0 ]; then
-    echo "$1"
+    if ! $QUIET; then echo "$1"; fi
   else
     echo "$2"
   fi
@@ -25,6 +39,11 @@ function cloneOrUpdate() {
   fi
 }
 
+function installOrUpdateNpm() {
+  npm install -g "$1" &> /dev/null
+  pOnSuccess "  installed $1 globally" "  could not install $1"
+}
+
 function link() {
   local FILE="$1"
   local TARGET="$2"
@@ -34,6 +53,7 @@ function link() {
 
 OS=$(uname)
 ZSH_DIR="$HOME/.oh-my-zsh"
+NPM_PACKAGES=("eslint_d" "@fsouza/prettierd" "@vue/cli" "create-next-app" "eslint_d" "live-server" "next" "trash-cli" "typescript-language-server" "typescript")
 
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
@@ -42,7 +62,6 @@ do
     DIR_ROOT="${dir%*/}"
     DIR_NAME="${DIR_ROOT##*/}"
     echo "Installing ${DIR_NAME}..."
-
     case $DIR_NAME in
       alacritty)
         if [ "$OS" = "Darwin" ]; then
@@ -50,6 +69,7 @@ do
         else
           link "$(pwd)/alacritty/linux/.alacritty.yml" ~/.alacritty.yml
         fi
+        pOnSuccess "  linked .alacritty.yml" "  could not link .alacritty.yml!"
         ;;
       executables)
         stow "$DIR_NAME" -t ~/.local/bin
@@ -72,5 +92,12 @@ do
         pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
         ;;
     esac
-
 done
+
+if $NPM; then
+  echo "Installing ${#NPM_PACKAGES[@]} npm globals..."
+  for PACKAGE in "${NPM_PACKAGES[@]}"
+  do
+    installOrUpdateNpm "$PACKAGE"
+  done
+fi
