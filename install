@@ -55,7 +55,8 @@ function link() {
 
 OS=$(uname)
 ZSH_DIR="$HOME/.oh-my-zsh"
-NPM_PACKAGES=("eslint_d" "@fsouza/prettierd" "@vue/cli" "create-next-app" "eslint_d" "live-server" "next" "trash-cli" "typescript-language-server" "typescript")
+NPM_PACKAGES=("@fsouza/prettierd" "@vue/cli" "create-next-app" "live-server" "next" "trash-cli" "typescript-language-server" "typescript")
+NPM_PACKAGES_PEGGED=("eslint_d@11.1.1")
 
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
@@ -99,6 +100,11 @@ done
 if $NPM; then
   echo "Installing ${#NPM_PACKAGES[@]} npm globals..."
   for PACKAGE in "${NPM_PACKAGES[@]}"
+  do
+    installOrUpdateNpm "$PACKAGE"
+  done
+  echo "Installing ${#NPM_PACKAGES[@]} npm globals (pegged)..."
+  for PACKAGE in "${NPM_PACKAGES_PEGGED[@]}"
   do
     installOrUpdateNpm "$PACKAGE"
   done
