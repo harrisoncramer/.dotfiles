@@ -1,0 +1,9 @@
+[init]
+	defaultBranch = main
+[user]
+	name = Harrison Cramer
+	email = harrisoncramer@gmail.com
+; [merge]
+; 	conflictstyle = diff3
+[core]
+	excludesfile = /Users/harrisoncramer/.gitignore
