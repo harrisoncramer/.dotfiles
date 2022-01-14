@@ -3,3 +3,6 @@
 .vscode
 Session.vim
 *.session.vim
+babashka
+node_modules
+nul

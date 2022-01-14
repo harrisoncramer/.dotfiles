@@ -5,7 +5,20 @@ fi
 
 export EDITOR="vim"
 
-# Aliases and Functions
+# Aliases
+# Autoexpand aliases with tab
+zstyle ':completion:*' completer _expand_alias _complete _ignored
+
+# Git aliases
+alias gs="git stash push -u -m "
+alias gsp='git stash pop'
+alias gc='git commit -m '
+alias gst='git status'
+gitAddAll () {
+  git add .
+}
+alias gaa='gitAddAll'
+
 alias dkk='cd ~/Desktop'
 alias bat='batcat'
 alias dotfiles='cd ~/.dotfiles'
@@ -17,6 +30,9 @@ alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
 source ~/.oh-my-zsh/oh-my-zsh.sh
+
+# Autosuggest accept (instead of right arrow key)
+bindkey '^ ' autosuggest-accept
 
 # the-fuck
 eval $(thefuck --alias)
