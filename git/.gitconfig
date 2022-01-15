@@ -3,7 +3,7 @@
 [user]
 	name = Harrison Cramer
 	email = harrisoncramer@gmail.com
-; [merge]
-; 	conflictstyle = diff3
+[includeIf "gitdir:~/crossbeam/"]
+	path = /Users/harrisoncramer/.gitconfig-work
 [core]
 	excludesfile = /Users/harrisoncramer/.gitignore
