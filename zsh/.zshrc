@@ -20,7 +20,7 @@ gitAddAll () {
 alias gaa='gitAddAll'
 
 alias dkk='cd ~/Desktop'
-alias bat='batcat'
+# alias bat='batcat'
 alias dotfiles='cd ~/.dotfiles'
 
 # See: https://github.com/venantius/ultra/issues/103
