@@ -6,4 +6,6 @@
 [includeIf "gitdir:~/crossbeam/"]
 	path = /Users/harrisoncramer/.gitconfig-work
 [core]
-	excludesfile = /Users/harrisoncramer/.gitignore
+	excludesfile = /home/harrycramer/.gitignore
+[merge]
+	conflictstyle = diff3
