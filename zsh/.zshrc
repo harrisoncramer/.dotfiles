@@ -14,13 +14,17 @@ alias gs="git stash push -u -m "
 alias gsp='git stash pop'
 alias gc='git commit -m '
 alias gst='git status'
-gitAddAll () {
-  git add .
+
+git() {
+  if [[ $@ == "recent" ]]; then
+    command git for-each-ref --sort=-committerdate refs/heads --format='%(authordate:short) %(color:red)%(objectname:short) %(color:yellow)%(refname:short)%(color:reset) (%(color:green)%(committerdate:relative)%(color:reset))';
+  else
+    command git "$@"
+  fi
 }
-alias gaa='gitAddAll'
+
 
 alias dkk='cd ~/Desktop'
-# alias bat='batcat'
 alias dotfiles='cd ~/.dotfiles'
 
 # See: https://github.com/venantius/ultra/issues/103
