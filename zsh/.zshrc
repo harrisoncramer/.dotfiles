@@ -3,7 +3,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-export EDITOR="vim"
 
 # Aliases
 # Autoexpand aliases with tab
@@ -66,3 +65,6 @@ if [[ $OSTYPE == 'linux-gnu' ]] then
 else
   source ~/.zshrc-personal
 fi
+
+# Get NVIM path from Other ZSHRC File
+export EDITOR="$NVIM"

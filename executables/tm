@@ -15,7 +15,6 @@ if [ $? != 0 ]; then
       rename-window 'vim' \; \
       new-window \; \
       rename-window 'terminal'\; \
-      split-window -v \; \
       previous-window \; \
       send-keys 'v' Enter\;
 else

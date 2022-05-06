@@ -90,6 +90,12 @@ do
         cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         ;;
+      karabiner)
+        if [ "$OS" = "Darwin" ]; then
+          stow "$DIR_NAME"
+          pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
+        fi
+        ;;
       *)
         stow "$DIR_NAME"
         pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
