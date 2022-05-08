@@ -3,32 +3,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-
-# Aliases
-# Autoexpand aliases with tab
-zstyle ':completion:*' completer _expand_alias _complete _ignored
-
-# Git aliases
-alias gs="git stash push -u -m "
-alias gsp='git stash pop'
-alias gc='git commit -m '
-alias gst='git status'
-
-git() {
-  if [[ $@ == "recent" ]]; then
-    command git for-each-ref --sort=-committerdate refs/heads --format='%(authordate:short) %(color:red)%(objectname:short) %(color:yellow)%(refname:short)%(color:reset) (%(color:green)%(committerdate:relative)%(color:reset))' | head
-  else
-    command git "$@"
-  fi
-}
-
-
-alias dkk='cd ~/Desktop'
-alias dotfiles='cd ~/.dotfiles'
-
-# See: https://github.com/venantius/ultra/issues/103
-alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
-
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
@@ -68,3 +42,18 @@ fi
 
 # Get NVIM path from Other ZSHRC File
 export EDITOR="$NVIM"
+
+# Aliases
+# Autoexpand aliases with tab
+zstyle ':completion:*' completer _expand_alias _complete _ignored
+
+# Git aliases
+alias gs="git status"
+alias gc='git commit -m '
+alias gd='git diff'
+
+alias dkk='cd ~/Desktop'
+alias dotfiles='cd ~/.dotfiles'
+
+# See: https://github.com/venantius/ultra/issues/103
+alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
