@@ -51,6 +51,7 @@ zstyle ':completion:*' completer _expand_alias _complete _ignored
 alias gs="git status"
 alias gc='git commit -m '
 alias gd='git diff'
+alias gp='git pull'
 
 alias dkk='cd ~/Desktop'
 alias dotfiles='cd ~/.dotfiles'
