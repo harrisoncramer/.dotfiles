@@ -1,9 +1,0 @@
-#!/bin/bash
-
-for dir in $(pwd)/linux/*/
-do
-  DIR_ROOT="${dir%*/}"
-  DIR_NAME="${DIR_ROOT##*/}"
-  echo "Installing ${DIR_NAME}..."
-  stow "linux/$DIR_NAME" -t ~
-done
