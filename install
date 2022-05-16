@@ -81,6 +81,8 @@ do
       git)
         stow "$DIR_NAME"
         git config --global core.excludesfile ~/.gitignore
+        git config --global init.templatedir '~/.git_templates'
+        git init
         pOnSuccess "  updated git" "  could not update git!"
         ;;
       zsh)
