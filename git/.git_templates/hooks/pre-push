@@ -4,23 +4,23 @@ repo_name=$(git config --get remote.origin.url)
 branch_name=$(basename $(git symbolic-ref --short -q HEAD))
 project_name=$(basename $(git rev-parse --show-toplevel))
 
-if [ "$project_name" != "muncher"]; then
+if [[ "$project_name" != "muncher" ]]; then
   exit 0
 fi
 
-if [ "$branch_name" == "master" ]; then
+if [[ "$branch_name" == "master" ]]; then
     echo "On master branch"
     exit 0
 fi
 to_test=`git diff --name-only origin/develop..HEAD | grep -c -E '^src.*clj$|^test.*clj$'i || true`
-if [ "$to_test" == 0 ]; then
+if [[ "$to_test" == 0 ]]; then
    echo "no need to check zprint"
    exit 0
 fi
 echo "checking zprint"
 `git diff --name-only origin/develop..HEAD | grep -E '^src.*clj$|^test.*clj$' | xargs bin/zprint-files`
 updated=`git status --porcelain | wc -l`
-if [ "$updated" -ne "0" ]; then
+if [[ "$updated" -ne "0" ]]; then
     echo "zprint created uncommitted files"
     git status --porcelain
 fi
