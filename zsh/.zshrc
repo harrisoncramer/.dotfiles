@@ -57,3 +57,6 @@ alias dotfiles='cd ~/.dotfiles'
 
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
+
+# Raspberry Pi Utilities
+alias pi-bulld="env GOOS=linux GOARCH=arm GOARM=5 go build"
