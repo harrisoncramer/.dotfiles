@@ -18,6 +18,11 @@ eval $(thefuck --alias)
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+unreleased () {
+  git fetch
+  git --no-pager log origin/master..origin/develop --first-parent --pretty='%C(yellow)%h %C(cyan)%cd %Cblue%aN%C(auto)%d %Creset%s' --date=relative --date-order
+}
+
 ######################
 ## PERSONAL CONFIGS ##
 ######################
@@ -51,6 +56,7 @@ zstyle ':completion:*' completer _expand_alias _complete _ignored
 alias gs="git status"
 alias gc='git commit -m '
 alias gd='git diff'
+alias gp='git pull'
 
 alias dkk='cd ~/Desktop'
 alias dotfiles='cd ~/.dotfiles'

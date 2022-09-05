@@ -1,5 +1,6 @@
 [init]
 	defaultBranch = main
+	templatedir = ~/.git_templates
 [user]
 	name = Harrison Cramer
 	email = harrisoncramer@gmail.com
