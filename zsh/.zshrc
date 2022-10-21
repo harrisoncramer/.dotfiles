@@ -3,6 +3,12 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
+# Raspberry Pi Utilities
+alias pibulld='GOOS=linux GOARCH=arm GOARM=5 go build'
+picopy () {
+  scp $1 pi@raspberrypi-1.local:/home/pi
+}
+
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
@@ -64,5 +70,3 @@ alias dotfiles='cd ~/.dotfiles'
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
-# Raspberry Pi Utilities
-alias pi-bulld="env GOOS=linux GOARCH=arm GOARM=5 go build"
