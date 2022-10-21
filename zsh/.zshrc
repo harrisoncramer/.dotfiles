@@ -4,7 +4,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # Raspberry Pi Utilities
-alias pibulld='GOOS=linux GOARCH=arm GOARM=5 go build'
+alias pibuild='GOOS=linux GOARCH=arm GOARM=5 go build'
 picopy () {
   scp $1 pi@raspberrypi-1.local:/home/pi
 }
