@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Enable Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -22,6 +24,27 @@ bindkey '^ ' autosuggest-accept
 
 # the-fuck
 eval $(thefuck --alias)
+
+# Creates a new blank Github Repository and Switches into it
+project () {
+  privateOrPublic="--private"
+  if [ "$2" = "--public" ]; then 
+    privateOrPublic="--public"
+  fi
+
+  mkdir "$1"
+  cd "$1"
+  git init
+  touch README.md
+  echo "# ${1}" >> README.md
+  mkdir .sessions
+  gh repo create "${1}" $privateOrPublic --source=. --remote=origin
+  git branch -M main
+  git add .
+  git commit -m 'Initial commit'
+  git push -u origin main
+  echo "Success! Repository created."
+}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
