@@ -82,4 +82,4 @@ font-hack-nerd-font
 font-roboto-mono-nerd-font
 bat
 jq
-mongocli
+mongosh
