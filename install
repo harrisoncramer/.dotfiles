@@ -107,19 +107,11 @@ do
 done
 
 if $NPM; then
-  echo "Installing ${#NPM_PACKAGES[@]} npm globals..."
-  for PACKAGE in "${NPM_PACKAGES[@]}"
-  do
-    installOrUpdateNpm "$PACKAGE"
-  done
-  echo "Installing ${#NPM_PACKAGES[@]} npm globals (pegged)..."
-  for PACKAGE in "${NPM_PACKAGES_PEGGED[@]}"
-  do
-    installOrUpdateNpm "$PACKAGE"
-  done
+  echo "Installing global npm dependencies..."
+  npm i -g $(cat npm)
 fi
 
 if $HOMEBREW && [ "$OS" = "Darwin" ]; then
   echo "Installing brews..."
-  brew install $(cat brews.txt)
+  brew install $(cat brews)
 fi
