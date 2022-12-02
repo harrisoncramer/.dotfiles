@@ -9,6 +9,9 @@ picopy () {
   scp $1 pi@raspberrypi-1.local:/home/pi
 }
 
+# Add golang executables
+export PATH="~/go/bin:$PATH"
+
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
