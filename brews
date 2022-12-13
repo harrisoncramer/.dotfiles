@@ -1,12 +1,9 @@
-asciinema
 awscli
 bat
 brotli
 c-ares
 ca-certificates
 clojure
-cmake
-contentful-cli
 emscripten
 fnm
 fzf
@@ -49,8 +46,6 @@ m4
 mpdecimal
 msgpack
 ncurses
-neovim
-node
 openjdk
 openssl@1.1
 pcre
@@ -62,7 +57,6 @@ readline
 ripgrep
 rlwrap
 rust
-screen
 six
 sqlite
 stow
