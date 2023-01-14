@@ -58,27 +58,11 @@ unreleased () {
   git --no-pager log origin/master..origin/develop --first-parent --pretty='%C(yellow)%h %C(cyan)%cd %Cblue%aN%C(auto)%d %Creset%s' --date=relative --date-order
 }
 
-######################
-## PERSONAL CONFIGS ##
-######################
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
-if [[ $OSTYPE == 'linux-gnu' ]] then
-
-  # Remap caps lock to escape, except on hold is CTRL
-  # setxkbmap -option caps:ctrl_modifier -option grp:shifts_toggle
-  # killall xcape
-  # xcape  -e 'Caps_Lock=Escape'
-
-  # Node version manager
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-  source ~/.zshrc-work
-
-else
-  source ~/.zshrc-personal
-fi
+alias nvim='/Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim'
+alias v='/Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim'
 
 # Get NVIM path from Other ZSHRC File
 export EDITOR="$NVIM"

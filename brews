@@ -1,6 +1,5 @@
 asciinema
 awscli
-babashka
 bat
 brotli
 c-ares
@@ -78,8 +77,6 @@ xorgproto
 xz
 yuicompressor
 amethyst
-font-hack-nerd-font
-font-roboto-mono-nerd-font
 bat
 jq
 mongosh
