@@ -115,3 +115,5 @@ if $HOMEBREW && [ "$OS" = "Darwin" ]; then
   echo "Installing brews..."
   brew install $(cat brews)
 fi
+
+link "$(pwd)/.hushlogin" ~/.hushlogin
