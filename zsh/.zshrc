@@ -61,11 +61,10 @@ unreleased () {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
-alias nvim='/Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim'
-alias v='/Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim'
-
 # Get NVIM path from Other ZSHRC File
 export EDITOR="$NVIM"
+alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
+alias v="$HOME/.local/bin/nvim-macos/bin/nvim"
 
 # Aliases
 # Autoexpand aliases with tab
@@ -83,3 +82,5 @@ alias dotfiles='cd ~/.dotfiles'
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
+# source ~/.zshrc-work
+# source ~/.zshrc-personal
