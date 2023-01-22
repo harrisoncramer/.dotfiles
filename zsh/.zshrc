@@ -49,7 +49,6 @@ project () {
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 unreleased () {
   git fetch
@@ -60,6 +59,7 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 
 # Get NVIM path from Other ZSHRC File
+export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
 export EDITOR="$NVIM"
 alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
 alias v="$HOME/.local/bin/nvim-macos/bin/nvim"
@@ -82,3 +82,4 @@ alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
 # source ~/.zshrc-work
 # source ~/.zshrc-personal
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
