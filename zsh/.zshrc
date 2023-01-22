@@ -16,9 +16,12 @@ export PATH="~/go/bin:$PATH"
 
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open zsh-vi-mode fzf)
+plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mode)
 source ~/.oh-my-zsh/oh-my-zsh.sh
 export ZVM_VI_EDITOR="nvim"
+
+# Fixes conflicts between fzf and zsh-vi-mode
+zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
@@ -82,4 +85,3 @@ alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
 # source ~/.zshrc-work
 # source ~/.zshrc-personal
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
