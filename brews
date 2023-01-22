@@ -75,3 +75,4 @@ bat
 jq
 mongosh
 fzf
+pgcli
