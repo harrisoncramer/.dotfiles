@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Turn on vim mode in shell with <esc>
-set -o vi
-
 # Enable Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -19,8 +16,9 @@ export PATH="~/go/bin:$PATH"
 
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open)
+plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open zsh-vi-mode)
 source ~/.oh-my-zsh/oh-my-zsh.sh
+export ZVM_VI_EDITOR="nvim"
 
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
