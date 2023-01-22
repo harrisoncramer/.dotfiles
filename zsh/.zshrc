@@ -16,7 +16,7 @@ export PATH="~/go/bin:$PATH"
 
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open zsh-vi-mode)
+plugins=(zsh-syntax-highlighting zsh-autosuggestions git git-open zsh-vi-mode fzf)
 source ~/.oh-my-zsh/oh-my-zsh.sh
 export ZVM_VI_EDITOR="nvim"
 
