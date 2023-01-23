@@ -12,7 +12,10 @@ picopy () {
 }
 
 # Add golang executables
-export PATH="~/go/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
+
+# Add executables
+export PATH="$HOME/bin:$PATH"
 
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
@@ -85,3 +88,4 @@ alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
 # source ~/.zshrc-work
 # source ~/.zshrc-personal
+
