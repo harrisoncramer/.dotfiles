@@ -1,7 +1,7 @@
 window:
   decorations: buttonless
   startup_mode: Maximized
-  opacity: .95
+  opacity: 1
 font:
   normal:
     family: RobotoMono Nerd Font
