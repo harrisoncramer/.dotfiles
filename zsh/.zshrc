@@ -89,10 +89,13 @@ alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 # source ~/.zshrc-work
 # source ~/.zshrc-personal
 
-
 # bun completions
 [ -s "/Users/harrisoncramer/.bun/_bun" ] && source "/Users/harrisoncramer/.bun/_bun"
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# pnpm
+export PNPM_HOME="/Users/harrisoncramer/Library/pnpm"
+export PATH="$PNPM_HOME:$PATH"
