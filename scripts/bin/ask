@@ -1,9 +1,9 @@
 # vi: ft=bash
 #!/bin/bash
 
-TOKEN="open_ai_token"
+TOKEN="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"
 MODEL="text-davinci-003"
-MAX_TOKENS=100
+MAX_TOKENS=500
 TEMPERATURE="0.5"
 STOP_WORD="send"
 
@@ -13,9 +13,9 @@ hear -d -m -x $STOP_WORD > /tmp/voice.txt
 # Convert the output to a tempfile, format it to Unix, grab the last line
 mac2unix -q -f /tmp/voice.txt
 FULL_QUERY=$(cat /tmp/voice.txt | tail -n1)
-QUERY=$(echo ${FULL_QUERY%$STOP_WORD})
+QUERY=$(echo "${FULL_QUERY%$STOP_WORD}?")
 
-echo "${QUERY}?"
+echo "${QUERY}"
 
 # Convert to JSON for POST to ChatGPT's API
 JSON_STRING=$(jq -n \
@@ -32,4 +32,6 @@ echo $JSON_STRING > /tmp/query.json
 curl -s -X POST 'https://api.openai.com/v1/completions' -d @/tmp/query.json --header "Authorization: Bearer ${TOKEN}" --header 'Content-Type: application/json' > /tmp/response.json
 
 # Convert to a response with JQ and send the output
-cat /tmp/response.json | jq -r '.choices[0].text'
+cat /tmp/response.json | jq -r '.choices[0].text' | pbcopy 
+
+pbpaste
