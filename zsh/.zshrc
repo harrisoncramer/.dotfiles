@@ -8,7 +8,20 @@ fi
 # Raspberry Pi Utilities
 alias pibuild='GOOS=linux GOARCH=arm GOARM=5 go build'
 picopy () {
-  scp $1 pi@raspberrypi-1.local:/home/pi
+  scp $1 "pi@${PI}:/home/pi"
+}
+
+alias nvim-bare='NVIM_APPNAME=nvim-bare nvim'
+function nvims () {
+  items=("default" "bare")
+  config=$(printf "%s\n" "${items[@]}" | fzf --prompt "Neovim config " --height=~50% --layout=reverse --border --exit-0)
+  if [[ -z $config ]]; then
+    return
+  elif [[ $config == "default" ]]; then
+    config=""
+  fi
+
+  NVIM_APPNAME=$config nvim $@
 }
 
 # Add golang executables
