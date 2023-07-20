@@ -53,6 +53,10 @@ project () {
   echo "Success! Repository created."
 }
 
+# Git stuff
+alias gb="git rev-parse --abbrev-ref HEAD"
+alias gpf="git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)"
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
