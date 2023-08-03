@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if ! [ -x "$(command -v glab)" ]; then
+  echo "glab cli is not installed"
+  return
+fi
+
+glab mr list --reviewer hcramer1 --reviewer hcramer1 | cat | tail -n 3 | awk '{print $10;}' | tr -d '()'
