@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# This script is designed to alert me to take a break.
+echo "Hello from luncher"

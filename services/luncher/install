@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Installer for Luncher
+if ! [[ -L "/Users/$USER/Library/LaunchAgents/luncher.plist" ]]; then
+  ln -s $PWD/luncher.plist /Users/$USER/Library/LaunchAgents/luncher.plist
+fi
+
+if ! [[ -L "/Users/$USER/bin/luncher" ]]; then
+  ln -s $PWD/luncher /Users/$USER/bin/luncher
+fi
+
+echo "Installed luncher" 
+
+launchctl unload /Users/$USER/Library/LaunchAgents/luncher.plist
+launchctl load /Users/$USER/Library/LaunchAgents/luncher.plist
+launchctl start /Users/$USER/Library/LaunchAgents/luncher.plist

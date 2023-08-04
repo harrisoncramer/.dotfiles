@@ -100,6 +100,9 @@ do
           pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
         fi
         ;;
+      services)
+        find "$(pwd)/services" -type f -name "install" -exec sh -c "echo 'Installing {}' && cd \"\$(dirname \"{}\")\" && ./install" \;
+        ;;
       *)
         stow "$DIR_NAME"
         pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
