@@ -9,7 +9,6 @@ if ! [[ -L "/Users/$USER/bin/luncher" ]]; then
   ln -s $PWD/luncher /Users/$USER/bin/luncher
 fi
 
-echo "Installed luncher" 
+launchctl load "/Users/${USER}/Library/LaunchAgents/luncher.plist"
 
-launchctl load /Users/$USER/Library/LaunchAgents/luncher.plist
-launchctl start /Users/$USER/Library/LaunchAgents/luncher.plist
+echo "Installed luncher" 

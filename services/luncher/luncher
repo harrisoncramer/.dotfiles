@@ -1,6 +1,12 @@
 #!/bin/bash
 
 # This script is designed to alert me to take a break.
+log_file="/tmp/luncher.log"
 current_date=$(date +"%Y-%m-%d %H:%M:%S")
-echo "Luncher ran at $current_date"
-say "Time to take a break!"
+
+log () {
+  echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" >> "$log_file"
+}
+
+say "Break time!"
+log "Luncher ran"
