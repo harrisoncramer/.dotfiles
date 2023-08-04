@@ -11,6 +11,5 @@ fi
 
 echo "Installed luncher" 
 
-launchctl unload /Users/$USER/Library/LaunchAgents/luncher.plist
 launchctl load /Users/$USER/Library/LaunchAgents/luncher.plist
 launchctl start /Users/$USER/Library/LaunchAgents/luncher.plist

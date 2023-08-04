@@ -1,0 +1,16 @@
+#!/bin/bash
+
+launchctl stop /Users/$USER/Library/LaunchAgents/luncher.plist
+launchctl unload /Users/$USER/Library/LaunchAgents/luncher.plist
+
+# Uninstaller for Luncher
+if [[ -L "/Users/$USER/Library/LaunchAgents/luncher.plist" ]]; then
+  rm "/Users/$USER/Library/LaunchAgents/luncher.plist"
+fi
+
+if [[ -L "/Users/$USER/bin/luncher" ]]; then
+  rm "/Users/$USER/bin/luncher"
+fi
+
+echo "Uninstalled luncher" 
+

@@ -12,10 +12,50 @@
     <string>/tmp/luncher.log</string>
     <key>StandardErrorPath</key>
     <string>/tmp/luncher.error.log</string>
-    <key>StartInterval</key>
-    <integer>10</integer>
-    <key>RunAtLoad</key>
-    <true/>
+    <key>StartCalendarInterval</key>
+    <array>
+      <!-- 10:30 AM -->
+      <dict>
+          <key>Hour</key>
+          <integer>10</integer>
+          <key>Minute</key>
+          <integer>30</integer>
+      </dict>
+      <!-- 12:00 PM -->
+      <dict>
+          <key>Hour</key>
+          <integer>12</integer>
+          <key>Minute</key>
+          <integer>00</integer>
+      </dict>
+      <!-- 2:00 PM -->
+      <dict>
+          <key>Hour</key>
+          <integer>14</integer>
+          <key>Minute</key>
+          <integer>00</integer>
+      </dict>
+      <!-- 3:30 PM -->
+      <dict>
+          <key>Hour</key>
+          <integer>15</integer>
+          <key>Minute</key>
+          <integer>30</integer>
+      </dict>
+      <!-- 5:00 PM -->
+      <dict>
+          <key>Hour</key>
+          <integer>17</integer>
+          <key>Minute</key>
+          <integer>00</integer>
+      </dict>
+      <dict>
+        <key>Hour</key>
+        <integer>0</integer>
+        <key>Minute</key>
+        <integer>00</integer>
+      </dict>
+    </array>
 </dict>
 </plist>
 
