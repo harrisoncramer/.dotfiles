@@ -11,19 +11,6 @@ picopy () {
   scp $1 "pi@${PI}:/home/pi"
 }
 
-alias nvim-bare='NVIM_APPNAME=nvim-bare nvim'
-function nvims () {
-  items=("default" "bare")
-  config=$(printf "%s\n" "${items[@]}" | fzf --prompt "Neovim config " --height=~50% --layout=reverse --border --exit-0)
-  if [[ -z $config ]]; then
-    return
-  elif [[ $config == "default" ]]; then
-    config=""
-  fi
-
-  NVIM_APPNAME=$config nvim $@
-}
-
 # Add golang executables
 export PATH="$HOME/go/bin:$PATH"
 
@@ -115,3 +102,17 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # pnpm
 export PNPM_HOME="/Users/harrisoncramer/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
+
+alias nvim-bare='NVIM_APPNAME=nvim-bare nvim'
+function nvims () {
+  items=("default" "bare")
+  config=$(printf "%s\n" "${items[@]}" | fzf --prompt "Neovim config " --height=~50% --layout=reverse --border --exit-0)
+  if [[ -z $config ]]; then
+    return
+  elif [[ $config == "default" ]]; then
+    config=""
+  fi
+
+  NVIM_APPNAME=$config nvim $@
+}
+
