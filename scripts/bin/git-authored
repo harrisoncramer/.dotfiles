@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if ! [ -x "$(command -v glab)" ]; then
+  echo "glab cli is not installed"
+  return
+fi
+
+glab mr list --author hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF }' | tr -d '()'

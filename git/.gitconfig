@@ -14,4 +14,5 @@
   recent = for-each-ref --count 10 --sort=-committerdate refs/heads --format='%(authordate:short) %(color:red)%(objectname:short) %(color:yellow)%(refname:short)%(color:reset) (%(color:green)%(committerdate:relative)%(color:reset))'
   lg = log --graph --pretty=format:'%Cred%h%Creset %an -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
   reviews = "! ~/bin/git-reviews"
+  authored = "! ~/bin/git-authored"
   last = "! ~/bin/git-last"
