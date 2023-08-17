@@ -5,4 +5,4 @@ if ! [ -x "$(command -v glab)" ]; then
   return
 fi
 
-glab mr list --author hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF }' | tr -d '()'
+glab mr list --author hcramer1 | cat | grep -v 'open merge requests' | awk '{print $NF }' | tr -d '()'
