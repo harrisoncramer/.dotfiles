@@ -5,5 +5,25 @@ if ! [ -x "$(command -v glab)" ]; then
   return
 fi
 
-glab mr list --assignee hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF }' | tr -d '()' | xargs
-glab mr list --reviewer hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF }' | tr -d '()' | xargs
+ASSIGNEES=$(glab mr list --assignee hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF}' | tr -d '()' | awk NF)
+REVIEWERS=$(glab mr list --reviewer hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF}' | tr -d '()' | awk NF)
+
+if [[ $ASSIGNEES == "" && $REVIEWERS == "" ]]; then
+  exit
+fi
+
+combined_values=($ASSIGNEES $REVIEWERS)
+uniq=($(printf "%s\n" "${combined_values[@]}" | sort -u));
+
+MR=$(for value in "${uniq[@]}"; do
+  author=$(git log --format="%an" -n 1 $branch_name)
+  echo "$value ($author)"
+done | fzf --prompt "Choose Your MR: " --height=~50% --layout=reverse --border --exit-0)
+
+if [[ -z $MR ]]; then
+  exit
+fi
+
+branch_name=$(echo $MR | awk '{print $1}')
+
+git checkout -q $branch_name
