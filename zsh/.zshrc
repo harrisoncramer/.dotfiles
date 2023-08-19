@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Get NVIM path from Other ZSHRC File
+export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
+export EDITOR="$NVIM"
+alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
+alias v="$HOME/.local/bin/nvim-macos/bin/nvim"
+
 # Enable Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -66,12 +72,6 @@ unreleased () {
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-
-# Get NVIM path from Other ZSHRC File
-export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
-export EDITOR="$NVIM"
-alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
-alias v="$HOME/.local/bin/nvim-macos/bin/nvim"
 
 # Aliases
 # Autoexpand aliases with tab
