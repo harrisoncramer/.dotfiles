@@ -76,3 +76,4 @@ jq
 mongosh
 fzf
 pgcli
+delta

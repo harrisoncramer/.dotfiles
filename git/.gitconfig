@@ -8,6 +8,7 @@
 	path = /Users/harrisoncramer/.gitconfig-work
 [core]
 	excludesfile = /Users/harrisoncramer/.gitignore
+  pager = delta
 [merge]
 	conflictstyle = diff3
 [alias]
@@ -16,3 +17,12 @@
   authored = "! ~/bin/git-authored"
   last = "! ~/bin/git-last"
   recent = "! ~/bin/git-recent"
+  [core]
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true    # use n and N to move between diff sections
+    light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+    line-numbers = true
+[diff]
+    colorMoved = default
