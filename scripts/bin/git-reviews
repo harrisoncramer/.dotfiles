@@ -5,6 +5,7 @@ if ! [ -x "$(command -v glab)" ]; then
   return
 fi
 
+git pull
 ASSIGNEES=$(glab mr list --assignee hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF}' | tr -d '()' | awk NF)
 REVIEWERS=$(glab mr list --reviewer hcramer1 | cat | grep -v 'No open merge' | tail -n3 | awk '{print $NF}' | tr -d '()' | awk NF)
 
