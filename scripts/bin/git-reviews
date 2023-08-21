@@ -17,7 +17,7 @@ combined_values=($ASSIGNEES $REVIEWERS)
 uniq=($(printf "%s\n" "${combined_values[@]}" | sort -u));
 
 MR=$(for value in "${uniq[@]}"; do
-  author=$(git log --format="%an" -n 1 $branch_name)
+  author=$(git log --format="%an" -n 1 $value)
   echo "$value ($author)"
 done | fzf --prompt "Choose Your MR: " --height=~50% --layout=reverse --border --exit-0)
 
