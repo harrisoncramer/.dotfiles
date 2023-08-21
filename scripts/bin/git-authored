@@ -13,3 +13,4 @@ if [[ -z $MR ]]; then
 fi
 
 git checkout $MR
+git pull

@@ -19,3 +19,5 @@ if [[ "$RECENT_NON_MAIN" == "$CURRENT_BRANCH" ]]; then
 else
   git checkout "$RECENT_NON_MAIN"
 fi
+
+git pull

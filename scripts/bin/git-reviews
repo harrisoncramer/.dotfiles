@@ -28,3 +28,4 @@ fi
 branch_name=$(echo $MR | awk '{print $1}')
 
 git checkout -q $branch_name
+git pull
