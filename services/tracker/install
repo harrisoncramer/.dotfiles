@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Installer for Tracker
+if ! [[ -L "/Users/$USER/Library/LaunchAgents/tracker.plist" ]]; then
+  ln -s $PWD/tracker.plist /Users/$USER/Library/LaunchAgents/tracker.plist
+fi
+
+if ! [[ -L "/Users/$USER/bin/tracker" ]]; then
+  ln -s $PWD/tracker /Users/$USER/bin/tracker
+fi
+
+launchctl load "/Users/${USER}/Library/LaunchAgents/tracker.plist"
+
+echo "Installed tracker" 
