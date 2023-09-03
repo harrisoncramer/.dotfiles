@@ -7,7 +7,7 @@
 		<key>Program</key>
 		<string>/Users/harrisoncramer/bin/tracker</string>
     <key>StartInterval</key>
-    <integer>5</integer>
+    <integer>30</integer>
   </dict>
 </plist>
 
