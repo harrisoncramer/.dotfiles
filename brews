@@ -76,4 +76,4 @@ jq
 mongosh
 fzf
 pgcli
-delta
+git-delta
