@@ -62,6 +62,16 @@ project () {
 # Git stuff
 alias gb="git rev-parse --abbrev-ref HEAD"
 
+stash () {
+  if [ "$1" = "pop" ]; then
+    echo "POPPING"
+    git stash --include-untracked
+  else
+    echo "STASHING"
+    git stash pop
+  fi
+}
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
