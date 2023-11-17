@@ -64,11 +64,9 @@ alias gb="git rev-parse --abbrev-ref HEAD"
 
 stash () {
   if [ "$1" = "pop" ]; then
-    echo "POPPING"
-    git stash --include-untracked
-  else
-    echo "STASHING"
     git stash pop
+  else
+    git stash --include-untracked
   fi
 }
 
