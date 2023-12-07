@@ -4,7 +4,7 @@ window:
   opacity: 1
 font:
   normal:
-    family: RobotoMono Nerd Font
+    family: JetBrainsMono Nerd Font
   size: 20.0
 cursor:
   style:
