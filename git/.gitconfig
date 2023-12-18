@@ -30,3 +30,5 @@
   minus-style = red bold ul "#ffeeee"
 [diff]
     colorMoved = default
+[push]
+	autoSetupRemote = true
