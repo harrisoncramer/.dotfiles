@@ -77,3 +77,4 @@ mongosh
 fzf
 pgcli
 git-delta
+difftastic
