@@ -1,0 +1,11 @@
+#!/bin/bash
+
+FILE=$(for value in $(git ls-files -mu --format='%(path)'); do
+  echo "$value"
+done | fzf --prompt "Choose File: " --height=~50% --layout=reverse --border --exit-0)
+
+if [[ -z $FILE ]]; then
+  exit
+fi
+
+$NVIM $FILE
