@@ -98,12 +98,22 @@ alias dotfiles='cd ~/.dotfiles'
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
+# source ~/.zshrc-work
+source ~/.zshrc-personal
+
 if [[ -z $GITLAB_TOKEN ]]; then
   export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token')
 fi
 
-# source ~/.zshrc-work
-source ~/.zshrc-personal
+if [[ -z $GOOGLE_API_KEY && $COMPUTER == 'personal' ]]; then
+  google_keys=$(op item get Google --fields 'Personal Access Token','Google CSE ID')
+  export GOOGLE_API_KEY=$(echo $google_keys | cut -d "," -f1)
+  export GOOGLE_CSE_ID=$(echo $google_keys | cut -d "," -f2)
+fi
+
+if [[ -z $OPEN_AI_API_KEY && $COMPUTER == 'personal' ]]; then
+  OPENAI_API_KEY=$(op item get 'Open AI' --fields 'API Key')
+fi
 
 # bun completions
 [ -s "/Users/harrisoncramer/.bun/_bun" ] && source "/Users/harrisoncramer/.bun/_bun"
