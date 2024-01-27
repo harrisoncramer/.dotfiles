@@ -91,11 +91,16 @@ alias gc='git commit -m '
 alias gd='git diff'
 alias gp='git pull'
 
+alias k='kubectl'
 alias dkk='cd ~/Desktop'
 alias dotfiles='cd ~/.dotfiles'
 
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
+
+if [[ -z $GITLAB_TOKEN ]]; then
+  export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token')
+fi
 
 # source ~/.zshrc-work
 source ~/.zshrc-personal
