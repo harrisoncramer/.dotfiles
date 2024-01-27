@@ -23,6 +23,9 @@ export PATH="$HOME/go/bin:$PATH"
 # Add executables
 export PATH="$HOME/bin:$PATH"
 
+# Configure environments
+export PATH="~/nv:$PATH"
+
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mode)
@@ -101,18 +104,9 @@ alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 # source ~/.zshrc-work
 source ~/.zshrc-personal
 
+# Gitlab
 if [[ -z $GITLAB_TOKEN ]]; then
   export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token')
-fi
-
-if [[ -z $GOOGLE_API_KEY && $COMPUTER == 'personal' ]]; then
-  google_keys=$(op item get Google --fields 'Personal Access Token','Google CSE ID')
-  export GOOGLE_API_KEY=$(echo $google_keys | cut -d "," -f1)
-  export GOOGLE_CSE_ID=$(echo $google_keys | cut -d "," -f2)
-fi
-
-if [[ -z $OPEN_AI_API_KEY && $COMPUTER == 'personal' ]]; then
-  OPENAI_API_KEY=$(op item get 'Open AI' --fields 'API Key')
 fi
 
 # bun completions
@@ -139,3 +133,14 @@ function nvims () {
   NVIM_APPNAME=$config nvim $@
 }
 
+# Source values from one password for different tools on personal machine only
+# if [[ $COMPUTER == 'personal' ]]; then
+#   if [[ -z $GOOGLE_API_KEY ]]; then
+#     google_keys=$(op item get Google --fields 'Personal Access Token','Google CSE ID')
+#     export GOOGLE_API_KEY=$(echo $google_keys | cut -d "," -f1)
+#     export GOOGLE_CSE_ID=$(echo $google_keys | cut -d "," -f2)
+#   fi
+#   if [[ -z $OPEN_AI_API_KEY ]]; then
+#     OPENAI_API_KEY=$(op item get 'Open AI' --fields 'API Key')
+#   fi
+# fi
