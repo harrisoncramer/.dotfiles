@@ -4,13 +4,13 @@ NPM=false
 QUIET=false
 VERBOSE=false
 HOMEBREW=false
-PIPS=false
+PIPX=false
 while test $# != 0
 do
     case "$1" in
     --npm) NPM=true ;;
     --brew) HOMEBREW=true ;;
-    --pips) PIPS=true ;;
+    --pipx) PIPX=true ;;
     --q) QUIET=true ;;
     *)  usage ;;
     esac
@@ -125,7 +125,7 @@ if $HOMEBREW && [ "$OS" = "Darwin" ]; then
   $(brew --prefix)/opt/fzf/install
 fi
 
-if $PIPS; then
+if $PIPX; then
   echo "Installing python packages..."
   pipx install $(cat pips)
 fi
