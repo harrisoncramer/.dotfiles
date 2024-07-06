@@ -26,6 +26,9 @@ export PATH="$HOME/bin:$PATH"
 # Configure environments
 export PATH="~/nv:$PATH"
 
+# Added local binaries
+export PATH="$PATH:/Users/harrisoncramer/.local/bin"
+
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mode)
