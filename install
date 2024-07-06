@@ -120,6 +120,7 @@ fi
 if $HOMEBREW && [ "$OS" = "Darwin" ]; then
   echo "Installing brews..."
   brew install $(cat brews)
+  brew cleanup
 
   # Install keybindings for FZF
   $(brew --prefix)/opt/fzf/install
