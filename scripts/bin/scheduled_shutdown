@@ -1,0 +1,11 @@
+#!/bin/bash
+
+
+# Display a warning message
+osascript -e 'display dialog "Your computer will shut down in 5 minutes. Please save your work." with title "Scheduled Shutdown" buttons {"OK"}'
+
+# Wait for 5 minutes
+sleep 300
+
+# Shut down the computer
+sudo shutdown -h now
