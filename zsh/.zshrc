@@ -20,14 +20,15 @@ picopy () {
 # Add golang executables
 export PATH="$HOME/go/bin:$PATH"
 
-# Add executables
+# Add other executables
 export PATH="$HOME/bin:$PATH"
+
+# Added local binaries
+export PATH="$HOME/.local/bin:$PATH"
 
 # Configure environments
 export PATH="~/nv:$PATH"
 
-# Added local binaries
-export PATH="$PATH:/Users/harrisoncramer/.local/bin"
 
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
