@@ -105,8 +105,8 @@ alias dotfiles='cd ~/.dotfiles'
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
-# source ~/.zshrc-work
-source ~/.zshrc-personal
+source ~/.zshrc-work
+# source ~/.zshrc-personal
 
 # Gitlab
 if [[ -z $GITLAB_TOKEN ]]; then
@@ -135,6 +135,10 @@ function nvims () {
   fi
 
   NVIM_APPNAME=$config nvim $@
+}
+
+function lk { 
+  cd "$(walk "$@")" 
 }
 
 # Source values from one password for different tools on personal machine only

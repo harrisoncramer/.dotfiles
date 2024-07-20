@@ -74,7 +74,6 @@ amethyst
 bat
 jq
 mongosh
-fzf
 pgcli
 git-delta
 difftastic
@@ -84,3 +83,4 @@ tokei
 1password-cli
 pandoc
 pipx
+walk
