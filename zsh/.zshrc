@@ -141,6 +141,9 @@ function lk {
   cd "$(walk "$@")" 
 }
 
+alias diary='go-notes "My Diary"'
+alias todo='go-notes "Todo List"'
+
 # Source values from one password for different tools on personal machine only
 # if [[ $COMPUTER == 'personal' ]]; then
 #   if [[ -z $GOOGLE_API_KEY ]]; then
