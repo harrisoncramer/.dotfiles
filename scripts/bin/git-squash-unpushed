@@ -1,0 +1,5 @@
+#!/bin/bash
+
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+n=$(git log origin/$current_branch..HEAD --pretty=oneline | wc -l | awk '{ print $1 }')
+git rebase -i "HEAD~${n}"

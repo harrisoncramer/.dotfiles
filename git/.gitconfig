@@ -18,6 +18,7 @@
   last = "! ~/bin/git-last"
   recent = "! ~/bin/git-recent"
   changed = "! ~/bin/git-changed"
+  squash-unpushed = "! ~/bin/git-squash-unpushed"
 [blame]
   pager = delta
 [interactive]
