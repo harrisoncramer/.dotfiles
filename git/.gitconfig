@@ -8,7 +8,6 @@
 	path = /Users/harrisoncramer/.gitconfig-work
 [core]
 	excludesfile = /Users/harrisoncramer/.gitignore
-  pager = delta
 [merge]
 	conflictstyle = diff3
 [alias]
@@ -19,8 +18,8 @@
   recent = "! ~/bin/git-recent"
   changed = "! ~/bin/git-changed"
   squash-unpushed = "! ~/bin/git-squash-unpushed"
-[blame]
-  pager = delta
+  dv = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
+  dv-unpushed = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u}~..HEAD\""
 [interactive]
     diffFilter = delta --color-only
 [delta]
