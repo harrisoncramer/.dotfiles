@@ -19,7 +19,8 @@
   changed = "! ~/bin/git-changed"
   squash-unpushed = "! ~/bin/git-squash-unpushed"
   dv = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
-  dv-unpushed = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u}~..HEAD\""
+  dv-all = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
+  dv-unpushed = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen HEAD..@{u}\""
 [interactive]
     diffFilter = delta --color-only
 [delta]
