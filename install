@@ -69,12 +69,8 @@ do
     echo "Installing ${DIR_NAME}..."
     case $DIR_NAME in
       alacritty)
-        if [ "$OS" = "Darwin" ]; then
-          link "$(pwd)/alacritty/mac/.alacritty.yml" ~/.alacritty.yml
-        else
-          link "$(pwd)/alacritty/linux/.alacritty.yml" ~/.alacritty.yml
-        fi
-        pOnSuccess "  linked .alacritty.yml" "  could not link .alacritty.yml!"
+        link "$(pwd)/alacritty/mac/.alacritty.toml" ~/.alacritty.toml
+        pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
         ;;
       executables)
         stow "$DIR_NAME" -t ~/.local/bin
