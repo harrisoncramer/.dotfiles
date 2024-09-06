@@ -29,6 +29,7 @@ export PATH="$HOME/.local/bin:$PATH"
 # Configure environments
 export PATH="~/nv:$PATH"
 
+export GOPATH="/Users/harrisoncramer/go"
 
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
@@ -78,7 +79,9 @@ stash () {
 }
 
 squash () {
-  ffmpeg -i $1 -vf "scale=1500:-1" $2
+  while IFS= read -r file; do
+    ffmpeg -i "$file" -vf "scale=1500:-1" "${file%.*}_squashed.jpg"
+  done
 }
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -114,7 +117,7 @@ source ~/.zshrc-work
 
 # Gitlab
 if [[ -z $GITLAB_TOKEN ]]; then
-  export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token')
+  export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token' --reveal)
 fi
 
 # bun completions
@@ -144,9 +147,6 @@ function nvims () {
 function lk { 
   cd "$(walk "$@")" 
 }
-
-alias diary='go-notes "My Diary"'
-alias todo='go-notes "Todo List"'
 
 # Source values from one password for different tools on personal machine only
 # if [[ $COMPUTER == 'personal' ]]; then
