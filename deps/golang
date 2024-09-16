@@ -1,0 +1,4 @@
+github.com/air-verse/air@latest
+mvdan.cc/gofumpt@latest
+go.uber.org/nilaway/cmd/nilaway@latest
+honnef.co/go/tools/cmd/staticcheck@latest

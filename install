@@ -1,6 +1,7 @@
 #!/bin/bash
 
 NPM=false
+GO=false
 QUIET=false
 VERBOSE=false
 HOMEBREW=false
@@ -8,9 +9,16 @@ PIPX=false
 while test $# != 0
 do
     case "$1" in
+    --all)
+      NPM=true
+      HOMEBREW=true
+      PIPX=true
+      GO=true
+      ;;
     --npm) NPM=true ;;
     --brew) HOMEBREW=true ;;
     --pipx) PIPX=true ;;
+    --go) GO=true;;
     --q) QUIET=true ;;
     *)  usage ;;
     esac
@@ -110,21 +118,27 @@ done
 
 if $NPM; then
   echo "Installing global npm dependencies..."
-  npm i -g $(cat npm)
+  npm i -g $(cat deps/npm)
 fi
 
 if $HOMEBREW && [ "$OS" = "Darwin" ]; then
   echo "Installing brews..."
-  brew install $(cat brews)
+  brew install $(cat deps/homebrew)
   brew cleanup
 
   # Install keybindings for FZF
   $(brew --prefix)/opt/fzf/install
 fi
 
+if $GO; then
+  while IFS= read -r PACKAGE; do
+      go install "$PACKAGE"
+  done < deps/golang
+fi
+
 if $PIPX; then
   echo "Installing python packages..."
-  pipx install $(cat pips)
+  pipx install $(cat deps/pip)
 fi
 
 link "$(pwd)/.hushlogin" ~/.hushlogin

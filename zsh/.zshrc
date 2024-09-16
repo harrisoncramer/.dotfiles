@@ -112,8 +112,8 @@ alias dotfiles='cd ~/.dotfiles'
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
-source ~/.zshrc-work
-# source ~/.zshrc-personal
+# source ~/.zshrc-work
+source ~/.zshrc-personal
 
 # Gitlab
 if [[ -z $GITLAB_TOKEN ]]; then
@@ -159,3 +159,11 @@ function lk {
 #     OPENAI_API_KEY=$(op item get 'Open AI' --fields 'API Key')
 #   fi
 # fi
+
+# pnpm
+export PNPM_HOME="/Users/harrisoncramer/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
