@@ -43,9 +43,6 @@ zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
 
-# the-fuck
-eval $(thefuck --alias)
-
 # Creates a new blank Github Repository and Switches into it
 project () {
   privateOrPublic="--private"
