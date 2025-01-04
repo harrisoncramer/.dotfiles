@@ -43,6 +43,9 @@ zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
 
+python3 -m venv ~/py_envs
+source ~/py_envs/bin/activate
+
 # Creates a new blank Github Repository and Switches into it
 project () {
   privateOrPublic="--private"
