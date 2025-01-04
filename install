@@ -6,21 +6,38 @@ QUIET=false
 VERBOSE=false
 HOMEBREW=false
 PIPX=false
+
+function usage() {
+  echo "Usage: ./install [OPTIONS]
+Installs dependencies for my development environment.
+
+Options:
+  --all   Installs all dependencies
+  --brew  Installs brew dependencies (required for other installs)
+  --go    Installs Go packages
+  --npm   Installs Go packages
+  --pipx  Installs python packages
+  --q     Mutes all logs
+  --help  Prints this help
+  "
+}
+
 while test $# != 0
 do
     case "$1" in
     --all)
-      NPM=true
       HOMEBREW=true
-      PIPX=true
       GO=true
+      NPM=true
+      PIPX=true
       ;;
-    --npm) NPM=true ;;
     --brew) HOMEBREW=true ;;
-    --pipx) PIPX=true ;;
     --go) GO=true;;
+    --npm) NPM=true ;;
+    --pipx) PIPX=true ;;
     --q) QUIET=true ;;
-    *)  usage ;;
+    --help) usage; exit 0 ;;
+    *)  usage; exit 1 ;;
     esac
     shift
 done
@@ -81,7 +98,7 @@ do
         pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
         ;;
       executables)
-	mkdir -p ~/.local/bin
+        mkdir -p ~/.local/bin
         stow "$DIR_NAME" -t ~/.local/bin
         pOnSuccess "  stowed scripts to ~/.local/bin" "  could not stow scripts!"
         ;;
@@ -101,12 +118,6 @@ do
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         link "$(pwd)/zsh/.zshrc" ~/.zshrc
         ;;
-      karabiner)
-        if [ "$OS" = "Darwin" ]; then
-          stow "$DIR_NAME"
-          pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
-        fi
-        ;;
       services)
         find "$(pwd)/services" -type f -name "install" -exec sh -c "echo 'Installing {}' && cd \"\$(dirname \"{}\")\" && ./install" \;
         ;;
@@ -117,11 +128,6 @@ do
     esac
 done
 
-if $NPM; then
-  echo "Installing global npm dependencies..."
-  npm i -g $(cat deps/npm)
-fi
-
 if $HOMEBREW && [ "$OS" = "Darwin" ]; then
   echo "Installing brews..."
   brew install $(cat deps/homebrew)
@@ -129,6 +135,11 @@ if $HOMEBREW && [ "$OS" = "Darwin" ]; then
 
   # Install keybindings for FZF
   $(brew --prefix)/opt/fzf/install
+fi
+
+if $NPM; then
+  echo "Installing global npm dependencies..."
+  npm i -g $(cat deps/npm)
 fi
 
 if $GO; then
