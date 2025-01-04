@@ -177,3 +177,6 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
+
+# gpt
+alias gpt="sgpt --repl temp"
