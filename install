@@ -81,6 +81,7 @@ do
         pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
         ;;
       executables)
+	mkdir -p ~/.local/bin
         stow "$DIR_NAME" -t ~/.local/bin
         pOnSuccess "  stowed scripts to ~/.local/bin" "  could not stow scripts!"
         ;;
