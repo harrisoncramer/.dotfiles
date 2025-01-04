@@ -166,6 +166,7 @@ if $NVIM; then
   xattr -c ~/Downloads/nvim-macos-arm64.tar.gz
   tar xzf ~/Downloads/nvim-macos-arm64.tar.gz --directory=$HOME/Downloads
   mv ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos
+  pip3 -q install pynvim
 fi
 
 link "$(pwd)/.hushlogin" ~/.hushlogin
