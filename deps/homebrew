@@ -48,3 +48,4 @@ go
 go-task/tap/go-task
 golangci-lint
 protobuf
+nvm
