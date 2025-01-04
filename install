@@ -85,6 +85,8 @@ ZSH_DIR="$HOME/.oh-my-zsh"
 NPM_PACKAGES=("@fsouza/prettierd" "@vue/cli" "create-next-app" "live-server" "next" "trash-cli" "typescript-language-server" "typescript")
 NPM_PACKAGES_PEGGED=("eslint_d@11.1.1")
 
+touch ~/.zshrc-personal # Ensure personal ZSHRC file exists
+
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
 for dir in $(pwd)/*/
@@ -116,6 +118,7 @@ do
         cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode "$ZSH_DIR/custom/plugins/zsh-vi-mode"
         cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
+	cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
         link "$(pwd)/zsh/.zshrc" ~/.zshrc
         ;;
       services)
