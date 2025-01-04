@@ -6,6 +6,9 @@ export EDITOR="$NVIM"
 alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
 alias v="$HOME/.local/bin/nvim-macos/bin/nvim"
 
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 # Enable Powerlevel10k instant prompt
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -43,7 +46,7 @@ zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
 
-python3 -m venv ~/py_envs
+# python3 -m venv ~/py_envs
 source ~/py_envs/bin/activate
 
 # Creates a new blank Github Repository and Switches into it
@@ -84,19 +87,36 @@ squash () {
   done
 }
 
-# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
 unreleased () {
   git fetch
   git --no-pager log origin/master..origin/develop --first-parent --pretty='%C(yellow)%h %C(cyan)%cd %Cblue%aN%C(auto)%d %Creset%s' --date=relative --date-order
 }
 
-# NVM: Set default NodeJS version
-export NVM_DIR="$HOME/.nvm"
-[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_compl
-command -v nvm >/dev/null 2&>%1 && alias default 23.5.0
+# NVM: Lazily set default NodeJS version
+lazy_load_nvm() {
+  unset -f node nvm npm
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_compl
+  [ -s "$NVM_DIR/nvm.sh" ] && source ~/.nvm/nvm.sh
+  command -v nvm >/dev/null 2&>%1 && alias default 23.5.0
+  source ~/.nvm/nvm.sh
+}
+
+node() {
+  lazy_load_nvm
+  node $@
+}
+
+npm () {
+  lazy_load_nvm
+  npm $@
+}
+
+nvm() {
+  lazy_load_nvm
+  nvm $@
+}
 
 # Aliases
 # Autoexpand aliases with tab
@@ -151,22 +171,9 @@ function lk {
   cd "$(walk "$@")" 
 }
 
-# Source values from one password for different tools on personal machine only
-# if [[ $COMPUTER == 'personal' ]]; then
-#   if [[ -z $GOOGLE_API_KEY ]]; then
-#     google_keys=$(op item get Google --fields 'Personal Access Token','Google CSE ID')
-#     export GOOGLE_API_KEY=$(echo $google_keys | cut -d "," -f1)
-#     export GOOGLE_CSE_ID=$(echo $google_keys | cut -d "," -f2)
-#   fi
-#   if [[ -z $OPEN_AI_API_KEY ]]; then
-#     OPENAI_API_KEY=$(op item get 'Open AI' --fields 'API Key')
-#   fi
-# fi
-
 # pnpm
 export PNPM_HOME="/Users/harrisoncramer/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
-# pnpm end
