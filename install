@@ -32,6 +32,7 @@ do
       GO=true
       NPM=true
       PIPX=true
+      NVIM=true
       ;;
     --brew) HOMEBREW=true ;;
     --nvim) NVIM=true ;;
