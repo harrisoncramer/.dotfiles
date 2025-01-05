@@ -113,12 +113,15 @@ do
         pOnSuccess "  updated git" "  could not update git!"
         ;;
       zsh)
-        ZSH_DIR="$HOME/.oh-my-zsh"
+        export ZSH_DIR="$HOME/.oh-my-zsh"
+        export NVM_DIR="$HOME/.nvm"
         cloneOrUpdate https://github.com/ohmyzsh/ohmyzsh.git "$ZSH_DIR"
         cloneOrUpdate https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting"
         cloneOrUpdate https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_DIR/custom/plugins/zsh-autosuggestions"
         cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode "$ZSH_DIR/custom/plugins/zsh-vi-mode"
         cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
+        cloneOrUpdate https://github.com/lukechilds/zsh-nvm "$ZSH_DIR/custom/plugins/zsh-nvm"
+        cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
 	cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
         link "$(pwd)/zsh/.zshrc" ~/.zshrc
@@ -139,11 +142,6 @@ if $HOMEBREW; then
   brew install $(cat deps/homebrew)
   brew cleanup
   yes | $(brew --prefix)/opt/fzf/install > /dev/null 2>&1
-
-  # Install default node version
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-  nvm install 23.5.0
 fi
 
 if $NPM; then

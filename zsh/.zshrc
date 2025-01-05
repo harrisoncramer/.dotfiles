@@ -4,7 +4,11 @@
 export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
 export EDITOR="$NVIM"
 alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
-alias v="$HOME/.local/bin/nvim-macos/bin/nvim"
+
+v () {
+  type -p nvm >/dev/null || source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
+  $HOME/.local/bin/nvim-macos/bin/nvim
+}
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
@@ -34,9 +38,13 @@ export PATH="~/nv:$PATH"
 
 export GOPATH="/Users/harrisoncramer/go"
 
+# NVM: Lazily set default NodeJS version (must come before oh-my-zsh plugin)
+export NVM_DIR="$HOME/.nvm"
+export NVM_LAZY_LOAD=true
+
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mode)
+plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mode zsh-nvm)
 source ~/.oh-my-zsh/oh-my-zsh.sh
 export ZVM_VI_EDITOR="nvim"
 
@@ -90,33 +98,6 @@ squash () {
 unreleased () {
   git fetch
   git --no-pager log origin/master..origin/develop --first-parent --pretty='%C(yellow)%h %C(cyan)%cd %Cblue%aN%C(auto)%d %Creset%s' --date=relative --date-order
-}
-
-# NVM: Lazily set default NodeJS version
-lazy_load_nvm() {
-  unset -f node nvm npm
-  export NVM_DIR="$HOME/.nvm"
-  [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-  [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_compl
-  [ -s "$NVM_DIR/nvm.sh" ] && source ~/.nvm/nvm.sh
-  command -v nvm >/dev/null 2&>%1 && nvm install 23.5.0
-  command -v nvm >/dev/null 2&>%1 && nvm alias default 23.5.0
-  source ~/.nvm/nvm.sh
-}
-
-node() {
-  lazy_load_nvm
-  node $@
-}
-
-npm () {
-  lazy_load_nvm
-  npm $@
-}
-
-nvm() {
-  lazy_load_nvm
-  nvm $@
 }
 
 # Aliases
