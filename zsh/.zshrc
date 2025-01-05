@@ -99,7 +99,8 @@ lazy_load_nvm() {
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_compl
   [ -s "$NVM_DIR/nvm.sh" ] && source ~/.nvm/nvm.sh
-  command -v nvm >/dev/null 2&>%1 && alias default 23.5.0
+  command -v nvm >/dev/null 2&>%1 && nvm install 23.5.0
+  command -v nvm >/dev/null 2&>%1 && nvm alias default 23.5.0
   source ~/.nvm/nvm.sh
 }
 
