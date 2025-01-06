@@ -7,7 +7,7 @@ alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
 
 v () {
   type -p nvm >/dev/null || source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
-  $HOME/.local/bin/nvim-macos/bin/nvim
+  $HOME/.local/bin/nvim-macos/bin/nvim $@
 }
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -54,7 +54,7 @@ zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
 
-# python3 -m venv ~/py_envs
+python3 -m venv ~/py_envs
 source ~/py_envs/bin/activate
 
 # Creates a new blank Github Repository and Switches into it
@@ -121,10 +121,10 @@ alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 source ~/.zshrc-personal
 
 # Gitlab
-if [[ -z $GITLAB_TOKEN ]]; then
-  export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token' --reveal)
-fi
-
+# if [[ -z $GITLAB_TOKEN ]]; then
+#   export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token' --reveal)
+# fi
+#
 # bun completions
 [ -s "/Users/harrisoncramer/.bun/_bun" ] && source "/Users/harrisoncramer/.bun/_bun"
 
