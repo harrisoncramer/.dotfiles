@@ -117,7 +117,7 @@ alias dotfiles='cd ~/.dotfiles'
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
-# source ~/.zshrc-work
+source ~/.zshrc-work
 source ~/.zshrc-personal
 
 # Gitlab

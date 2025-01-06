@@ -4,7 +4,7 @@
 [user]
 	name = Harrison Cramer
 	email = harrisoncramer@gmail.com
-[includeIf "gitdir:~/crossbeam/"]
+[includeIf "gitdir:~/chariot/"]
 	path = /Users/harrisoncramer/.gitconfig-work
 [core]
 	excludesfile = /Users/harrisoncramer/.gitignore
