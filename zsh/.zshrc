@@ -6,7 +6,9 @@ export EDITOR="$NVIM"
 alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
 
 v () {
-  type -p nvm >/dev/null || source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
+ if ! command -v nvm &> /dev/null; then
+    source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
+  fi
   $HOME/.local/bin/nvim-macos/bin/nvim $@
 }
 
@@ -101,6 +103,8 @@ unreleased () {
 }
 
 # Aliases
+alias so="source"
+
 # Autoexpand aliases with tab
 zstyle ':completion:*' completer _expand_alias _complete _ignored
 
@@ -124,7 +128,7 @@ source ~/.zshrc-personal
 # if [[ -z $GITLAB_TOKEN ]]; then
 #   export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token' --reveal)
 # fi
-#
+
 # bun completions
 [ -s "/Users/harrisoncramer/.bun/_bun" ] && source "/Users/harrisoncramer/.bun/_bun"
 
@@ -162,3 +166,4 @@ esac
 
 # gpt
 alias gpt="sgpt --repl temp"
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
