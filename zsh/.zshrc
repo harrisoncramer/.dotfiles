@@ -38,6 +38,9 @@ export PATH="$HOME/.local/bin:$PATH"
 # Configure environments
 export PATH="~/nv:$PATH"
 
+# Adding libpq
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
 export GOPATH="/Users/harrisoncramer/go"
 
 # NVM: Lazily set default NodeJS version (must come before oh-my-zsh plugin)
@@ -139,6 +142,10 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # pnpm
 export PNPM_HOME="/Users/harrisoncramer/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
 
 function nvims () {
   items=("default" "bare" "gitlab")
@@ -157,17 +164,6 @@ function lk {
   cd "$(walk "$@")" 
 }
 
-# pnpm
-export PNPM_HOME="/Users/harrisoncramer/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-
-# gpt
-alias gpt="sgpt --repl temp"
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
-
 # ZSH vim mode use system clipboaard
 function zvm_vi_yank() {
 	zvm_yank
@@ -176,3 +172,7 @@ function zvm_vi_yank() {
 }
 
 # AI/LLM
+alias convo="sgpt --repl temp"
+alias answer() {
+  echo -n "$@" | sgpt
+}
