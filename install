@@ -164,7 +164,7 @@ fi
 if $NVIM; then
   echo "Reinstalling Neovim binary..."
   rm -rf ~/Downloads/nvim-macos-arm64.tar.gz ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos 
-  curl -sL https://github.com/neovim/neovim/releases/download/v0.10.3/nvim-macos-arm64.tar.gz -o ~/Downloads/nvim-macos-arm64.tar.gz
+  curl -sL https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-arm64.tar.gz -o ~/Downloads/nvim-macos-arm64.tar.gz
   xattr -c ~/Downloads/nvim-macos-arm64.tar.gz
   tar xzf ~/Downloads/nvim-macos-arm64.tar.gz --directory=$HOME/Downloads
   mv ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos
