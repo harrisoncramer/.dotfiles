@@ -167,3 +167,12 @@ esac
 # gpt
 alias gpt="sgpt --repl temp"
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+
+# ZSH vim mode use system clipboaard
+function zvm_vi_yank() {
+	zvm_yank
+	echo -n ${CUTBUFFER} | tr -d '\n' | pbcopy
+	zvm_exit_visual_mode
+}
+
+# AI/LLM
