@@ -16,3 +16,4 @@ scratch
 .gitlab.nvim
 test_templates
 .gp.md
+.aider*

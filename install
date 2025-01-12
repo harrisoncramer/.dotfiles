@@ -123,7 +123,7 @@ do
         cloneOrUpdate https://github.com/lukechilds/zsh-nvm "$ZSH_DIR/custom/plugins/zsh-nvm"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
-	cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
+        cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
         link "$(pwd)/zsh/.zshrc" ~/.zshrc
         ;;
       services)

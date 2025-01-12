@@ -172,7 +172,7 @@ function zvm_vi_yank() {
 }
 
 # AI/LLM
-alias convo="sgpt --repl temp"
-alias answer() {
+alias chat="sgpt --repl temp"
+function answer() {
   echo -n "$@" | sgpt
 }
