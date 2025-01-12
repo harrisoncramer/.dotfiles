@@ -16,4 +16,6 @@ scratch
 .gitlab.nvim
 test_templates
 .gp.md
-.aider*
+.aider.chat.*
+.aider.input.*
+.aider.tags.*
