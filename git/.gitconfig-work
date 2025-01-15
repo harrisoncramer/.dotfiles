@@ -1,0 +1,16 @@
+[user]
+	signingkey = BF1DB43909C984DA
+	name = Harry Cramer
+	email = harrisonc@givechariot.com
+[gpg]
+	program = /opt/homebrew/bin/gpg
+[commit]
+	gpgsign = true
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
+[core]
+	excludesfile = /Users/harrisoncramer/.gitignore
+[init]
+	templatedir = ~/.git_templates
+[push]
+	default = simple
