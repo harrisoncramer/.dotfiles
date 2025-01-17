@@ -19,3 +19,4 @@ test_templates
 .aider.chat.*
 .aider.input.*
 .aider.tags.*
+scratch/
