@@ -20,3 +20,4 @@ test_templates
 .aider.input.*
 .aider.tags.*
 scratch/
+playground/

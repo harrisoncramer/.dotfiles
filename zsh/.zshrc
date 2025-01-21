@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Source sensitive values
+source ~/.zshrc-personal
+source ~/.zshrc-work
+
 # Get NVIM path from Other ZSHRC File
 export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
 export EDITOR="$NVIM"
@@ -61,6 +65,9 @@ bindkey '^ ' autosuggest-accept
 
 python3 -m venv ~/py_envs
 source ~/py_envs/bin/activate
+
+# Opens up a list of questions/todods
+alias questions="v ~/chariot-notes/questions.md"
 
 # Creates a new blank Github Repository and Switches into it
 project () {
@@ -124,14 +131,6 @@ alias dotfiles='cd ~/.dotfiles'
 # See: https://github.com/venantius/ultra/issues/103
 alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
 
-source ~/.zshrc-work
-source ~/.zshrc-personal
-
-# Gitlab
-# if [[ -z $GITLAB_TOKEN ]]; then
-#   export GITLAB_TOKEN=$(op item get GitLab --fields 'Personal Access Token' --reveal)
-# fi
-
 # bun completions
 [ -s "/Users/harrisoncramer/.bun/_bun" ] && source "/Users/harrisoncramer/.bun/_bun"
 
@@ -160,10 +159,6 @@ function nvims () {
   NVIM_APPNAME=$config nvim $@
 }
 
-function lk { 
-  cd "$(walk "$@")" 
-}
-
 # ZSH vim mode use system clipboaard
 function zvm_vi_yank() {
 	zvm_yank
@@ -175,4 +170,132 @@ function zvm_vi_yank() {
 alias chat="sgpt --repl temp"
 function answer() {
   echo -n "$@" | sgpt
+}
+
+if [[ -z $GITHUB_API_TOKEN ]]; then
+  export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'credential' --reveal)
+fi
+
+export GPG_TTY=$(tty)
+
+uuid() {
+  local uuid=$(uuidgen | tr '[:upper:]' '[:lower:]')
+  echo -n $uuid | pbcopy
+  echo "UUID (copied to clipboard): $uuid"
+}
+
+ucp_stop () {
+  docker stop $(docker ps --filter name=supervisor -aq)
+  docker stop $(docker ps --filter name=domino -aq)
+  docker stop $(docker ps --filter name=clerk -aq)
+  docker stop $(docker ps --filter name=sherlock -aq)
+}
+
+## GIT ##
+alias mono="cd $MONO_DIR"
+alias proto="cd $PROTO_DIR"
+alias commit="mono && yarn commit"
+
+#####################
+## Docker Commands ##
+#####################
+
+dc() {
+  docker-compose --project-name chariot -f "$MONO_DIR/docker-compose.yml" --env-file "$MONO_DIR/.env" "$@"
+}
+
+down() {
+  dc down $@
+}
+stop() {
+  dc stop $@
+}
+start() {
+  dc up $@ -d && logs -f $@
+}
+logs() {
+  dc logs $@ -f
+}
+attach() {
+  docker exec -it $@ /bin/bash
+}
+
+generate() {
+  RUN_PRISMA=false
+  if [[ "$1" == "--all" ]]; then
+    RUN_PRISMA=true
+  fi
+
+  if $RUN_PRISMA; then
+    (cd $MONO_DIR/packages/cprisma && yarn prisma-migrate:dev)
+  fi
+
+  (cd $MONO_DIR && make generate)
+}
+
+restart () {
+  # Ensure a service name is provided
+  if [ -z "$1" ]; then
+    echo "Usage: restart <service> [--hard]"
+    exit 1
+  fi
+
+  SERVICE=$1
+  HARD_RESTART=false
+
+  if [[ "$2" == "--hard" ]]; then
+    HARD_RESTART=true
+  fi
+
+  # Function to restart the service
+  restart_service() {
+    if $HARD_RESTART; then
+      down $SERVICE 
+      start $SERVICE
+    else
+      stop $SERVICE 
+      start $SERVICE
+    fi
+  }
+
+  # Execute the restart
+  restart_service
+}
+
+function riverui () {
+  if [ -z "$1" ]; then
+    echo "Must provide service, e.g. riverui compliance"
+    exit 1
+  fi
+
+  echo 'Shutting down coauth service, which also runs on :8080'
+  SVC=$1
+  dc down coauth
+
+  DATABASE_URL="$DEV_DATABASE_URL&search_path=public,$SVC" ~/tools/riverui
+}
+
+alias gensql="make -f $MONO_DIR/Makefile -C $MONO_DIR"
+alias tunnel="ngrok http --hostname=$NGROK_HOSTNAME $1"
+
+db_dev () {
+  pgcli -d "$DEV_DATABASE_URL" "$@"
+}
+
+db_staging () {
+  printf "Connecting to staging DB...\n" >&2;\
+  PWD=$(op read op://Development/db_staging/credential)
+  ssh -f staging sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5434/chariot";
+}
+
+db_staging_compliance () {
+  printf "Connecting to staging DB as compliance...\n" >&2;\
+  PWD=$(op read op://Employee/db_staging_compliance/credential)
+  ssh -f staging sleep 10 && pgcli -d "postgresql://compliance:${PWD}@localhost:5434/chariot";
+}
+
+db_sandbox () {
+  printf "Connecting to sandbox DB...\n" >&2;\
+  PWD=$(op read op://Development/db_sandbox/credential)
+  ssh -f sandbox sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5435/chariot";
 }
