@@ -5,6 +5,9 @@
 # possible completions will be listed.
 smart_completion = True
 
+quiet = True
+# Do not display connection information after connect
+
 # Display the completions in several columns. (More completions will be
 # visible.)
 wider_completion_menu = False
@@ -102,7 +105,7 @@ table_format = psql
 # Syntax Style. Possible values: manni, igor, xcode, vim, autumn, vs, rrt,
 # native, perldoc, borland, tango, emacs, friendly, monokai, paraiso-dark,
 # colorful, murphy, bw, pastie, paraiso-light, trac, default, fruity
-syntax_style = vim
+syntax_style = friendly
 
 # Keybindings:
 # When Vi mode is enabled you can use modal editing features offered by Vi in the REPL.
@@ -126,7 +129,7 @@ row_limit = 1000
 max_field_width = 500
 
 # Skip intro on startup and goodbye on exit
-less_chatty = False
+less_chatty = True
 
 # Postgres prompt
 # \t - Current date and time
@@ -195,141 +198,8 @@ output.null = "#808080"
 
 # Named queries are queries you can execute by name.
 [named queries]
-computer_demand = '''WITH demand AS
-  (
-    SELECT job_category_label, SUM(count_2018) as count_2018, SUM(count_2019) AS count_2019, region
-    FROM labor.data
-    WHERE job_category_label IN (
-      'Computer and Mathematical'
-    ) GROUP BY job_category_label, region ORDER BY count_2019 DESC
-  ),
-  cip_codes AS
-  (
-    SELECT DISTINCT cipcode_rf FROM c2c.field WHERE cipcode_rf IN (
-      SELECT DISTINCT cip_4 FROM c2c.crosswalk WHERE occsoc_4 IN (
-        SELECT DISTINCT occsoc4 FROM c2c.c2c_occsoc_crosswalk WHERE occsoc_2_label IN (
-          'Computer and Mathematical'
-        )
-      )
-    )
-  ),
-  results AS (
-    SELECT institution.region, institution.instnm, field.cipcode_rf, SUM(field.ipedscount2) AS graduates FROM c2c.field
-    LEFT JOIN c2c.institution ON institution.unitid = field.unitid
-    WHERE field.cipcode_rf IN (SELECT cipcode_rf FROM cip_codes)
-    AND field.credlev_std IN (
-      'BA', 'AS'
-    )
-    AND field.ipedscount2 IS NOT NULL
-    GROUP BY institution.region, institution.instnm, cipcode_rf ORDER BY graduates DESC
-  )
-
-  SELECT region, instnm, graduates FROM results'''
-computer_and_military = '''SELECT job_category_label, SUM(count_2018) as count_2018, SUM(count_2019) AS total, region
-    FROM labor.data
-    WHERE job_category_label IN
-    (
-      'Military Specific',
-      'Computer and Mathematical'
-    ) GROUP BY job_category_label, region ORDER BY total DESC'''
-scalar_subquery_1 = '''SELECT * FROM labor.data
-WHERE count_2019 > (SELECT AVG(count_2019) FROM labor.data)'''
-scalar_subquery_2 = '''SELECT * FROM labor.data labor
-JOIN (SELECT AVG(count_2019) count_2019 FROM labor.data) average
-ON labor.count_2019 > average.count_2019'''
 job_crosswalk = SELECT * FROM c2c.crosswalk
-partially_complete = '''WITH demand AS
-  (
-    SELECT job_category_label, SUM(count_2018) as count_2018, SUM(count_2019) AS count_2019, region
-    FROM labor.data
-    WHERE job_category_label IN (
-      'Computer and Mathematical', 'Military Specific'
-    ) GROUP BY job_category_label, region ORDER BY count_2019 DESC
-  ),
-  cip_codes AS
-  (
-    SELECT DISTINCT cip_4, job_category_label
-    FROM c2c.crosswalk
-    WHERE job_category_label IN (
-          'Computer and Mathematical', 'Military Specific'
-    )
-  )
-    SELECT institution.region, institution.instnm, field.cipcode_rf, cip_codes.job_category_label, SUM(field.ipedscount2) AS graduates FROM c2c.field
-    JOIN c2c.institution ON institution.unitid = field.unitid
-    JOIN cip_codes ON cip_codes.cip_4 = field.cipcode_rf
-    WHERE field.credlev_std IN (
-      'BA', 'AS'
-    ) AND field.cipcode_rf IN (SELECT cipcode_rf FROM cip_codes)
-    AND field.ipedscount2 IS NOT NULL
-    GROUP BY institution.region, institution.instnm, field.cipcode_rf, cip_codes.job_category_label ORDER BY graduates DESC'''
-nearly_complete = '''WITH demand AS
-  (
-    SELECT job_category_label, SUM(count_2018) as demand_2018, SUM(count_2019) AS demand_2019, region
-    FROM labor.data
-    WHERE job_category_label IN (
-      'Computer and Mathematical', 'Military Specific'
-    ) GROUP BY job_category_label, region
-  ),
-  cip_codes AS
-  (
-    SELECT DISTINCT cip_4, job_category_label
-    FROM c2c.crosswalk
-    WHERE job_category_label IN (
-          'Computer and Mathematical', 'Military Specific'
-    )
-  ), supply AS
-  (
-    SELECT institution.region, cip_codes.job_category_label, SUM(field.ipedscount2) AS graduates FROM c2c.field
-    JOIN c2c.institution ON institution.unitid = field.unitid
-    JOIN cip_codes ON cip_codes.cip_4 = field.cipcode_rf
-    WHERE field.credlev_std IN (
-      'BA', 'AS'
-    ) AND field.cipcode_rf IN (SELECT cipcode_rf FROM cip_codes)
-    AND field.ipedscount2 IS NOT NULL
-    GROUP BY institution.region, cip_codes.job_category_label ORDER BY graduates DESC
-  )
 
-  SELECT graduates, demand.*, graduates / demand_2019 AS ratio FROM supply
-    JOIN demand ON demand.job_category_label = supply.job_category_label AND demand.region = supply.region
-    ORDER BY ratio
-    DESC'''
-final_query = '''WITH demand AS
-  (
-    SELECT job_category_label, SUM(count_2018) as demand_2018, SUM(count_2019) AS demand_2019, region
-    FROM labor.data
-    WHERE job_category_label IN (
-      'Computer and Mathematical', 'Military Specific'
-    ) GROUP BY job_category_label, region
-  ),
-  cip_codes AS
-  (
-    SELECT DISTINCT cip_4, job_category_label
-    FROM c2c.crosswalk
-    WHERE job_category_label IN (
-          'Computer and Mathematical', 'Military Specific'
-    )
-  ), supply AS
-  (
-    SELECT institution.region, cip_codes.job_category_label, SUM(field.ipedscount2) AS graduates FROM c2c.field
-    JOIN c2c.institution ON institution.unitid = field.unitid
-    JOIN cip_codes ON cip_codes.cip_4 = field.cipcode_rf
-    WHERE field.credlev_std IN (
-      'BA', 'AS'
-    ) AND field.cipcode_rf IN (SELECT cipcode_rf FROM cip_codes)
-    AND field.ipedscount2 IS NOT NULL
-    GROUP BY institution.region, cip_codes.job_category_label ORDER BY graduates DESC
-  ),
-  raw_results AS (
-    SELECT graduates, demand.*, graduates / demand_2019 AS ratio FROM supply
-    JOIN demand ON demand.job_category_label = supply.job_category_label AND demand.region = supply.region
-  )
-
-  SELECT region, AVG(ratio) ratio
-  FROM raw_results
-  GROUP BY region
-  ORDER BY ratio DESC'''
-
-# DSN to call by -D option
 [alias_dsn]
 # example_dsn = postgresql://[user[:password]@][netloc][:port][/dbname]
 
