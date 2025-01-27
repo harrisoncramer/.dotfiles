@@ -173,8 +173,12 @@ function answer() {
   echo -n "$@" | sgpt
 }
 
+if [[ -z $GITHUB_TOKEN ]]; then
+  export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'personal_access_token' --reveal)
+fi
+
 if [[ -z $GITHUB_API_TOKEN ]]; then
-  export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'credential' --reveal)
+  export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
 fi
 
 export GPG_TTY=$(tty)
