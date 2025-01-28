@@ -70,6 +70,8 @@ keybindings:
       builtin: pageUp
     - key: ctrl+d
       builtin: pageDown
+    - key: ctrl+r
+      builtin: refresh
   issues: []
   prs:
     - key: A
@@ -78,15 +80,14 @@ keybindings:
       builtin: diff
     - key: c
       builtin: comment
-    # - key: c
-    #   command: >
-    #     tmux new-window -c {{.RepoPath}} '
-    #       gh pr checkout {{.PrNumber}} &&
-    #       nvim -c ":DiffviewOpen master...{{.HeadRefName}}"
-    #     '
+    - key: c
+      command: >
+        tmux new-window -c {{.RepoPath}} '
+        ~/.local/bin/nvim-macos/bin/nvim --cmd "let g:disable_persisted = 1" -c ":DiffviewOpen origin/{{if eq .RepoPath "~/chariot/chariot"}}staging{{else}}main{{end}}...{{.HeadRefName}}"; bash
+        '
   branches: []
 repoPaths:
-  monorepo: ~/chariot/monorepo
+  :owner/:repo: ~/chariot/:repo
 theme:
   ui:
     sectionsShowCount: true
