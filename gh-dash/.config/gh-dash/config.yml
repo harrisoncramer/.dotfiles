@@ -94,4 +94,4 @@ theme:
       showSeparator: true
 pager:
   diff: delta
-confirmQuit: false
+confirmQuit: true
