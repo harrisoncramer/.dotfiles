@@ -174,7 +174,8 @@ function answer() {
 }
 
 if [[ -z $GITHUB_TOKEN ]]; then
-  export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'personal_access_token' --reveal)
+  # export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'personal_access_token' --reveal)
+  export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
 fi
 
 if [[ -z $GITHUB_API_TOKEN ]]; then
@@ -291,6 +292,18 @@ db_staging () {
   printf "Connecting to staging DB...\n" >&2;\
   PWD=$(op read op://Development/db_staging/credential)
   ssh -f staging sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5434/chariot";
+}
+
+db_prod () {
+  printf "Connecting to production DB...be careful!!!\n" >&2;\
+  PWD=$(op read op://Development/db_prod/password)
+  ssh -f prod sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5431/chariot";
+}
+
+db_prod_replica () {
+  printf "Connecting to read-only production DB...\n" >&2;\
+  PWD=$(op read op://Development/db_prod/password)
+  ssh -f prod_replica sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5433/chariot";
 }
 
 db_staging_compliance () {
