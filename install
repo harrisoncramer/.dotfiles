@@ -125,6 +125,7 @@ do
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
         link "$(pwd)/zsh/.zshrc" ~/.zshrc
+        link "$(pwd)/zsh/.zshenv" ~/.zshenv
         ;;
       services)
         find "$(pwd)/services" -type f -name "install" -exec sh -c "echo 'Installing {}' && cd \"\$(dirname \"{}\")\" && ./install" \;
