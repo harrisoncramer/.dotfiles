@@ -299,7 +299,7 @@ db_prod () {
 db_prod_read_only () {
   setDbUrls
   printf "Connecting to read-only production DB...\n" >&2;\
-  ssh -f prod_replica sleep 10 && pgcli -d $PROD_READ_ONLY_DB_URL
+  ssh -f prod_read_only sleep 10 && pgcli -d $PROD_READ_ONLY_DB_URL
 }
 
 db_sandbox () {
