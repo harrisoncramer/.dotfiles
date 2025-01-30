@@ -284,36 +284,26 @@ function riverui () {
 alias gensql="make -f $MONO_DIR/Makefile -C $MONO_DIR"
 alias tunnel="ngrok http --hostname=$NGROK_HOSTNAME $1"
 
-db_dev () {
-  pgcli -d "$DEV_DATABASE_URL" "$@"
-}
-
 db_staging () {
   printf "Connecting to staging DB...\n" >&2;\
-  PWD=$(op read op://Development/db_staging/credential)
-  ssh -f staging sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5434/chariot";
+  ssh -f staging sleep 10 && pgcli -d $(getDbUrl 'staging')
 }
 
 db_prod () {
   printf "Connecting to production DB...be careful!!!\n" >&2;\
-  PWD=$(op read op://Development/db_prod/password)
-  ssh -f prod sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5431/chariot";
+  ssh -f prod sleep 10 && pgcli -d $(getDbUrl 'prod')
 }
 
-db_prod_replica () {
+db_prod_read_only () {
   printf "Connecting to read-only production DB...\n" >&2;\
-  PWD=$(op read op://Development/db_prod/password)
-  ssh -f prod_replica sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5433/chariot";
-}
-
-db_staging_compliance () {
-  printf "Connecting to staging DB as compliance...\n" >&2;\
-  PWD=$(op read op://Employee/db_staging_compliance/credential)
-  ssh -f staging sleep 10 && pgcli -d "postgresql://compliance:${PWD}@localhost:5434/chariot";
+  ssh -f prod_replica sleep 10 && pgcli -d $(getDbUrl 'prod_read_only')
 }
 
 db_sandbox () {
   printf "Connecting to sandbox DB...\n" >&2;\
-  PWD=$(op read op://Development/db_sandbox/credential)
-  ssh -f sandbox sleep 10 && pgcli -d "postgresql://chariot:${PWD}@localhost:5435/chariot";
+  ssh -f sandbox sleep 10 && pgcli -d $(getDbUrl 'sandbox')
+}
+
+db_dev () {
+  pgcli -d $(getDbUrl 'dev')
 }
