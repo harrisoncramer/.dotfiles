@@ -21,3 +21,5 @@ test_templates
 .aider.tags.*
 scratch/
 playground/
+compliance/seed/
+db_queries/
