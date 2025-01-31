@@ -66,9 +66,6 @@ bindkey '^ ' autosuggest-accept
 python3 -m venv ~/py_envs
 source ~/py_envs/bin/activate
 
-# Opens up a list of questions/todods
-alias questions="v ~/chariot-notes/questions.md"
-
 # Creates a new blank Github Repository and Switches into it
 project () {
   privateOrPublic="--private"
@@ -284,26 +281,51 @@ function riverui () {
 alias gensql="make -f $MONO_DIR/Makefile -C $MONO_DIR"
 alias tunnel="ngrok http --hostname=$NGROK_HOSTNAME $1"
 
+if [ -z "$PROD_DB_URL" ]; then
+  PROD_PWD=$(op read op://Development/db_prod/password)
+  export PROD_DB_URL="postgresql://chariot:${PROD_PWD}@localhost:5431/chariot"
+fi
+
+if [ -z "$STAGING_DB_URL" ]; then
+  STAGING_PWD=$(op read op://Development/db_staging/credential)
+  export STAGING_DB_URL="postgresql://chariot:${STAGING_PWD}@localhost:5434/chariot"
+fi
+
+if [ -z "$PROD_READ_ONLY_DB_URL" ]; then
+  PROD_READ_ONLY_PWD=$(op read op://Development/db_prod/password)
+  export PROD_READ_ONLY_DB_URL="postgresql://chariot:${PROD_READ_ONLY_PWD}@localhost:5433/chariot"
+fi
+
+if [ -z "$SANDBOX_DB_URL" ]; then
+  SANDBOX_PWD=$(op read op://Development/db_sandbox/credential)
+  export SANDBOX_DB_URL="postgresql://chariot:${SANDBOX_PWD}@localhost:5435/chariot"
+fi
+
+if [ -z "$DEV_DATABASE_URL" ]; then
+  export DEV_DATABASE_URL="postgresql://chariot:samplepassword@0.0.0.0:5432/chariot?connect_timeout=300"
+fi
+
 db_staging () {
   printf "Connecting to staging DB...\n" >&2;\
-  ssh -f staging sleep 10 && pgcli -d $(getDbUrl 'staging')
+  ssh -f staging sleep 10 && pgcli -d $STAGING_DB_URL
 }
 
 db_prod () {
   printf "Connecting to production DB...be careful!!!\n" >&2;\
-  ssh -f prod sleep 10 && pgcli -d $(getDbUrl 'prod')
+  ssh -f prod sleep 10 && pgcli -d $PROD_DB_URL
 }
 
 db_prod_read_only () {
   printf "Connecting to read-only production DB...\n" >&2;\
-  ssh -f prod_replica sleep 10 && pgcli -d $(getDbUrl 'prod_read_only')
+  ssh -f prod_replica sleep 10 && pgcli -d $PROD_READ_ONLY_DB_URL
 }
 
 db_sandbox () {
   printf "Connecting to sandbox DB...\n" >&2;\
-  ssh -f sandbox sleep 10 && pgcli -d $(getDbUrl 'sandbox')
+  ssh -f sandbox sleep 10 && pgcli -d $SANDBOX_DB_URL
 }
 
 db_dev () {
-  pgcli -d $(getDbUrl 'dev')
+  pgcli -d $DEV_DATABASE_URL
 }
+
