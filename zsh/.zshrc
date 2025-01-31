@@ -285,30 +285,25 @@ alias gensql="make -f $MONO_DIR/Makefile -C $MONO_DIR"
 alias tunnel="ngrok http --hostname=$NGROK_HOSTNAME $1"
 
 db_staging () {
-  setDbUrls
   printf "Connecting to staging DB...\n" >&2;\
-  ssh -f staging sleep 10 && pgcli -d $STAGING_DB_URL
+  ssh -f staging sleep 10 && pgcli -d $(getDbUrl 'staging')
 }
 
 db_prod () {
-  setDbUrls
   printf "Connecting to production DB...be careful!!!\n" >&2;\
-  ssh -f prod sleep 10 && pgcli $PROD_DB_URL
+  ssh -f prod sleep 10 && pgcli -d $(getDbUrl 'prod')
 }
 
 db_prod_read_only () {
-  setDbUrls
   printf "Connecting to read-only production DB...\n" >&2;\
-  ssh -f prod_read_only sleep 10 && pgcli -d $PROD_READ_ONLY_DB_URL
+  ssh -f prod_replica sleep 10 && pgcli -d $(getDbUrl 'prod_read_only')
 }
 
 db_sandbox () {
-  setDbUrls
   printf "Connecting to sandbox DB...\n" >&2;\
-  ssh -f sandbox sleep 10 && pgcli -d $SANDBOX_DB_URL
+  ssh -f sandbox sleep 10 && pgcli -d $(getDbUrl 'sandbox')
 }
 
 db_dev () {
-  setDbUrls
-  pgcli -d $DEV_DATABASE_URL
+  pgcli -d $(getDbUrl 'dev')
 }
