@@ -15,7 +15,14 @@ if [ "$#" -ne 1 ]; then
   return 1  # `return` instead of `exit` so sourcing doesn’t exit the shell
 fi
 
-export CURRENT_SERVICE="$1"
+CURRENT_SERVICE=$(docker ps --filter "name=$1" --filter "status=running" --format "{{.Names}}")
+if [ -z "$CURRENT_SERVICE" ]; then
+  echo "service '$1' not running"
+  exit 1
+fi
+
+export CURRENT_SERVICE="$CURRENT_SERVICE"
+
 touch "/tmp/current_service"
 echo "$CURRENT_SERVICE" > "/tmp/current_service"
 
