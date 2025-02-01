@@ -2,23 +2,34 @@
 
 # Monitors the logs for a given service and sets a tmux value if they fail
 # Failure is when "building..." is not directly followed by "running..."
+# Expects an argument which is the name of the service
+# E.g. "failures compliance"
 
-set -o errexit
 set -o pipefail
 
 pgrep -f watch-logs && pkill -f watch-logs
 
-# Set process name
-exec -a watch-logs bash -c '
-    (docker logs -f "$0" 2>&1 | while read -r line; do
+# If the user doesn't provide a single argument, exit 1
+if [ "$#" -ne 1 ]; then
+  echo "Usage: failures <service_name>"
+  return 1  # `return` instead of `exit` so sourcing doesn’t exit the shell
+fi
+
+export CURRENT_SERVICE="$1"
+touch "/tmp/current_service"
+echo "$CURRENT_SERVICE" > "/tmp/current_service"
+
+# Monitor logs
+(
+    docker logs -f "$CURRENT_SERVICE" 2>&1 | while read -r line; do
         if [[ "$line" == *"building..."* ]]; then
             prev_line="building"
         elif [[ "$line" == *"running..."* && "$prev_line" == "building" ]]; then
-            tmux set -g status-right "✅ $0 build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            tmux set -g status-right "✅ $CURRENT_SERVICE build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
             prev_line=""
         elif [[ "$line" == *"running..."* || "$line" == *"failed to build"* ]]; then
-            tmux set -g status-right "❌ $0 build failed #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            tmux set -g status-right "❌ $CURRENT_SERVICE build failed #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
             prev_line=""
         fi
-    done) &>/dev/null &
-' "$@"
+    done
+) &
