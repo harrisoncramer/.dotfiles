@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Grabs all failure logs
+# Expects an argument which is the name of the service
+# E.g. "failures compliance"
 
 set -o errexit
 set -o pipefail
@@ -9,6 +11,10 @@ set -o pipefail
 if [ "$#" -ne 1 ]; then
   exit 1
 fi
+
+export CURRENT_SERVICE="$1"
+touch "/tmp/current_service"
+echo "$CURRENT_SERVICE" > "/tmp/current_service"
 
 # Get all logs
 LOGS=$(docker logs $1 2>&1)
