@@ -23,6 +23,10 @@ v () {
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+ 
+# FZF
+FZF_RELOAD='reload:rg --column --color=always --smart-case {q} || :'
+FZF_OPENER='[ $FZF_SELECT_COUNT -eq 0 ] && /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2} || /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}'
 
 # Raspberry Pi Utilities
 alias pibuild='GOOS=linux GOARCH=arm GOARM=5 go build'
@@ -218,7 +222,9 @@ start() {
 }
 logs() {
   dc logs --no-log-prefix $@ -f | fzf --tail 100000 --tac --no-sort --exact --wrap \
+      --bind 'tab:toggle' \
       --bind 'enter:execute:echo {} | pbcopy' \
+      --bind "ctrl-e:execute:echo {} | awk -F':' '{print \$1, \"+\"\$2}' | tee /tmp/fzf_debug.log | xargs $FZF_OPENER"
       --bind 'esc:abort'
 }
 attach() {
@@ -340,9 +346,9 @@ f() {
             /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}  # Build quickfix list for the selected items.
           fi'
   fzf --disabled --ansi --multi \
-      --bind "start:$RELOAD" --bind "change:$RELOAD" \
-      --bind "enter:become:$OPENER" \
-      --bind "ctrl-e:execute:$OPENER" \
+      --bind "start:$FZF_RELOAD" --bind "change:$FZF_RELOAD" \
+      --bind "enter:become:$FZF_OPENER" \
+      --bind "ctrl-e:execute:$FZF_OPENER" \
       --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
       --bind 'esc:abort' \
       --delimiter : \
