@@ -3,7 +3,7 @@
 # Monitors the logs for a given service and sets a tmux value if they fail
 # Failure is when "building..." is not directly followed by "running..."
 # Expects an argument which is the name of the service
-# E.g. "failures compliance"
+# E.g. "watch compliance"
 
 set -o pipefail
 
