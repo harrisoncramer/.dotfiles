@@ -214,10 +214,12 @@ stop() {
   dc stop $@
 }
 start() {
-  dc up $@ -d && logs -f $@
+  dc up $@ -d && logs $@
 }
 logs() {
-  dc logs $@ -f
+  dc logs --no-log-prefix $@ -f | fzf --tail 100000 --tac --no-sort --exact --wrap \
+      --bind 'enter:execute:echo {} | pbcopy' \
+      --bind 'esc:abort'
 }
 attach() {
   docker exec -it $@ /bin/bash
@@ -329,3 +331,22 @@ db_dev () {
   pgcli -d $DEV_DATABASE_URL
 }
 
+# ripgrep->fzf->vim [QUERY]
+f() {
+  RELOAD='reload:rg --column --color=always --smart-case {q} || :'
+  OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
+            /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2}     # No selection. Open the current line in Nvim.
+          else
+            /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}  # Build quickfix list for the selected items.
+          fi'
+  fzf --disabled --ansi --multi \
+      --bind "start:$RELOAD" --bind "change:$RELOAD" \
+      --bind "enter:become:$OPENER" \
+      --bind "ctrl-e:execute:$OPENER" \
+      --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
+      --bind 'esc:abort' \
+      --delimiter : \
+      --preview 'bat --style=full --color=always --highlight-line {2} {1}' \
+      --preview-window '~4,+{2}+4/3,<80(up)' \
+      --query "$*"
+}
