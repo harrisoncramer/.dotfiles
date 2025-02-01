@@ -224,7 +224,7 @@ logs() {
   dc logs --no-log-prefix $@ -f | fzf --tail 100000 --tac --no-sort --exact --wrap \
       --bind 'tab:toggle' \
       --bind 'enter:execute:echo {} | pbcopy' \
-      --bind "ctrl-e:execute:echo {} | awk -F':' '{print \$1, \"+\"\$2}' | tee /tmp/fzf_debug.log | xargs $FZF_OPENER"
+      --bind "ctrl-e:execute:echo {} | awk -F':' '{print \"+\"\$2, \$1}' | xargs /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim" \
       --bind 'esc:abort'
 }
 attach() {
