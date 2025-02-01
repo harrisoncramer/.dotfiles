@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Grabs all failure logs
+
+set -o errexit
+set -o pipefail
+
+# If the user doesn't provide a single argument, exit 1
+if [ "$#" -ne 1 ]; then
+  exit 1
+fi
+
+# Get all logs
+LOGS=$(docker logs $1 2>&1)
+
+# Find the most recent occurrence of "building..."
+LAST_BUILD_LINE=$(echo "$LOGS" | grep -n "building..." | tail -n1 | cut -d: -f1)
+
+# Extract logs since last "building..." line
+if [ -n "$LAST_BUILD_LINE" ]; then
+    FILTERED_LOGS=$(echo "$LOGS" | tail -n +"$LAST_BUILD_LINE")
+else
+    FILTERED_LOGS="$LOGS"
+fi
+
+# Extract logs that match the pattern "./<file>:<line>:<column>"
+echo "$FILTERED_LOGS" | grep -Eo './[^ ]+:[0-9]+:[0-9]+.*'

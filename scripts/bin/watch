@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Monitors the logs for a given service and sets a tmux value if they fail
+# Failure is when "building..." is not directly followed by "running..."
+
+set -o errexit
+set -o pipefail
+
+pgrep -f watch-logs && pkill -f watch-logs
+
+# Set process name
+exec -a watch-logs bash -c '
+    (docker logs -f "$0" 2>&1 | while read -r line; do
+        if [[ "$line" == *"building..."* ]]; then
+            prev_line="building"
+        elif [[ "$line" == *"running..."* && "$prev_line" == "building" ]]; then
+            tmux set -g status-right "Build Succeeded ✅ #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            prev_line=""
+        elif [[ "$line" == *"running..."* || "$line" == *"failed to build"* ]]; then
+            tmux set -g status-right "Build Failed ❌ #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            prev_line=""
+        fi
+    done) &>/dev/null &
+' "$@"
