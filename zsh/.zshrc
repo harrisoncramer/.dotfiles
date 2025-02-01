@@ -350,3 +350,15 @@ f() {
       --preview-window '~4,+{2}+4/3,<80(up)' \
       --query "$*"
 }
+
+# Recent directories: https://junegunn.github.io/fzf/examples/directory-navigation/
+. /opt/homebrew/etc/profile.d/z.sh
+unalias z 2> /dev/null
+z() {
+  local dir=$(
+    _z 2>&1 |
+    fzf --height 40% --layout reverse --info inline \
+        --nth 2.. --tac --no-sort --query "$*" \
+        --bind 'enter:become:echo {2..}'
+  ) && cd "$dir"
+}
