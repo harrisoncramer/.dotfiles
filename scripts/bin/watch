@@ -25,10 +25,10 @@ echo "$CURRENT_SERVICE" > "/tmp/current_service"
         if [[ "$line" == *"building..."* ]]; then
             prev_line="building"
         elif [[ "$line" == *"running..."* && "$prev_line" == "building" ]]; then
-            tmux set -g status-right "✅ $CURRENT_SERVICE build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            tmux set -g status-right "#[fg=#98BB6C]✔️ $CURRENT_SERVICE build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
             prev_line=""
         elif [[ "$line" == *"running..."* || "$line" == *"failed to build"* ]]; then
-            tmux set -g status-right "❌ $CURRENT_SERVICE build failed #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            tmux set -g status-right "#[fg=#E82424]✘ $CURRENT_SERVICE build failed #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
             prev_line=""
         fi
     done
