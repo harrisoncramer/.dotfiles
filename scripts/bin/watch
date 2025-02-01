@@ -14,10 +14,10 @@ exec -a watch-logs bash -c '
         if [[ "$line" == *"building..."* ]]; then
             prev_line="building"
         elif [[ "$line" == *"running..."* && "$prev_line" == "building" ]]; then
-            tmux set -g status-right "Build Succeeded ✅ #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            tmux set -g status-right "✅ $0 build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
             prev_line=""
         elif [[ "$line" == *"running..."* || "$line" == *"failed to build"* ]]; then
-            tmux set -g status-right "Build Failed ❌ #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+            tmux set -g status-right "❌ $0 build failed #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
             prev_line=""
         fi
     done) &>/dev/null &
