@@ -24,4 +24,4 @@ else
 fi
 
 # Extract logs that match the pattern "./<file>:<line>:<column>"
-echo "$FILTERED_LOGS" | grep -Eo './[^ ]+:[0-9]+:[0-9]+.*'
+echo "$FILTERED_LOGS" | grep -Eo '^[^ ]+:[0-9]+:[0-9]+: .*'
