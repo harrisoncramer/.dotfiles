@@ -368,7 +368,7 @@ ff() {
 }
 
 f() {
-   fzf --preview 'bat --style=full --color=always --line-range :500 {}' \
+  find . -type f | fzf --preview 'bat --style=full --color=always --line-range :500 {}' \
        --bind "enter:become:$FZF_OPENER" \
        --bind "ctrl-e:execute:$FZF_OPENER" \
        --preview-window '~4,+{2}+4/3,<80(up)' 
