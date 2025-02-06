@@ -13,7 +13,11 @@ v () {
  if ! command -v nvm &> /dev/null; then
     source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
   fi
-  $HOME/.local/bin/nvim-macos/bin/nvim $@
+  if [ "$#" -eq 0 ]; then
+    nvim --cmd 'autocmd VimEnter * call feedkeys("\<C-j>")'
+  else
+    $HOME/.local/bin/nvim-macos/bin/nvim "$@"
+  fi
 }
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
@@ -174,14 +178,14 @@ function answer() {
   echo -n "$@" | sgpt
 }
 
-if [[ -z $GITHUB_TOKEN ]]; then
-  # export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'personal_access_token' --reveal)
-  export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
-fi
-
-if [[ -z $GITHUB_API_TOKEN ]]; then
-  export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
-fi
+# if [[ -z $GITHUB_TOKEN ]]; then
+#   # export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'personal_access_token' --reveal)
+#   export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
+# fi
+#
+# if [[ -z $GITHUB_API_TOKEN ]]; then
+#   export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
+# fi
 
 export GPG_TTY=$(tty)
 
@@ -325,7 +329,7 @@ db_prod () {
 
 db_prod_read_only () {
   printf "Connecting to read-only production DB...\n" >&2;\
-  ssh -f prod_replica sleep 10 && pgcli -d $PROD_READ_ONLY_DB_URL
+    ssh -f prod_read_only sleep 10 && pgcli -d $PROD_READ_ONLY_DB_URL
 }
 
 db_sandbox () {
@@ -335,26 +339,6 @@ db_sandbox () {
 
 db_dev () {
   pgcli -d $DEV_DATABASE_URL
-}
-
-# ripgrep->fzf->vim [QUERY]
-f() {
-  RELOAD='reload:rg --column --color=always --smart-case {q} || :'
-  OPENER='if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
-            /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2}     # No selection. Open the current line in Nvim.
-          else
-            /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}  # Build quickfix list for the selected items.
-          fi'
-  fzf --disabled --ansi --multi \
-      --bind "start:$FZF_RELOAD" --bind "change:$FZF_RELOAD" \
-      --bind "enter:become:$FZF_OPENER" \
-      --bind "ctrl-e:execute:$FZF_OPENER" \
-      --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
-      --bind 'esc:abort' \
-      --delimiter : \
-      --preview 'bat --style=full --color=always --highlight-line {2} {1}' \
-      --preview-window '~4,+{2}+4/3,<80(up)' \
-      --query "$*"
 }
 
 # Recent directories: https://junegunn.github.io/fzf/examples/directory-navigation/
@@ -368,3 +352,39 @@ z() {
         --bind 'enter:become:echo {2..}'
   ) && cd "$dir"
 }
+
+# ripgrep->fzf->vim [QUERY]
+ff() {
+  fzf --disabled --ansi --multi \
+      --bind "start:$FZF_RELOAD" --bind "change:$FZF_RELOAD" \
+      --bind "enter:become:$FZF_OPENER" \
+      --bind "ctrl-e:execute:$FZF_OPENER" \
+      --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
+      --bind 'esc:abort' \
+      --delimiter : \
+      --preview 'bat --style=full --color=always --highlight-line {2} {1}' \
+      --preview-window '~4,+{2}+4/3,<80(up)' \
+      --query "$*"
+}
+
+f() {
+   fzf --preview 'bat --style=full --color=always --line-range :500 {}' \
+       --bind "enter:become:$FZF_OPENER" \
+       --bind "ctrl-e:execute:$FZF_OPENER" \
+       --preview-window '~4,+{2}+4/3,<80(up)' 
+}
+
+autoload -Uz add-zsh-hook
+
+bind_keys() {
+  zle -N ff-widget ff
+  bindkey -r '^F'
+  bindkey '^F' ff-widget
+
+  zle -N search_files f
+  bindkey -r '^J'
+  bindkey '^J' search_files
+}
+
+add-zsh-hook -d precmd bind_keys
+add-zsh-hook precmd bind_keys
