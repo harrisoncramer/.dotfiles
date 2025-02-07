@@ -1,3 +1,3 @@
 #!/bin/bash
 
-tmux new-window -n Generate "cd ~/chariot/chariot/apps/${1} && task docker:up"
+tmux new-window -n Generate "task docker:down -- ${1}"

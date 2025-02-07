@@ -7,7 +7,7 @@
 
 set -o pipefail
 
-pgrep -f watch-logs && pkill -f watch-logs
+pgrep -f watch-logs >/dev/null 2>&1 && pkill -f watch-logs >/dev/null 2>&1
 
 # If the user doesn't provide a single argument, exit 1
 if [ "$#" -ne 1 ]; then
