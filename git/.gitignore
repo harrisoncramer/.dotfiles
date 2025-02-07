@@ -23,3 +23,4 @@ scratch/
 playground/
 compliance/seed/
 db_queries/
+Taskfile.yml

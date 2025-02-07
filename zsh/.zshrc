@@ -14,7 +14,7 @@ v () {
     source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
   fi
   if [ "$#" -eq 0 ]; then
-    nvim --cmd 'autocmd VimEnter * call feedkeys("\<C-j>")'
+    nvim --cmd 'autocmd VimEnter * call feedkeys("\<C-o>")'
   else
     $HOME/.local/bin/nvim-macos/bin/nvim "$@"
   fi
