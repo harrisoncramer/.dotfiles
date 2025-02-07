@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Monitors the logs for a given service and sets a tmux value if they fail
-# Failure is when "building..." is not directly followed by "running..."
+# Checks the last message and monitors for "fail" every 2 seconds
 # Expects an argument which is the name of the service
 # E.g. "watch compliance"
 
@@ -26,17 +26,16 @@ export CURRENT_SERVICE="$CURRENT_SERVICE"
 touch "/tmp/current_service"
 echo "$CURRENT_SERVICE" > "/tmp/current_service"
 
-# Monitor logs
+# Monitor logs every 2 seconds
 (
-    docker logs -f "$CURRENT_SERVICE" 2>&1 | while read -r line; do
-        if [[ "$line" == *"building..."* ]]; then
-            prev_line="building"
-        elif [[ "$line" == *"running..."* && "$prev_line" == "building" ]]; then
-            tmux set -g status-right "#[fg=#98BB6C]✔️ $CURRENT_SERVICE build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
-            prev_line=""
-        elif [[ "$line" == *"running..."* || "$line" == *"failed to build"* ]]; then
+    while true; do
+        last_message=$(docker logs "$CURRENT_SERVICE" --tail 1 2>&1)
+        if [[ "$last_message" == *"fail"* ]]; then
             tmux set -g status-right "#[fg=#E82424]✘ $CURRENT_SERVICE build failed #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
-            prev_line=""
+        else
+            tmux set -g status-right "#[fg=#98BB6C]✔️ $CURRENT_SERVICE build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
         fi
+        sleep 2
     done
 ) &
+
