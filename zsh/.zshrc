@@ -218,19 +218,38 @@ dc() {
 down() {
   dc down $@
 }
+purge() {
+  dc rm -s -f $@
+  CONTAINER=$(docker image ls | grep document | awk '{print $3}')
+  if [ -n "$CONTAINER" ]; then
+    docker rmi  $CONTAINER
+  fi
+}
 stop() {
   dc stop $@
 }
 start() {
   dc up $@ -d && logs $@
 }
-logs() {
-  dc logs --no-log-prefix $@ -f | fzf --tail 100000 --tac --no-sort --exact --wrap \
+
+logs () {
+  logfile="/tmp/logs_buffer.txt"
+  rm -f "$logfile"  # Clear previous logs
+  touch "$logfile"
+
+  pkill -f logs
+  ( dc logs --no-log-prefix "$@" -f >> "$logfile" 2>/dev/null ) & 
+
+  # Start in tailing mode by default
+  tail -n 100000 -f "$logfile" | fzf --tac --no-sort --exact --wrap \
       --bind 'tab:toggle' \
       --bind 'enter:execute:echo {} | pbcopy' \
       --bind "ctrl-e:execute:echo {} | awk -F':' '{print \"+\"\$2, \$1}' | xargs /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim" \
-      --bind 'esc:abort'
+      --bind 'esc:abort' \
+      --bind 'ctrl-t:reload(cat '"$logfile"')' \
+      --bind 'ctrl-r:reload(tail -n 100000 -f '"$logfile"')'
 }
+
 attach() {
   docker exec -it $@ /bin/bash
 }
