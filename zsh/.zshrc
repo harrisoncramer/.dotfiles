@@ -195,6 +195,10 @@ uuid() {
   echo "UUID (copied to clipboard): $uuid"
 }
 
+iso () {
+  date -u +"%Y-%m-%dT%H:%M:%SZ" | tr -d '\n' | pbcopy
+}
+
 ucp_stop () {
   docker stop $(docker ps --filter name=supervisor -aq)
   docker stop $(docker ps --filter name=domino -aq)

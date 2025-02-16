@@ -7,6 +7,7 @@ VERBOSE=false
 HOMEBREW=false
 PIPX=false
 NVIM=false
+TMUX=false
 
 function usage() {
   echo "Usage: ./install [OPTIONS]
@@ -39,6 +40,7 @@ do
     --go) GO=true;;
     --npm) NPM=true ;;
     --pipx) PIPX=true ;;
+    --tmux) TMUX=true ;;
     --q) QUIET=true ;;
     --help) usage; exit 0 ;;
     *)  usage; exit 1 ;;
@@ -87,6 +89,7 @@ function link() {
 # Ensure certain files/foldesr exist
 touch ~/.zshrc-personal 
 mkdir -p ~/.local/bin
+mkdir -p ~/.tmux/plugins
 
 # The configuration steps below are idempotent and run on every install.
 # By default we just use stow to install the directories as listed.
@@ -137,6 +140,7 @@ do
     esac
 done
 
+
 # Dependency installs
 if $HOMEBREW; then
   echo "Installing brews..."
@@ -148,6 +152,13 @@ fi
 if $NPM; then
   echo "Installing global npm dependencies..."
   npm i -g $(cat deps/npm)
+fi
+
+if $TMUX; then
+  tpm="~/.tmux/plugins/tpm"
+  if [ -d "$tmp" ]; then
+    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+  fi
 fi
 
 if $GO; then
