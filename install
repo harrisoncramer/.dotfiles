@@ -89,7 +89,6 @@ function link() {
 # Ensure certain files/foldesr exist
 touch ~/.zshrc-personal 
 mkdir -p ~/.local/bin
-mkdir -p ~/.tmux/plugins
 
 # The configuration steps below are idempotent and run on every install.
 # By default we just use stow to install the directories as listed.
@@ -154,11 +153,11 @@ if $NPM; then
   npm i -g $(cat deps/npm)
 fi
 
+mkdir -p ~/.tmux/plugins
 if $TMUX; then
-  tpm="~/.tmux/plugins/tpm"
-  if [ -d "$tmp" ]; then
-    git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
-  fi
+  echo "Configuring TPM... Run <C-]>I to install plugins"
+  TPM_DIR="$HOME/.tmux/plugins/tpm"
+  cloneOrUpdate https://github.com/tmux-plugins/tpm "$TPM_DIR"
 fi
 
 if $GO; then
