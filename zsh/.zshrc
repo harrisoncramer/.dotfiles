@@ -373,7 +373,12 @@ z() {
     fzf --height 40% --layout reverse --info inline \
         --nth 2.. --tac --no-sort --query "$*" \
         --bind 'enter:become:echo {2..}'
-  ) && cd "$dir"
+  )
+  if [ -n "$dir" ]; then
+    BUFFER="cd \"$dir\""  # Store command in BUFFER
+    zle accept-line       # Execute the command
+  fi
+  zle reset-prompt
 }
 
 # ripgrep->fzf->vim [QUERY]
@@ -407,6 +412,10 @@ bind_keys() {
   zle -N search_files f
   bindkey -r '^J'
   bindkey '^J' search_files
+
+  zle -N recent-dirs-widget z
+  bindkey -r '^Z'
+  bindkey '^Z' recent-dirs-widget
 }
 
 add-zsh-hook -d precmd bind_keys
