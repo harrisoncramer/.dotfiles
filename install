@@ -155,9 +155,8 @@ fi
 
 mkdir -p ~/.tmux/plugins
 if $TMUX; then
-  echo "Configuring TPM... Run <C-]>I to install plugins"
   TPM_DIR="$HOME/.tmux/plugins/tpm"
-  cloneOrUpdate https://github.com/tmux-plugins/tpm "$TPM_DIR"
+  cloneOrUpdate https://github.com/tmux-plugins/tpm.git "$TPM_DIR"
 fi
 
 if $GO; then
