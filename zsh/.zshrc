@@ -14,7 +14,7 @@ v () {
     source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
   fi
   if [ "$#" -eq 0 ]; then
-    nvim --cmd 'autocmd VimEnter * call feedkeys("\<C-o>")'
+    nvim .
   else
     $HOME/.local/bin/nvim-macos/bin/nvim "$@"
   fi
@@ -241,8 +241,7 @@ logs () {
   rm -f "$logfile"  # Clear previous logs
   touch "$logfile"
 
-  pkill -f logs
-  ( dc logs --no-log-prefix "$@" -f >> "$logfile" 2>/dev/null ) & 
+  (dc logs --no-log-prefix "$@" -f >> "$logfile" 2>/dev/null) &
 
   # Start in tailing mode by default
   tail -n 100000 -f "$logfile" | fzf --tac --no-sort --exact --wrap \
@@ -252,6 +251,8 @@ logs () {
       --bind 'esc:abort' \
       --bind 'ctrl-t:reload(cat '"$logfile"')' \
       --bind 'ctrl-r:reload(tail -n 100000 -f '"$logfile"')'
+
+  pkill -f logs
 }
 
 attach() {
