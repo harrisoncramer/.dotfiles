@@ -224,7 +224,7 @@ down() {
 }
 purge() {
   dc rm -s -f $@
-  CONTAINER=$(docker image ls | grep document | awk '{print $3}')
+  CONTAINER=$(docker image ls | grep $@ | awk '{print $3}')
   if [ -n "$CONTAINER" ]; then
     docker rmi  $CONTAINER
   fi
