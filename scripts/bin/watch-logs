@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env zsh
 
 # Monitors the logs for a given service and sets a tmux value if they fail
 # Checks the last message and monitors for "fail" every 2 seconds
@@ -9,33 +9,58 @@ set -o pipefail
 
 pgrep -f watch-logs >/dev/null 2>&1 && pkill -f watch-logs >/dev/null 2>&1
 
-# If the user doesn't provide a single argument, exit 1
-if [ "$#" -ne 1 ]; then
-  echo "Usage: failures <service_name>"
-  return 1  # `return` instead of `exit` so sourcing doesn’t exit the shell
+# If the user doesn't provide any arguments, exit 1
+if [ "$#" -eq 0 ]; then
+  echo "Usage: failures <service_name> [<service_name> ...]"
+  return 1  # Use `return` instead of `exit` so sourcing doesn’t exit the shell
 fi
 
-CURRENT_SERVICE=$(docker ps --filter "name=$1" --filter "status=running" --format "{{.Names}}")
-if [ -z "$CURRENT_SERVICE" ]; then
-  echo "service '$1' not running"
-  exit 1
-fi
-
-export CURRENT_SERVICE="$CURRENT_SERVICE"
-
-touch "/tmp/current_service"
-echo "$CURRENT_SERVICE" > "/tmp/current_service"
+typeset -A port_map
+port_map=(
+    orchestration 9001
+    integrations 3222
+    supervisor 3220
+    compliance 3223
+)
 
 # Monitor logs every 2 seconds
 (
     while true; do
-        last_message=$(docker logs "$CURRENT_SERVICE" --tail 1 2>&1)
-        if [[ "$last_message" == *"fail"* ]]; then
-            tmux set -g status-right "#[fg=#E82424]✘ $CURRENT_SERVICE build failed #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
-        else
-            tmux set -g status-right "#[fg=#98BB6C]✔️ $CURRENT_SERVICE build succeeded #[bg=#252534,fg=#7E9CD8] %I:%M:%S "
+        local passed=0
+        local failed=0
+        local failing_services=()
+
+        for service in "$@"; do
+            PORT=${port_map[$service]}
+            CURRENT_SERVICE=$(docker ps --filter "name=$service" --filter "status=running" --format "{{.Names}}")
+            
+            if [ -z "$CURRENT_SERVICE" ]; then
+                failed=$((failed + 1))
+                failing_services+=("$service")
+                continue
+            fi
+
+            http_status=$(curl -s -o /dev/null -w "%{http_code}" "localhost:${PORT}/healthz")
+            if [ "$http_status" -eq 200 ]; then
+                passed=$((passed + 1))
+            else
+                failing_services+=("$service")
+                failed=$((failed + 1))
+            fi
+        done
+
+        # Construct the status message based on the results
+        status_message="#[bg=#252534]  #[fg=#98BB6C]${passed} ✔️"
+        
+        if [ "$failed" -gt 0 ]; then
+            status_message+=" #[fg=#E82424]${failed} ✘"
+            for svc in "${failing_services[@]}"; do
+              status_message+=" $svc"
+            done
         fi
+
+
+        tmux set -g status-right "${status_message} #[bg=#252534,fg=#7E9CD8] %I:%M:%S"
         sleep 2
     done
 ) &
-
