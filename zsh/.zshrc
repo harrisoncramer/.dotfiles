@@ -41,6 +41,9 @@ picopy () {
 # Add golang executables
 export PATH="$HOME/go/bin:$PATH"
 
+# Add tool executables
+export PATH="$HOME/.dotfiles/scripts/tool:$PATH"
+
 # Add other executables
 export PATH="$HOME/bin:$PATH"
 
