@@ -24,3 +24,4 @@ playground/
 compliance/seed/
 db_queries/
 Taskfile.yml
+# .pg_format
