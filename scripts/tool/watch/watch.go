@@ -20,6 +20,13 @@ var portMap = map[string]int{
 	"compliance":    3223,
 }
 
+var endpointMap = map[string]string{
+	"orchestration": "healthz",
+	"integrations":  "healthz",
+	"supervisor":    "healthz",
+	"compliance":    "healthz",
+}
+
 // checkDockerService verifies if the service is running in Docker
 func checkDockerService(service string) bool {
 	cmd := exec.Command("docker", "ps", "--filter", fmt.Sprintf("name=%s", service), "--filter", "status=running", "--format", "{{.Names}}")
@@ -32,9 +39,10 @@ func checkDockerService(service string) bool {
 	return strings.TrimSpace(out.String()) != ""
 }
 
-// checkHealthz sends an HTTP request to the service's `/healthz` endpoint
-func checkHealthz(port int) bool {
-	url := fmt.Sprintf("http://localhost:%d/healthz", port)
+// checkHealth sends an HTTP request to the service's `/healthz` endpoint
+func checkHealth(port int, endpoint string) bool {
+	url := fmt.Sprintf("http://localhost:%d/%s", port, endpoint)
+	fmt.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		return false
@@ -79,6 +87,14 @@ func watchLogs(cmd *cobra.Command, args []string) {
 				continue
 			}
 
+			endpoint, exists := endpointMap[service]
+			if !exists {
+				fmt.Printf("Warning: No endpoint mapping found for %s\n", service)
+				failed++
+				failingServices = append(failingServices, service)
+				continue
+			}
+
 			if !checkDockerService(service) {
 				failed++
 				log.Printf("%s service not running", service)
@@ -86,11 +102,11 @@ func watchLogs(cmd *cobra.Command, args []string) {
 				continue
 			}
 
-			if checkHealthz(port) {
+			if checkHealth(port, endpoint) {
 				log.Printf("%s service healthy", service)
 				passed++
 			} else {
-				log.Printf("%s service healthy", service)
+				log.Printf("%s service not healthy", service)
 				failed++
 				failingServices = append(failingServices, service)
 			}
