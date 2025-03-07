@@ -14,6 +14,7 @@ import (
 
 // Port mapping for services
 var portMap = map[string]int{
+	"kong":          8000,
 	"orchestration": 9001,
 	"integrations":  3222,
 	"supervisor":    3220,
@@ -21,6 +22,7 @@ var portMap = map[string]int{
 }
 
 var endpointMap = map[string]string{
+	"kong":          "healthz",
 	"orchestration": "healthz",
 	"integrations":  "healthz",
 	"supervisor":    "healthz",
