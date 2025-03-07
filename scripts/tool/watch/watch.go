@@ -19,9 +19,11 @@ var portMap = map[string]int{
 	"integrations":  3222,
 	"supervisor":    3220,
 	"compliance":    3223,
+	"auth":          3090,
 }
 
 var endpointMap = map[string]string{
+	"auth":          "healthz",
 	"kong":          "healthz",
 	"orchestration": "healthz",
 	"integrations":  "healthz",
