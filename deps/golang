@@ -5,3 +5,4 @@ honnef.co/go/tools/cmd/staticcheck@latest
 google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 google.golang.org/protobuf/cmd/protoc-gen-go@latest
 github.com/riverqueue/river/cmd/river@latest
+github.com/go-delve/delve/cmd/dlv@latest
