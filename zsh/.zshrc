@@ -99,6 +99,7 @@ project () {
 }
 
 # Git stuff
+alias g="git"
 alias gb="git rev-parse --abbrev-ref HEAD"
 alias pr="gh pr view --web"
 
