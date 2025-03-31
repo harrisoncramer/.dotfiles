@@ -20,6 +20,7 @@ var portMap = map[string]int{
 	"supervisor":    3220,
 	"compliance":    3223,
 	"auth":          3090,
+	"clerk":         8778,
 	"payments":      5050,
 }
 
@@ -31,6 +32,7 @@ var endpointMap = map[string]string{
 	"supervisor":    "healthz",
 	"compliance":    "healthz",
 	"payments":      "healthz",
+	"clerk":         "healthz",
 }
 
 // checkDockerService verifies if the service is running in Docker
