@@ -8,6 +8,7 @@ HOMEBREW=false
 PIPX=false
 NVIM=false
 TMUX=false
+ASDF=false
 
 function usage() {
   echo "Usage: ./install [OPTIONS]
@@ -34,10 +35,12 @@ do
       NPM=true
       PIPX=true
       NVIM=true
+      ASDF=true
       ;;
     --brew) HOMEBREW=true ;;
     --nvim) NVIM=true ;;
     --go) GO=true;;
+    --asdf) ASDF=true;;
     --npm) NPM=true ;;
     --pipx) PIPX=true ;;
     --tmux) TMUX=true ;;
@@ -116,13 +119,11 @@ do
         ;;
       zsh)
         export ZSH_DIR="$HOME/.oh-my-zsh"
-        export NVM_DIR="$HOME/.nvm"
         cloneOrUpdate https://github.com/ohmyzsh/ohmyzsh.git "$ZSH_DIR"
         cloneOrUpdate https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting"
         cloneOrUpdate https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_DIR/custom/plugins/zsh-autosuggestions"
         cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode "$ZSH_DIR/custom/plugins/zsh-vi-mode"
         cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
-        cloneOrUpdate https://github.com/lukechilds/zsh-nvm "$ZSH_DIR/custom/plugins/zsh-nvm"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
@@ -169,6 +170,13 @@ fi
 if $PIPX; then
   echo "Installing python packages..."
   pipx install $(cat deps/pip)
+fi
+
+if $ASDF; then
+  echo "Installing all languages..."
+  cat ~/.tool-versions | cut -d' ' -f1 | xargs -n1 asdf plugin add
+  asdf install
+  asdf reshim
 fi
 
 if $NVIM; then
