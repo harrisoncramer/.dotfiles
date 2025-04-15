@@ -19,7 +19,6 @@ gettext
 gh
 git-delta
 git-secret
-go
 go-task/tap/go-task
 golangci-lint
 grpcurl
@@ -66,3 +65,6 @@ walk
 yarn
 z
 fd
+asdf
+gawk
+gpg

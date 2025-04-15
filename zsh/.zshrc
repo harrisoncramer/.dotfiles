@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Add asdf, set versions
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+
 # Source sensitive values
 source ~/.zshrc-personal
 source ~/.zshrc-work
@@ -10,9 +13,6 @@ export EDITOR="$NVIM"
 alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
 
 v () {
- if ! command -v nvm &> /dev/null; then
-    source "$NVM_DIR/nvm.sh" # Node (lazy loaded) is needed for some Neovim dependencies
-  fi
   if [ "$#" -eq 0 ]; then
     nvim .
   else
@@ -31,6 +31,7 @@ fi
 # FZF
 FZF_RELOAD='reload:rg --column --color=always --smart-case {q} || :'
 FZF_OPENER='[ $FZF_SELECT_COUNT -eq 0 ] && /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2} || /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}'
+FZF_QUICKFIX_OPENER=''
 
 # Raspberry Pi Utilities
 alias pibuild='GOOS=linux GOARCH=arm GOARM=5 go build'
@@ -58,13 +59,9 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 export GOPATH="/Users/harrisoncramer/go"
 
-# NVM: Lazily set default NodeJS version (must come before oh-my-zsh plugin)
-export NVM_DIR="$HOME/.nvm"
-export NVM_LAZY_LOAD=true
-
 # oh-my-zsh
 ZSH_THEME="powerlevel10k/powerlevel10k"
-plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mode zsh-nvm)
+plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mode)
 source ~/.oh-my-zsh/oh-my-zsh.sh
 export ZVM_VI_EDITOR="nvim"
 
@@ -410,6 +407,7 @@ f() {
   find . -type f | fzf --preview 'bat --style=full --color=always --line-range :500 {}' \
        --bind "enter:become:$FZF_OPENER" \
        --bind "ctrl-e:execute:$FZF_OPENER" \
+       --bind "ctrl-l:execute-silent(printf '%s\n' {+} > /tmp/fzf-selected-files)" \
        --preview-window '~4,+{2}+4/3,<80(up)' 
 }
 
