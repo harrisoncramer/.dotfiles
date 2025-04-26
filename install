@@ -181,6 +181,7 @@ fi
 if $ASDF; then
   echo "Installing all languages..."
   cat ~/.dotfiles/.tool-versions | cut -d' ' -f1 | xargs -n1 asdf plugin add
+  link "$(pwd)/.tool-versions" ~/.tool-versions
   asdf install
   asdf reshim
 fi
