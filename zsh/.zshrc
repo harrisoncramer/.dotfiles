@@ -3,9 +3,44 @@
 # Add asdf, set versions
 export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
-# Source sensitive values
-source ~/.zshrc-personal
-source ~/.zshrc-work
+HOST_NAME=$(hostname)
+
+# Source sensitive values for work/personal
+if [ "$HOST_NAME" = "work-computer" ]; then
+  source ~/.zshrc-work
+  if [ -z "$PROD_DB_URL" ]; then
+    PROD_PWD=$(op read op://Development/db_prod/password)
+    export PROD_DB_URL="postgresql://chariot:${PROD_PWD}@localhost:5431/chariot"
+  fi
+
+  if [ -z "$STAGING_DB_URL" ]; then
+    STAGING_PWD=$(op read op://Development/db_staging/credential)
+    export STAGING_DB_URL="postgresql://chariot:${STAGING_PWD}@localhost:5434/chariot"
+  fi
+
+  if [ -z "$PROD_READ_ONLY_DB_URL" ]; then
+    PROD_READ_ONLY_PWD=$(op read op://Development/db_prod/password)
+    export PROD_READ_ONLY_DB_URL="postgresql://chariot:${PROD_READ_ONLY_PWD}@localhost:5433/chariot"
+  fi
+
+  if [ -z "$SANDBOX_DB_URL" ]; then
+    SANDBOX_PWD=$(op read op://Development/db_sandbox/credential)
+    export SANDBOX_DB_URL="postgresql://chariot:${SANDBOX_PWD}@localhost:5435/chariot"
+  fi
+
+  if [ -z "$DEV_DATABASE_URL" ]; then
+    export DEV_DATABASE_URL="postgresql://chariot:samplepassword@0.0.0.0:5432/chariot?connect_timeout=300"
+  fi
+else
+  source ~/.zshrc-personal
+  # if [[ -z $GITHUB_TOKEN ]]; then
+  #   export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
+  # fi
+  #
+  # if [[ -z $GITHUB_API_TOKEN ]]; then
+  #   export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
+  # fi
+fi
 
 # Get NVIM path from Other ZSHRC File
 export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
@@ -135,9 +170,6 @@ alias k='kubectl'
 alias dkk='cd ~/Desktop'
 alias dotfiles='cd ~/.dotfiles'
 
-# See: https://github.com/venantius/ultra/issues/103
-alias lein='LEIN_USE_BOOTCLASSPATH=no lein'
-
 # bun completions
 [ -s "/Users/harrisoncramer/.bun/_bun" ] && source "/Users/harrisoncramer/.bun/_bun"
 
@@ -178,15 +210,6 @@ alias chat="sgpt --repl temp"
 function answer() {
   echo -n "$@" | sgpt
 }
-
-# if [[ -z $GITHUB_TOKEN ]]; then
-#   # export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'personal_access_token' --reveal)
-#   export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
-# fi
-#
-# if [[ -z $GITHUB_API_TOKEN ]]; then
-#   export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
-# fi
 
 export GPG_TTY=$(tty)
 
@@ -323,30 +346,6 @@ function riverui () {
 
 alias gensql="make -f $MONO_DIR/Makefile -C $MONO_DIR"
 alias tunnel="ngrok http --hostname=$NGROK_HOSTNAME $1"
-
-if [ -z "$PROD_DB_URL" ]; then
-  PROD_PWD=$(op read op://Development/db_prod/password)
-  export PROD_DB_URL="postgresql://chariot:${PROD_PWD}@localhost:5431/chariot"
-fi
-
-if [ -z "$STAGING_DB_URL" ]; then
-  STAGING_PWD=$(op read op://Development/db_staging/credential)
-  export STAGING_DB_URL="postgresql://chariot:${STAGING_PWD}@localhost:5434/chariot"
-fi
-
-if [ -z "$PROD_READ_ONLY_DB_URL" ]; then
-  PROD_READ_ONLY_PWD=$(op read op://Development/db_prod/password)
-  export PROD_READ_ONLY_DB_URL="postgresql://chariot:${PROD_READ_ONLY_PWD}@localhost:5433/chariot"
-fi
-
-if [ -z "$SANDBOX_DB_URL" ]; then
-  SANDBOX_PWD=$(op read op://Development/db_sandbox/credential)
-  export SANDBOX_DB_URL="postgresql://chariot:${SANDBOX_PWD}@localhost:5435/chariot"
-fi
-
-if [ -z "$DEV_DATABASE_URL" ]; then
-  export DEV_DATABASE_URL="postgresql://chariot:samplepassword@0.0.0.0:5432/chariot?connect_timeout=300"
-fi
 
 db_staging () {
   printf "Connecting to staging DB...\n" >&2;\

@@ -10,7 +10,6 @@ ca-certificates
 clang-format
 dive
 eksctl
-emscripten
 ffmpeg
 fnm
 fzf
@@ -31,7 +30,6 @@ lua
 luajit-openresty
 luarocks
 luv
-mongosh
 mpdecimal
 msgpack
 ncurses

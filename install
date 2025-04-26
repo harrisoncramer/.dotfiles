@@ -19,6 +19,7 @@ Options:
   --brew  Installs brew dependencies (required for other installs)
   --go    Installs Go packages
   --npm   Installs Go packages
+  --asdf  Installs all languages through ASDF
   --pipx  Installs python packages
   --nvim  Installs Neovim
   --q     Mutes all logs
@@ -93,6 +94,8 @@ function link() {
 touch ~/.zshrc-personal 
 mkdir -p ~/.local/bin
 
+HOST_NAME=$(hostname)
+
 # The configuration steps below are idempotent and run on every install.
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
@@ -111,9 +114,13 @@ do
         pOnSuccess "  stowed scripts to ~/.local/bin" "  could not stow scripts!"
         ;;
       git)
-        stow "$DIR_NAME"
+        link "$(pwd)/git/.gitignore" ~/.gitignore
         git config --global core.excludesfile ~/.gitignore
-        git config --global init.templatedir '~/.git_templates'
+        if [ "$HOST_NAME" = "work-computer" ]; then
+          link "$(pwd)/git/.gitconfig-work" ~/.gitconfig
+        else
+          link "$(pwd)/git/.gitconfig" ~/.gitconfig
+        fi
         git init
         pOnSuccess "  updated git" "  could not update git!"
         ;;
@@ -124,7 +131,6 @@ do
         cloneOrUpdate https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_DIR/custom/plugins/zsh-autosuggestions"
         cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode "$ZSH_DIR/custom/plugins/zsh-vi-mode"
         cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
-        cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
         link "$(pwd)/zsh/.zshrc" ~/.zshrc
@@ -174,7 +180,7 @@ fi
 
 if $ASDF; then
   echo "Installing all languages..."
-  cat ~/.tool-versions | cut -d' ' -f1 | xargs -n1 asdf plugin add
+  cat ~/.dotfiles/.tool-versions | cut -d' ' -f1 | xargs -n1 asdf plugin add
   asdf install
   asdf reshim
 fi
