@@ -78,11 +78,6 @@ function cloneOrUpdate() {
   fi
 }
 
-function installOrUpdateNpm() {
-  npm install -g "$1" &> /dev/null
-  pOnSuccess "  installed $1 globally" "  could not install $1"
-}
-
 function link() {
   local FILE="$1"
   local TARGET="$2"
@@ -157,7 +152,13 @@ fi
 
 if $NPM; then
   echo "Installing global npm dependencies..."
-  npm i -g $(cat deps/npm)
+  while IFS= read -r package; do
+     if [[ -n "$package" ]]; then
+       echo "Installing $package"
+      npm i -g "$package"
+     fi
+  done < deps/npm
+  asdf reshim nodejs
 fi
 
 mkdir -p ~/.tmux/plugins
