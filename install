@@ -1,4 +1,8 @@
 #!/bin/bash
+set -eu -o pipefail
+
+# Source common commands
+source ~/.dotfiles/utils
 
 NPM=false
 GO=false
@@ -58,32 +62,17 @@ then
     brew install stow
 fi
 
+if ! command -v mise &> /dev/null
+then
+    echo "Installing mise..."
+    brew install mise
+fi
 
-function pOnSuccess() {
-  if [ $? -eq 0 ]; then
-    if ! $QUIET; then echo "$1"; fi
-  else
-    echo "$2"
-  fi
-}
-
-function cloneOrUpdate() {
-  local GIT_REPO=$(basename "$1")
-  if [ ! -d "$2" ]; then
-    git clone "$1" "$2" &> /dev/null
-    pOnSuccess "  cloned $GIT_REPO" "  could not clone $GIT_REPO"
-  else
-    (cd "$2"; git pull &> /dev/null)
-    pOnSuccess "  updated $GIT_REPO" "  could not update $GIT_REPO"
-  fi
-}
-
-function link() {
-  local FILE="$1"
-  local TARGET="$2"
-  ln -sf "$1" "$2"
-  pOnSuccess "  linked $2" "   could not link $2!"
-}
+if $MISE; then
+  echo "Installing all languages..."
+  linker "$(pwd)/.tool-versions" ~/.tool-versions
+  mise install
+fi
 
 # Ensure certain files/foldesr exist
 touch ~/.zshrc-personal 
@@ -92,7 +81,7 @@ mkdir -p ~/.local/bin
 HOST_NAME=$(hostname)
 
 # Touch login file
-link "$(pwd)/.hushlogin" ~/.hushlogin
+linker "$(pwd)/.hushlogin" ~/.hushlogin
 
 # The configuration steps below are idempotent and run on every install.
 # By default we just use stow to install the directories as listed.
@@ -104,7 +93,7 @@ do
     echo "Configuring ${DIR_NAME}..."
     case $DIR_NAME in
       alacritty)
-        link "$(pwd)/alacritty/mac/.alacritty.toml" ~/.alacritty.toml
+        linker "$(pwd)/alacritty/mac/.alacritty.toml" ~/.alacritty.toml
         pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
         ;;
       executables)
@@ -112,12 +101,12 @@ do
         pOnSuccess "  stowed scripts to ~/.local/bin" "  could not stow scripts!"
         ;;
       git)
-        link "$(pwd)/git/.gitignore" ~/.gitignore
+        linker "$(pwd)/git/.gitignore" ~/.gitignore
         git config --global core.excludesfile ~/.gitignore
         if [ "$HOST_NAME" = "work-computer" ]; then
-          link "$(pwd)/git/.gitconfig-work" ~/.gitconfig
+          linker "$(pwd)/git/.gitconfig-work" ~/.gitconfig
         else
-          link "$(pwd)/git/.gitconfig" ~/.gitconfig
+          linker "$(pwd)/git/.gitconfig" ~/.gitconfig
         fi
         git init
         pOnSuccess "  updated git" "  could not update git!"
@@ -131,8 +120,8 @@ do
         cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
         cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
         cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
-        link "$(pwd)/zsh/.zshrc" ~/.zshrc
-        link "$(pwd)/zsh/.zshenv" ~/.zshenv
+        linker "$(pwd)/zsh/.zshrc" ~/.zshrc
+        linker "$(pwd)/zsh/.zshenv" ~/.zshenv
         ;;
       services)
         find "$(pwd)/services" -type f -name "install" -exec sh -c "echo 'Installing {}' && cd \"\$(dirname \"{}\")\" && ./install" \;
@@ -179,12 +168,6 @@ fi
 if $PIPX; then
   echo "Installing python packages..."
   pipx install $(cat deps/pip)
-fi
-
-if $MISE; then
-  echo "Installing all languages..."
-  link "$(pwd)/.tool-versions" ~/.tool-versions
-  mise install
 fi
 
 if $NVIM; then
