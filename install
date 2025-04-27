@@ -8,7 +8,7 @@ HOMEBREW=false
 PIPX=false
 NVIM=false
 TMUX=false
-ASDF=false
+MISE=false
 
 function usage() {
   echo "Usage: ./install [OPTIONS]
@@ -19,7 +19,7 @@ Options:
   --brew  Installs brew dependencies (required for other installs)
   --go    Installs Go packages
   --npm   Installs Go packages
-  --asdf  Installs all languages through ASDF
+  --mise  Installs languages/tools through Mise
   --pipx  Installs python packages
   --nvim  Installs Neovim
   --q     Mutes all logs
@@ -36,12 +36,12 @@ do
       NPM=true
       PIPX=true
       NVIM=true
-      ASDF=true
+      MISE=true
       ;;
     --brew) HOMEBREW=true ;;
     --nvim) NVIM=true ;;
     --go) GO=true;;
-    --asdf) ASDF=true;;
+    --mise) MISE=true;;
     --npm) NPM=true ;;
     --pipx) PIPX=true ;;
     --tmux) TMUX=true ;;
@@ -161,7 +161,6 @@ if $NPM; then
       npm i -g "$package"
      fi
   done < deps/npm
-  asdf reshim nodejs
 fi
 
 mkdir -p ~/.tmux/plugins
@@ -182,12 +181,10 @@ if $PIPX; then
   pipx install $(cat deps/pip)
 fi
 
-if $ASDF; then
+if $MISE; then
   echo "Installing all languages..."
-  cat ~/.dotfiles/.tool-versions | cut -d' ' -f1 | xargs -n1 asdf plugin add
   link "$(pwd)/.tool-versions" ~/.tool-versions
-  asdf install
-  asdf reshim
+  mise install
 fi
 
 if $NVIM; then

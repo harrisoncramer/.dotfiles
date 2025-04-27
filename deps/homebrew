@@ -1,7 +1,5 @@
-1password-cli
-argocd
+mise
 ast-grep
-awscli
 basictex
 bat
 brotli
@@ -19,7 +17,6 @@ gh
 git-delta
 git-secret
 go-task/tap/go-task
-golangci-lint
 grpcurl
 helm
 htop

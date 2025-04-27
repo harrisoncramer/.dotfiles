@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Add asdf, set versions
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+# Activate mise
+eval "$(mise activate zsh)"
 
 HOST_NAME=$(hostname)
 
