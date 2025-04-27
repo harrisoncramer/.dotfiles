@@ -91,6 +91,9 @@ mkdir -p ~/.local/bin
 
 HOST_NAME=$(hostname)
 
+# Touch login file
+link "$(pwd)/.hushlogin" ~/.hushlogin
+
 # The configuration steps below are idempotent and run on every install.
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
@@ -196,5 +199,3 @@ if $NVIM; then
   mv ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos
   pip3 -q install pynvim
 fi
-
-link "$(pwd)/.hushlogin" ~/.hushlogin
