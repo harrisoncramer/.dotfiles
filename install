@@ -9,7 +9,7 @@ GO=false
 QUIET=false
 VERBOSE=false
 HOMEBREW=false
-PIPX=false
+PIP=false
 NVIM=false
 TMUX=false
 MISE=false
@@ -24,7 +24,6 @@ Options:
   --go    Installs Go packages
   --npm   Installs Go packages
   --mise  Installs languages/tools through Mise
-  --pipx  Installs python packages
   --nvim  Installs Neovim
   --q     Mutes all logs
   --help  Prints this help
@@ -38,7 +37,7 @@ do
       HOMEBREW=true
       GO=true
       NPM=true
-      PIPX=true
+      PIP=true
       NVIM=true
       MISE=true
       ;;
@@ -47,7 +46,7 @@ do
     --go) GO=true;;
     --mise) MISE=true;;
     --npm) NPM=true ;;
-    --pipx) PIPX=true ;;
+    --pip) PIP=true ;;
     --tmux) TMUX=true ;;
     --q) QUIET=true ;;
     --help) usage; exit 0 ;;
@@ -165,9 +164,13 @@ if $GO; then
   done < deps/golang
 fi
 
-if $PIPX; then
+if $PIP; then
+  if [ ! -d "~/py_envs" ]; then
+      python3 -m venv ~/py_envs
+  fi
+  source ~/py_envs/bin/activate
   echo "Installing python packages..."
-  pipx install $(cat deps/pip)
+  pip install $(cat deps/pip)
 fi
 
 if $NVIM; then

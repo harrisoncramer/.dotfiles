@@ -106,8 +106,11 @@ zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
 
+# Activate python virtual environment
 if command -v python3 &>/dev/null; then
-    python3 -m venv ~/py_envs
+    if [ ! -d "~/py_envs" ]; then
+        python3 -m venv ~/py_envs
+    fi
     source ~/py_envs/bin/activate
 fi
 
