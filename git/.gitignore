@@ -26,3 +26,4 @@ db_queries/
 Taskfile.yml
 # .pg_format
 local_only
+postgrestools.jsonc
