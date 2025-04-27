@@ -74,7 +74,7 @@ if $MISE; then
   mise install
 fi
 
-# Ensure certain files/foldesr exist
+# Ensure certain files/folders exist
 touch ~/.zshrc-personal 
 mkdir -p ~/.local/bin
 
