@@ -9,7 +9,6 @@ GO=false
 QUIET=false
 VERBOSE=false
 HOMEBREW=false
-PIP=false
 NVIM=false
 TMUX=false
 MISE=false
@@ -37,7 +36,6 @@ do
       HOMEBREW=true
       GO=true
       NPM=true
-      PIP=true
       NVIM=true
       MISE=true
       ;;
@@ -46,7 +44,6 @@ do
     --go) GO=true;;
     --mise) MISE=true;;
     --npm) NPM=true ;;
-    --pip) PIP=true ;;
     --tmux) TMUX=true ;;
     --q) QUIET=true ;;
     --help) usage; exit 0 ;;
@@ -164,15 +161,6 @@ if $GO; then
   done < deps/golang
 fi
 
-if $PIP; then
-  if [ ! -d "~/py_envs" ]; then
-      python3 -m venv ~/py_envs
-  fi
-  source ~/py_envs/bin/activate
-  echo "Installing python packages..."
-  pip install $(cat deps/pip)
-fi
-
 if $NVIM; then
   echo "Reinstalling Neovim binary..."
   rm -rf ~/Downloads/nvim-macos-arm64.tar.gz ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos 
@@ -180,5 +168,4 @@ if $NVIM; then
   xattr -c ~/Downloads/nvim-macos-arm64.tar.gz
   tar xzf ~/Downloads/nvim-macos-arm64.tar.gz --directory=$HOME/Downloads
   mv ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos
-  pip3 -q install pynvim
 fi
