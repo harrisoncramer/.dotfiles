@@ -1,27 +1,64 @@
 #!/bin/bash
-set -eu -o pipefail
-repo_name=$(git config --get remote.origin.url)
-branch_name=$(basename $(git symbolic-ref --short -q HEAD))
-project_name=$(basename $(git rev-parse --show-toplevel))
 
-if [[ "$project_name" != "muncher" ]]; then
-  exit 0
+set -e
+set -o pipefail
+
+LOGFILE=".git/hooks/pre-push.log"
+echo "" > "$LOGFILE"
+echo "Running pre-push hook" | tee -a "$LOGFILE"
+
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+remote_exists=$(git ls-remote --heads origin $branch_name)
+
+if [ -z "$remote_exists" ]; then
+  changed_files=$(git diff --name-only $(git merge-base $branch_name HEAD))
+else
+  changed_files=$(git diff --name-only origin/$branch_name)
 fi
 
-if [[ "$branch_name" == "master" ]]; then
-    echo "On master branch"
-    exit 0
+app_dirs=()
+pids=()
+fail=0
+
+# Use parameter expansion to strip the 'apps/' prefix and extract the first directory name
+get_app_dir() {
+  local file_path="$1"
+  echo "${file_path#apps/}" | cut -d '/' -f 1
+}
+
+build_go_binary() {
+  local app_dir="$1"
+  if [ ! -f "./apps/$app_dir/go.mod" ]; then
+      exit 0
+  fi
+
+  echo "Building $app_dir" | tee -a "$LOGFILE"
+  cd "./apps/$app_dir" && go install .
+}
+
+for file in $changed_files; do
+  if [[ $file == apps/*/* ]]; then
+    app_dir=$(get_app_dir "$file")
+    # Avoid duplicate builds
+    if [[ ! " ${app_dirs[*]} " =~ " $app_dir " ]]; then
+      app_dirs+=("$app_dir")
+      (
+        build_go_binary "$app_dir"
+      ) &
+      pids+=($!)
+    fi
+  fi
+done
+
+for pid in "${pids[@]}"; do
+  wait "$pid" || fail=1
+done
+
+if [[ $fail -ne 0 ]]; then
+  echo "One or more builds failed. Exiting." | tee -a "$LOGFILE"
+  exit 1
 fi
-to_test=`git diff --name-only origin/develop..HEAD | grep -c -E '^src.*clj$|^test.*clj$'i || true`
-if [[ "$to_test" == 0 ]]; then
-   echo "no need to check zprint"
-   exit 0
-fi
-echo "checking zprint"
-`git diff --name-only origin/develop..HEAD | grep -E '^src.*clj$|^test.*clj$' | xargs bin/zprint-files`
-updated=`git status --porcelain | wc -l`
-if [[ "$updated" -ne "0" ]]; then
-    echo "zprint created uncommitted files"
-    git status --porcelain
-fi
-exit $updated
+
+echo "Done building..." | tee -a "$LOGFILE"
+echo "Verifying..."
+task db:verify

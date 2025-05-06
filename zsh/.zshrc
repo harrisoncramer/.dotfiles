@@ -8,6 +8,10 @@ HOST_NAME=$(hostname)
 # Source sensitive values for work/personal
 if [ "$HOST_NAME" = "harry-work-computer" ]; then
   source ~/.zshrc-work
+  if [ -z "$GITHUB_TOKEN" ]; then
+    GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
+    export GITHUB_TOKEN=$GITHUB_TOKEN
+  fi
   if [ -z "$PROD_DB_URL" ]; then
     PROD_PWD=$(op read op://Development/db_prod/password)
     export PROD_DB_URL="postgresql://chariot:${PROD_PWD}@localhost:5431/chariot"
@@ -33,10 +37,6 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
   fi
 else
   source ~/.zshrc-personal
-  # if [[ -z $GITHUB_TOKEN ]]; then
-  #   export GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
-  # fi
-  #
   # if [[ -z $GITHUB_API_TOKEN ]]; then
   #   export GITHUB_API_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
   # fi
@@ -284,48 +284,6 @@ logs () {
 
 attach() {
   docker exec -it $@ /bin/bash
-}
-
-generate() {
-  RUN_PRISMA=false
-  if [[ "$1" == "--all" ]]; then
-    RUN_PRISMA=true
-  fi
-
-  if $RUN_PRISMA; then
-    (cd $MONO_DIR/packages/cprisma && yarn prisma-migrate:dev)
-  fi
-
-  (cd $MONO_DIR && make generate)
-}
-
-restart () {
-  # Ensure a service name is provided
-  if [ -z "$1" ]; then
-    echo "Usage: restart <service> [--hard]"
-    exit 1
-  fi
-
-  SERVICE=$1
-  HARD_RESTART=false
-
-  if [[ "$2" == "--hard" ]]; then
-    HARD_RESTART=true
-  fi
-
-  # Function to restart the service
-  restart_service() {
-    if $HARD_RESTART; then
-      down $SERVICE 
-      start $SERVICE
-    else
-      stop $SERVICE 
-      start $SERVICE
-    fi
-  }
-
-  # Execute the restart
-  restart_service
 }
 
 function riverui () {

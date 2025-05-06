@@ -11,7 +11,7 @@ blinking = "Always"
 shape = "Beam"
 
 [font]
-size = 20.0
+size = 19.0
 
 [font.normal]
 family = "JetBrainsMono Nerd Font"
