@@ -66,7 +66,8 @@ fi
 # FZF
 FZF_RELOAD='reload:rg --column --color=always --smart-case {q} || :'
 FZF_OPENER='[ $FZF_SELECT_COUNT -eq 0 ] && /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2} || /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}'
-FZF_QUICKFIX_WRITER='sh -c "~/.dotfiles/scripts/fzf/quickfix.sh {+}"'
+FZF_FILE_WRITER='printf "%s\n" {+} > /tmp/fzf-quickfix'
+FZF_NEOVIM_QUICKFIX_OPENER='~/.local/bin/nvim-macos/bin/nvim -c "cfile /tmp/fzf-quickfix" -c "copen"'
 
 # Raspberry Pi Utilities
 alias pibuild='GOOS=linux GOARCH=arm GOARM=5 go build'
@@ -349,7 +350,7 @@ ff() {
       --bind "start:$FZF_RELOAD" --bind "change:$FZF_RELOAD" \
       --bind "enter:become:$FZF_OPENER" \
       --bind "ctrl-e:execute:$FZF_OPENER" \
-      --bind "ctrl-q:select-all+execute($FZF_QUICKFIX_WRITER)+abort" \
+      --bind "ctrl-q:select-all+execute($FZF_FILE_WRITER)+execute($FZF_NEOVIM_QUICKFIX_OPENER)+abort" \
       --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
       --bind 'esc:abort' \
       --delimiter : \
