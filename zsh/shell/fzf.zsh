@@ -4,6 +4,7 @@ zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 # FZF
 FZF_RELOAD='reload:rg --column --color=always --smart-case {q} || :'
 FZF_OPENER='[ $FZF_SELECT_COUNT -eq 0 ] && /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2} || /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}'
+FZF_COPIER='echo {} | pbcopy'
 FZF_FILE_WRITER='printf "%s\n" {+} > /tmp/fzf-quickfix'
 FZF_NEOVIM_QUICKFIX_OPENER='~/.local/bin/nvim-macos/bin/nvim -c "cfile /tmp/fzf-quickfix" -c "copen"'
 FZF_FILE_WRITER_FILES="printf '%s\n' {+} | sed 's|$|:1:from_fzf|' > /tmp/fzf-quickfix-files"
@@ -26,13 +27,12 @@ z() {
   zle reset-prompt
 }
 
-
 # ripgrep->fzf->vim [QUERY]
 ff() {
   fzf --disabled --ansi --multi \
       --bind "start:$FZF_RELOAD" --bind "change:$FZF_RELOAD" \
-      --bind "enter:become:$FZF_OPENER" \
-      --bind "ctrl-e:execute:$FZF_OPENER" \
+      --bind "enter:execute-silent:$FZF_COPIER" \
+      --bind "ctrl-e:become:$FZF_OPENER" \
       --bind "ctrl-q:select-all+execute($FZF_FILE_WRITER)+execute($FZF_NEOVIM_QUICKFIX_OPENER)+abort" \
       --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
       --bind 'esc:abort' \
@@ -47,7 +47,8 @@ f() {
     | fzf --multi \
           --preview 'bat --style=full --color=always --line-range :500 {}' \
           --bind "enter:become:$FZF_OPENER" \
-          --bind "ctrl-e:execute:$FZF_OPENER {+}" \
+          --bind "ctrl-e:become:$FZF_OPENER" \
+          --bind "enter:execute-silent:$FZF_COPIER" \
           --bind "ctrl-q:select-all+execute($FZF_FILE_WRITER_FILES)+execute($FZF_NEOVIM_QUICKFIX_OPENER_FILES)+abort" \
           --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
           --preview-window '~4,+{2}+4/3,<80(up)'
