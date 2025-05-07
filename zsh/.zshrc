@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/bin/zsh
 
 source ~/shell/base.zsh
-source ~/shell/fzf.zsh
+for file in ~/shell/*.zsh; do
+  source "$file"
+done
