@@ -1,4 +1,5 @@
 #!/bin/zsh
+alias dkk="cd ~/Desktop"
 
 uuid() {
   local uuid=$(uuidgen | tr '[:upper:]' '[:lower:]')
