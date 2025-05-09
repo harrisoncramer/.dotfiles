@@ -2,7 +2,7 @@
 
 # These commands run AFTER ZSH finishes
 zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
-zvm_after_init_commands+=('eval "$(atuin init zsh)"')
+zvm_after_init_commands+=('eval "$(atuin init zsh --disable-up-arrow)"')
 zvm_after_init_commands+=("bindkey '^R' atuin-search")
 
 # Activate mise

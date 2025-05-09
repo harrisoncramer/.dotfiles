@@ -1,0 +1,7 @@
+[settings]
+enter_accept = false
+store_failed = false
+style = "compact"
+
+[theme]
+name = "my-theme"
