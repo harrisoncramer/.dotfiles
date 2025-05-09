@@ -1,5 +1,4 @@
-# Fixes conflicts between fzf and zsh-vi-mode
-zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
+#!/bin/zsh
 
 # FZF
 FZF_RELOAD='reload:rg --column --color=always --smart-case {q} || :'

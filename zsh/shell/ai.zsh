@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 # Copilot autocompletion in the shell
 eval "$(gh completion -s zsh)"
 alias explain="gh copilot explain"

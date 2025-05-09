@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 db_staging () {
   printf "Connecting to staging DB...\n" >&2;\
   ssh -f staging sleep 10 && pgcli -d $STAGING_DB_URL

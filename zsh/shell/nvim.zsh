@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
 export EDITOR="$NVIM"
 alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"

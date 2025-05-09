@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/bin/zsh
+
+# These commands run AFTER ZSH finishes
+zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
+zvm_after_init_commands+=('eval "$(atuin init zsh)"')
+zvm_after_init_commands+=("bindkey '^R' atuin-search")
 
 # Activate mise
 eval "$(mise activate zsh)"
@@ -18,8 +23,6 @@ plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mo
 source ~/.oh-my-zsh/oh-my-zsh.sh
 export ZVM_VI_EDITOR="nvim"
 
-# Fixes conflicts between fzf and zsh-vi-mode
-zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept

@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 # Add golang executables
 export PATH="$HOME/go/bin:$PATH"
 

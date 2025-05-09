@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 HOST_NAME=$(hostname)
 
 # Source sensitive values for work/personal

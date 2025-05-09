@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 dc() {
   docker-compose --project-name chariot -f "$MONO_DIR/docker-compose.yml" --env-file "$MONO_DIR/.env" "$@"
 }
