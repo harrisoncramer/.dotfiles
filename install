@@ -67,6 +67,7 @@ fi
 if $MISE; then
   echo "Installing all languages..."
   linker "$(pwd)/mise.toml" ~/mise.toml
+  mise trust -q
   mise install
 fi
 
