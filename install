@@ -92,10 +92,6 @@ do
         linker "$(pwd)/alacritty/mac/.alacritty.toml" ~/.alacritty.toml
         pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
         ;;
-      executables)
-        stow "$DIR_NAME" -t ~/.local/bin
-        pOnSuccess "  stowed scripts to ~/.local/bin" "  could not stow scripts!"
-        ;;
       git)
         linker "$(pwd)/git/.gitignore" ~/.gitignore
         git config --global core.excludesfile ~/.gitignore
