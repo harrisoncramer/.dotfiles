@@ -66,7 +66,7 @@ fi
 
 if $MISE; then
   echo "Installing all languages..."
-  linker "$(pwd)/.tool-versions" ~/.tool-versions
+  linker "$(pwd)/mise.toml" ~/mise.toml
   mise install
 fi
 

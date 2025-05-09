@@ -1,0 +1,23 @@
+[settings]
+experimental = true # Required for Go backend
+
+[tools]
+go = "1.24.2"
+python = "3.13.3"
+node = "20.18.0"
+yarn = "1.22.19"
+grpcurl = "1.9.3"
+air = "1.61.7"
+jq = "1.7.1"
+golangci-lint = "v1.64.5"
+# Aqua is one of Mise's backends, read more about it here: https://mise.jdx.dev/dev-tools/backends/aqua.html
+"aqua:pressly/goose" = "v3.24.3"
+"aqua:theseus-rs/postgresql-binaries" = "17.4.0"
+"aqua:sqlc-dev/sqlc" = "v1.28.0"
+# Go is another backend, see: https://mise.jdx.dev/dev-tools/backends/go.html
+"go:github.com/go-delve/delve/cmd/dlv" = "v1.24.2"
+"go:github.com/riverqueue/river/cmd/river" = "v0.9.0"
+
+[env]
+ # Makes NPM binaries available in the user's shell directly
+_.path = ['{{config_root}}/node_modules/.bin']
