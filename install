@@ -2,12 +2,10 @@
 set -eu -o pipefail
 
 # Source common commands
-source ~/.dotfiles/utils
+source "./utils"
 
 NPM=false
 GO=false
-QUIET=false
-VERBOSE=false
 HOMEBREW=false
 NVIM=false
 TMUX=false
@@ -29,39 +27,41 @@ Options:
   "
 }
 
-while test $# != 0
-do
-    case "$1" in
-    --all)
-      HOMEBREW=true
-      GO=true
-      NPM=true
-      NVIM=true
-      MISE=true
-      ;;
-    --brew) HOMEBREW=true ;;
-    --nvim) NVIM=true ;;
-    --go) GO=true;;
-    --mise) MISE=true;;
-    --npm) NPM=true ;;
-    --tmux) TMUX=true ;;
-    --q) QUIET=true ;;
-    --help) usage; exit 0 ;;
-    *)  usage; exit 1 ;;
-    esac
-    shift
+while test $# != 0; do
+  case "$1" in
+  --all)
+    HOMEBREW=true
+    GO=true
+    NPM=true
+    NVIM=true
+    MISE=true
+    ;;
+  --brew) HOMEBREW=true ;;
+  --nvim) NVIM=true ;;
+  --go) GO=true ;;
+  --mise) MISE=true ;;
+  --npm) NPM=true ;;
+  --tmux) TMUX=true ;;
+  --help)
+    usage
+    exit 0
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+  esac
+  shift
 done
 
-if ! command -v stow &> /dev/null
-then
-    echo "Installing stow..."
-    brew install stow
+if ! command -v stow &>/dev/null; then
+  echo "Installing stow..."
+  brew install stow
 fi
 
-if ! command -v mise &> /dev/null
-then
-    echo "Installing mise..."
-    brew install mise
+if ! command -v mise &>/dev/null; then
+  echo "Installing mise..."
+  brew install mise
 fi
 
 if $MISE; then
@@ -72,7 +72,7 @@ if $MISE; then
 fi
 
 # Ensure certain files/folders exist
-touch ~/.zshrc-personal 
+touch ~/.zshrc-personal
 mkdir -p ~/.local/bin
 
 HOST_NAME=$(hostname)
@@ -83,68 +83,63 @@ linker "$(pwd)/.hushlogin" ~/.hushlogin
 # The configuration steps below are idempotent and run on every install.
 # By default we just use stow to install the directories as listed.
 # However, if any installations require customization, we can do that here.
-for dir in $(pwd)/*/
-do
-    DIR_ROOT="${dir%*/}"
-    DIR_NAME="${DIR_ROOT##*/}"
-    echo "Configuring ${DIR_NAME}..."
-    case $DIR_NAME in
-      alacritty)
-        linker "$(pwd)/alacritty/mac/.alacritty.toml" ~/.alacritty.toml
-        pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
-        ;;
-      git)
-        linker "$(pwd)/git/.gitignore" ~/.gitignore
-        git config --global core.excludesfile ~/.gitignore
-        if [ "$HOST_NAME" = "work-computer" ]; then
-          linker "$(pwd)/git/.gitconfig-work" ~/.gitconfig
-        else
-          linker "$(pwd)/git/.gitconfig" ~/.gitconfig
-        fi
-        git init
-        pOnSuccess "  updated git" "  could not update git!"
-        ;;
-      zsh)
-        export ZSH_DIR="$HOME/.oh-my-zsh"
-        cloneOrUpdate https://github.com/ohmyzsh/ohmyzsh.git "$ZSH_DIR"
-        cloneOrUpdate https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting"
-        cloneOrUpdate https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_DIR/custom/plugins/zsh-autosuggestions"
-        cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode "$ZSH_DIR/custom/plugins/zsh-vi-mode"
-        cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
-        cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
-        cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
-        stow "$DIR_NAME"
-        ;;
-      services)
-        find "$(pwd)/services" -type f -name "install" -exec sh -c "echo 'Installing {}' && cd \"\$(dirname \"{}\")\" && ./install" \;
-        ;;
-      gpg)
-        echo "TODO: GPG installation not automated. Please copy these files to ~/.gnupg"
-        ;;
-      *)
-        stow "$DIR_NAME"
-        pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
-        ;;
-    esac
+for dir in "$(pwd)"/*/; do
+  DIR_ROOT="${dir%*/}"
+  DIR_NAME="${DIR_ROOT##*/}"
+  echo "Configuring ${DIR_NAME}..."
+  case $DIR_NAME in
+  alacritty)
+    linker "$(pwd)/alacritty/mac/.alacritty.toml" ~/.alacritty.toml
+    pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
+    ;;
+  git)
+    linker "$(pwd)/git/.gitignore" ~/.gitignore
+    git config --global core.excludesfile ~/.gitignore
+    if [ "$HOST_NAME" = "work-computer" ]; then
+      linker "$(pwd)/git/.gitconfig-work" ~/.gitconfig
+    else
+      linker "$(pwd)/git/.gitconfig" ~/.gitconfig
+    fi
+    git init
+    pOnSuccess "  updated git" "  could not update git!"
+    ;;
+  zsh)
+    export ZSH_DIR="$HOME/.oh-my-zsh"
+    cloneOrUpdate https://github.com/ohmyzsh/ohmyzsh.git "$ZSH_DIR"
+    cloneOrUpdate https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting"
+    cloneOrUpdate https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_DIR/custom/plugins/zsh-autosuggestions"
+    cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode "$ZSH_DIR/custom/plugins/zsh-vi-mode"
+    cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
+    cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
+    cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
+    stow "$DIR_NAME"
+    ;;
+  gpg)
+    echo "TODO: GPG installation not automated. Please copy these files to ~/.gnupg"
+    ;;
+  *)
+    stow "$DIR_NAME"
+    pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
+    ;;
+  esac
 done
-
 
 # Dependency installs
 if $HOMEBREW; then
   echo "Installing brews..."
-  brew install $(cat deps/homebrew)
+  brew install "$(cat deps/homebrew)"
   brew cleanup
-  yes | $(brew --prefix)/opt/fzf/install > /dev/null 2>&1
+  yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
 fi
 
 if $NPM; then
   echo "Installing global npm dependencies..."
   while IFS= read -r package; do
-     if [[ -n "$package" ]]; then
-       echo "Installing $package"
+    if [[ -n "$package" ]]; then
+      echo "Installing $package"
       npm i -g "$package"
-     fi
-  done < deps/npm
+    fi
+  done <deps/npm
 fi
 
 mkdir -p ~/.tmux/plugins
@@ -156,15 +151,15 @@ fi
 if $GO; then
   echo "Installing golang modules..."
   while IFS= read -r PACKAGE; do
-      go install "$PACKAGE"
-  done < deps/golang
+    go install "$PACKAGE"
+  done <deps/golang
 fi
 
 if $NVIM; then
   echo "Reinstalling Neovim binary..."
-  rm -rf ~/Downloads/nvim-macos-arm64.tar.gz ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos 
+  rm -rf ~/Downloads/nvim-macos-arm64.tar.gz ~/Downloads/nvim-macos-arm64 "$HOME/.local/bin/nvim-macos"
   curl -sL https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-arm64.tar.gz -o ~/Downloads/nvim-macos-arm64.tar.gz
   xattr -c ~/Downloads/nvim-macos-arm64.tar.gz
-  tar xzf ~/Downloads/nvim-macos-arm64.tar.gz --directory=$HOME/Downloads
-  mv ~/Downloads/nvim-macos-arm64 $HOME/.local/bin/nvim-macos
+  tar xzf ~/Downloads/nvim-macos-arm64.tar.gz --directory="$HOME/Downloads"
+  mv ~/Downloads/nvim-macos-arm64 "$HOME/.local/bin/nvim-macos"
 fi

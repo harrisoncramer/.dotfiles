@@ -1,5 +1,6 @@
 #!/bin/zsh
 alias dkk="cd ~/Desktop"
+alias mr="mise run"
 
 uuid() {
   local uuid=$(uuidgen | tr '[:upper:]' '[:lower:]')

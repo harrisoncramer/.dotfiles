@@ -1,7 +1,6 @@
 #!/bin/bash
 
 function linker() {
-  local FILE="$1"
   local TARGET="$2"
   if [ -e "$TARGET" ]; then
     return 0
@@ -9,7 +8,6 @@ function linker() {
   ln -sf "$1" "$2"
   pOnSuccess "  linked $2" "   could not link $2!"
 }
-
 
 function pOnSuccess() {
   if [ $? -eq 0 ]; then
@@ -20,13 +18,16 @@ function pOnSuccess() {
 }
 
 function cloneOrUpdate() {
-  local GIT_REPO=$(basename "$1")
+  local GIT_REPO
+  GIT_REPO=$(basename "$1")
   if [ ! -d "$2" ]; then
-    git clone "$1" "$2" &> /dev/null
+    git clone "$1" "$2" &>/dev/null
     pOnSuccess "  cloned $GIT_REPO" "  could not clone $GIT_REPO"
   else
-    (cd "$2"; git pull &> /dev/null)
+    (
+      cd "$2" || exit 1
+      git pull &>/dev/null
+    )
     pOnSuccess "  updated $GIT_REPO" "  could not update $GIT_REPO"
   fi
 }
-
