@@ -2,6 +2,20 @@
 
 HOST_NAME=$(hostname)
 
+# Gets a secret from the OnePassword vault with the label provided and tagged with "mise"
+getSecret() {
+    set +e
+    secret=$(op item get "$1" --vault "$2" --field "$3" 2>/dev/null)
+    set -e
+    if [[ -z "$secret" ]]; then
+        echo
+        gum log --level error "Error: Failed to get \"$1\" secret." >&2
+        return 1
+    fi
+    echo "$secret"
+}
+
+
 # Source sensitive values for work/personal
 if [ "$HOST_NAME" = "harry-work-computer" ]; then
   source ~/.zshrc-work
@@ -9,24 +23,20 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
     GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
     export GITHUB_TOKEN=$GITHUB_TOKEN
   fi
-  if [ -z "$PROD_DB_URL" ]; then
-    PROD_PWD=$(op read op://Development/db_prod/password)
-    export PROD_DB_URL="postgresql://chariot:${PROD_PWD}@localhost:5431/chariot"
+  if [ -z "$PROD_DATABASE_URL" ]; then
+    export PROD_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'PROD_DATABASE_URL')
   fi
 
-  if [ -z "$STAGING_DB_URL" ]; then
-    STAGING_PWD=$(op read op://Development/db_staging/credential)
-    export STAGING_DB_URL="postgresql://chariot:${STAGING_PWD}@localhost:5434/chariot"
+  if [ -z "$STAGING_DATABASE_URL" ]; then
+    export STAGING_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'PROD_DATABASE_URL')
   fi
 
-  if [ -z "$PROD_READ_ONLY_DB_URL" ]; then
-    PROD_READ_ONLY_PWD=$(op read op://Development/db_prod/password)
-    export PROD_READ_ONLY_DB_URL="postgresql://chariot:${PROD_READ_ONLY_PWD}@localhost:5433/chariot"
+  if [ -z "$PROD_READ_ONLY_DATABASE_URL" ]; then
+    export PROD_READ_ONLY_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'PROD_READ_ONLY_DATABASE_URL')
   fi
 
-  if [ -z "$SANDBOX_DB_URL" ]; then
-    SANDBOX_PWD=$(op read op://Development/db_sandbox/credential)
-    export SANDBOX_DB_URL="postgresql://chariot:${SANDBOX_PWD}@localhost:5435/chariot"
+  if [ -z "$SANDBOX_DATABASE_URL" ]; then
+    export SANDBOX_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'PROD_DATABASE_URL')
   fi
 
   if [ -z "$DEV_DATABASE_URL" ]; then
