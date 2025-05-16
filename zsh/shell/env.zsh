@@ -28,7 +28,7 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
   fi
 
   if [ -z "$STAGING_DATABASE_URL" ]; then
-    export STAGING_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'PROD_DATABASE_URL')
+    export STAGING_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'STAGING_DATABASE_URL')
   fi
 
   if [ -z "$PROD_READ_ONLY_DATABASE_URL" ]; then
@@ -36,7 +36,7 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
   fi
 
   if [ -z "$SANDBOX_DATABASE_URL" ]; then
-    export SANDBOX_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'PROD_DATABASE_URL')
+    export SANDBOX_DATABASE_URL=$(getSecret 'Mise Secrets' 'Development' 'SANDBOX_DATABASE_URL')
   fi
 
   if [ -z "$DEV_DATABASE_URL" ]; then
