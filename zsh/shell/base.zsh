@@ -21,6 +21,7 @@ plugins=(fast-syntax-highlighting zsh-autosuggestions git git-open fzf zsh-vi-mo
 source ~/.oh-my-zsh/oh-my-zsh.sh
 export ZVM_VI_EDITOR="nvim"
 
+export MANPAGER='~/.local/bin/nvim-macos/bin/nvim +Man!'
 
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
