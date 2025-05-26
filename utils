@@ -11,7 +11,7 @@ function linker() {
 
 function pOnSuccess() {
   if [ $? -eq 0 ]; then
-    if ! $QUIET; then echo "$1"; fi
+    echo "$1"
   else
     echo "$2"
   fi

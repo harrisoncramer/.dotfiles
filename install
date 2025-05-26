@@ -112,6 +112,7 @@ for dir in "$(pwd)"/*/; do
     cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
     cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
     cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
+    cloneOrUpdate https://github.com/Aloxaf/fzf-tab "${ZSH_DIR}/plugins/fzf-tab"
     stow "$DIR_NAME"
     ;;
   gpg)
