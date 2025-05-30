@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for PORT in "$@"; do
+  PIDS=$(lsof -t -iTCP:"$PORT" -sTCP:LISTEN)
+  if [ -n "$PIDS" ]; then
+    kill "$PIDS"
+    gum log --level info "Killed process(es) $PIDS on port $PORT"
+  fi
+done
