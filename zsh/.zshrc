@@ -6,3 +6,4 @@ for file in ~/shell/*.zsh; do
 done
 
 eval "$(mise activate zsh)"
+export CGO_ENABLED=1
