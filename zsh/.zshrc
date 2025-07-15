@@ -7,3 +7,6 @@ done
 
 eval "$(mise activate zsh)"
 export CGO_ENABLED=1
+
+## Source utils
+source ~/shell/utils/*.sh

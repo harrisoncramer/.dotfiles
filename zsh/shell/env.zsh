@@ -18,6 +18,9 @@ getSecret() {
 
 # Source sensitive values for work/personal
 if [ "$HOST_NAME" = "harry-work-computer" ]; then
+
+  export API_KEY="sk_dev_b970c548bb13bbd6b16dab9f55fa05af" # Local only, not sensitive!
+
   source ~/.zshrc-work
   if [ -z "$GITHUB_TOKEN" ]; then
     GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
@@ -41,6 +44,10 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
 
   if [ -z "$DEV_DATABASE_URL" ]; then
     export DEV_DATABASE_URL="postgresql://chariot:samplepassword@0.0.0.0:5432/chariot?connect_timeout=300"
+  fi
+
+  if [ -z "$ANTHROPIC_API_KEY" ]; then
+    export ANTHROPIC_API_KEY=$(op item get 'Anthropic API Token' --fields 'api_token' --reveal)
   fi
 else
   source ~/.zshrc-personal

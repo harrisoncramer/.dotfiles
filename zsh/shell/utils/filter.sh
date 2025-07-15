@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 filter() {
   if [[ "$1" == "-h" || "$1" == "--help" ]]; then
