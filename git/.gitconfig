@@ -5,6 +5,8 @@
 	email = harrisoncramer@gmail.com
 [includeIf "gitdir:~/chariot/"]
 	path = /Users/harrisoncramer/.gitconfig-work
+[includeIf "gitdir:~/chariot-backup/"]
+	path = /Users/harrisoncramer/.gitconfig-work
 [core]
 	excludesfile = /Users/harrisoncramer/.gitignore
 [merge]
