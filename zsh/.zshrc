@@ -1,6 +1,9 @@
 #!/bin/zsh
 
-source ~/shell/base.zsh
+autoload -Uz compinit
+compinit
+
+# source ~/shell/base.zsh
 for file in ~/shell/*.zsh; do
   source "$file"
 done
