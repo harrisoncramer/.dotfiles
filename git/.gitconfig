@@ -20,20 +20,9 @@
   changed = "! ~/bin/git-changed"
   nuke = "! ~/bin/git-nuke"
   squash-unpushed = "! ~/bin/git-squash-unpushed"
-  dv = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
-  dv-all = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
-  dv-unpushed = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen HEAD..@{u}\""
-[interactive]
-    diffFilter = delta --color-only
-[delta]
-    navigate = true    # use n and N to move between diff sections
-    light = false      # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
-    line-numbers = true
-    paging = never
-[delta "wooly-mammoth"]
-  minus-style = red bold ul "#ffeeee"
-[diff]
-    colorMoved = default
+  dv = "! args=$@; shift $#; /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
+  dv-all = "! args=$@; shift $#; /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
+  dv-unpushed = "! args=$@; shift $#; /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen HEAD..@{u}\""
 [push]
 	default = simple
 	autoSetupRemote = true
