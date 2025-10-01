@@ -18,6 +18,9 @@ export PATH="~/nv:$PATH"
 # Adding libpq
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
+# Adding Mise stuff
+export PATH="~/.local/share/mise/installs/golangci-lint/v2.4.0/golangci-lint-2.4.0-darwin-arm64/:$PATH"
+
 # bun
 export PATH="$HOME/.bun/bin:$PATH"
 

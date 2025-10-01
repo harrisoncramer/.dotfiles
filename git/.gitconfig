@@ -1,16 +1,18 @@
 [init]
 	defaultBranch = main
+	templatedir = ~/.git_templates
 [user]
-	name = Harrison Cramer
-	email = harrisoncramer@gmail.com
-[includeIf "gitdir:~/chariot/"]
-	path = /Users/harrisoncramer/.gitconfig-work
-[includeIf "gitdir:~/chariot-backup/"]
-	path = /Users/harrisoncramer/.gitconfig-work
+	signingkey = BF1DB43909C984DA
+	name = Harry Cramer
+	email = harrisonc@givechariot.com
+[gpg]
+	program = /opt/homebrew/bin/gpg
+[commit]
+	gpgsign = true
+[url "ssh://git@github.com/"]
+    insteadOf = https://github.com/
 [core]
 	excludesfile = /Users/harrisoncramer/.gitignore
-[merge]
-	conflictstyle = diff3
 [alias]
   lg = log --graph --pretty=format:'%Cred%h%Creset %an -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
   reviews = "! ~/bin/git-reviews"
@@ -18,15 +20,14 @@
   last = "! ~/bin/git-last"
   recent = "! ~/bin/git-recent"
   changed = "! ~/bin/git-changed"
-  nuke = "! ~/bin/git-nuke"
   squash-unpushed = "! ~/bin/git-squash-unpushed"
-  dv = "! args=$@; shift $#; /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
-  dv-all = "! args=$@; shift $#; /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
-  dv-unpushed = "! args=$@; shift $#; /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen HEAD..@{u}\""
+  dv = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
+  dv-all = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
+  dv-unpushed = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen HEAD..@{u}\""
+[diff]
+    colorMoved = default
 [push]
 	default = simple
 	autoSetupRemote = true
-[credential]
-	helper = store
 [url "git@github.com:"]
 	insteadOf = https://github.com/

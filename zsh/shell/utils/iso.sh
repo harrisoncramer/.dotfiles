@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+iso() {
+  date -u +"%Y-%m-%dT%H:%M:%SZ" | tr -d '\n' | pbcopy
+}
