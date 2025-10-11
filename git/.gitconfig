@@ -15,12 +15,9 @@
 	excludesfile = /Users/harrisoncramer/.gitignore
 [alias]
   lg = log --graph --pretty=format:'%Cred%h%Creset %an -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
-  reviews = "! ~/bin/git-reviews"
-  authored = "! ~/bin/git-authored"
-  last = "! ~/bin/git-last"
-  recent = "! ~/bin/git-recent"
-  changed = "! ~/bin/git-changed"
-  squash-unpushed = "! ~/bin/git-squash-unpushed"
+  last = "! git-last"
+  recent = "! git-recent"
+  changed = "! git-changed"
   dv = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
   dv-all = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
   dv-unpushed = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen HEAD..@{u}\""
