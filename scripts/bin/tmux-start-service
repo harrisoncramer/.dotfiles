@@ -1,3 +1,0 @@
-#!/bin/bash
-
-tmux new-window -n Generate "task docker:up -- ${1}"

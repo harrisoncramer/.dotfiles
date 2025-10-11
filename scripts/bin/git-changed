@@ -8,4 +8,4 @@ if [[ -z $FILE ]]; then
   exit
 fi
 
-$NVIM $FILE
+$NVIM "$FILE"

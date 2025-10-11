@@ -12,5 +12,5 @@ if [[ -z $CHOICE ]]; then
 fi
 
 IFS=" "
-BRANCH=$(echo $CHOICE | awk '{print $NF}' | tr -d '()' )
+BRANCH=$(echo $CHOICE | awk '{print $NF}' | tr -d '()')
 git checkout $BRANCH
