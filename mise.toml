@@ -9,7 +9,7 @@ rust = "1.83.0"
 grpcurl = "1.9.3"
 air = "1.61.7"
 jq = "1.7.1"
-golangci-lint = "v1.64.5"
+# golangci-lint = "v1.64.5"
 # Aqua is one of Mise's backends, read more about it here: https://mise.jdx.dev/dev-tools/backends/aqua.html
 "aqua:pressly/goose" = "v3.24.3"
 "aqua:theseus-rs/postgresql-binaries" = "17.4.0"
