@@ -1,5 +1,10 @@
 #!/bin/zsh
 
+# Add scripts (from scripts directory)
+for DIR in ~/scripts/*; do
+  PATH="$PATH:$DIR"
+done
+
 # Add golang executables
 export PATH="$HOME/go/bin:$PATH"
 

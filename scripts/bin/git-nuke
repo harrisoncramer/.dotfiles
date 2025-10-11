@@ -1,8 +1,0 @@
-#!/bin/bash
-
-if ! gum confirm --affirmative "💣💣💣" --negative "Abort"; then
-  exit 0
-fi
-
-git reset --hard HEAD
-git clean -fd

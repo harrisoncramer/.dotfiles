@@ -1,6 +1,0 @@
-#!/bin/bash
-
-AWS_KEYS=$(op item get 'AWS' --fields 'Personal Access Key ID','Personal Secret Access Key')
-export AWS_ACCESS_KEY_ID=$(echo $AWS_KEYS | cut -d "," -f1)
-export AWS_SECRET_ACCESS_KEY=$(echo $AWS_KEYS | cut -d "," -f2)
-export AWS_DEFAULT_REGION=us-east-1

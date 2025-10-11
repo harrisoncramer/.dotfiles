@@ -1,0 +1,5 @@
+#!/bin/bash
+
+UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+echo -n "$UUID" | pbcopy
+echo "UUID (copied to clipboard): $UUID"
