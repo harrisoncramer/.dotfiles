@@ -88,10 +88,6 @@ for dir in "$(pwd)"/*/; do
   DIR_NAME="${DIR_ROOT##*/}"
   echo "Configuring ${DIR_NAME}..."
   case $DIR_NAME in
-  alacritty)
-    linker "$(pwd)/alacritty/mac/.alacritty.toml" ~/.alacritty.toml
-    pOnSuccess "  linked .alacritty.toml" "  could not link .alacritty.toml!"
-    ;;
   git)
     linker "$(pwd)/git/.gitignore" ~/.gitignore
     git config --global core.excludesfile ~/.gitignore
