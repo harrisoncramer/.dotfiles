@@ -1,16 +1,10 @@
 [init]
 	defaultBranch = main
-	templatedir = ~/.git_templates
 [user]
-	signingkey = BF1DB43909C984DA
-	name = Harry Cramer
-	email = harrisonc@givechariot.com
-[gpg]
-	program = /opt/homebrew/bin/gpg
-[commit]
-	gpgsign = true
-[url "ssh://git@github.com/"]
-    insteadOf = https://github.com/
+	name = Harrison Cramer
+	email = harrisoncramer@gmail.com
+[includeIf "gitdir:~/chariot/**"]
+	path = /Users/harrisoncramer/.gitconfig-work
 [core]
 	excludesfile = /Users/harrisoncramer/.gitignore
 [alias]
