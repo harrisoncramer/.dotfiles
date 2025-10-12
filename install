@@ -122,9 +122,9 @@ for dir in "$(pwd)"/*/; do
 done
 
 # Dependency installs
-if $HOMEBREW; then
+if [ -n "$HOMEBREW" ]; then
   echo "Installing brews..."
-  brew install "$(cat deps/homebrew)"
+  brew install $(cat deps/homebrew)
   brew cleanup
   yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
 fi

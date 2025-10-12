@@ -18,7 +18,6 @@ gettext
 gh
 git-delta
 git-secret
-go-task/tap/go-task
 golangci-lint
 grpcurl
 helm
@@ -47,7 +46,6 @@ sqlc
 sqlite
 stern
 stow
-stripe/stripe-cli/stripe
 tmux
 tokei
 tree-sitter
