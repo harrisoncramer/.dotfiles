@@ -41,6 +41,7 @@ z() {
 # ripgrep->fzf->vim [QUERY]
 ff() {
   fzf --disabled --ansi --multi \
+      --layout reverse \
       --bind "start:$FZF_RELOAD" --bind "change:$FZF_RELOAD" \
       --bind "enter:execute-silent:$FZF_COPIER" \
       --bind "ctrl-e:become:$FZF_OPENER" \
@@ -49,20 +50,21 @@ ff() {
       --bind 'esc:abort' \
       --delimiter : \
       --preview 'bat --style=full --color=always --highlight-line {2} {1}' \
-      --preview-window '~4,+{2}+4/3,<80(up)' \
+      --preview-window 'up,~4,+{2}+4/3,<80(down)' \
       --query "$*"
 }
 
 f() {
   fd --type f . \
     | fzf --multi \
+          --layout reverse \
           --preview 'bat --style=full --color=always --line-range :500 {}' \
           --bind "enter:become:$FZF_OPENER" \
           --bind "ctrl-e:become:$FZF_OPENER" \
           --bind "enter:execute-silent:$FZF_COPIER" \
           --bind "ctrl-q:select-all+execute($FZF_FILE_WRITER_FILES)+execute($FZF_NEOVIM_QUICKFIX_OPENER_FILES)+abort" \
           --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
-          --preview-window '~4,+{2}+4/3,<80(up)'
+          --preview-window 'up,~4,+{2}+4/3,<80(down)'
 }
 
 autoload -Uz add-zsh-hook
