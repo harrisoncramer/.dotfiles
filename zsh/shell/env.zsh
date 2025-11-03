@@ -21,7 +21,6 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
 
   export API_KEY="sk_dev_b970c548bb13bbd6b16dab9f55fa05af" # Local only, not sensitive!
 
-  source ~/.zshrc-work
   if [ -z "$GITHUB_TOKEN" ]; then
     GITHUB_TOKEN=$(op item get 'Github API Token' --fields 'api_token' --reveal)
     export GITHUB_TOKEN=$GITHUB_TOKEN

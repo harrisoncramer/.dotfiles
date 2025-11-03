@@ -9,7 +9,7 @@ alias pr="gh pr view --web"
 alias gs="git status"
 alias gc='git commit -m '
 alias gd='git diff'
-alias gp='git pull'
+alias gp='git push'
 
 # Creates a new blank Github Repository and Switches into it
 project () {
