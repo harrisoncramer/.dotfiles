@@ -27,16 +27,22 @@ var (
 	qfFile string
 )
 
-func processLines(lines []string) []QuickfixEntry {
+func processLines(lines []string) ([]QuickfixEntry, bool) {
 	var entries []QuickfixEntry
 
 	inErrorBlock := false
+	hasFailure := false
 	var currentEntry QuickfixEntry
 
 	traceRegex := regexp.MustCompile(`Error Trace:\s+(.+):(\d+)`)
 	errorRegex := regexp.MustCompile(`Error:\s+(.+)`)
+	testFailRegex := regexp.MustCompile(`=== FAIL:`)
 
 	for _, line := range lines {
+		if testFailRegex.MatchString(line) {
+			hasFailure = true
+		}
+
 		if matches := traceRegex.FindStringSubmatch(line); len(matches) > 2 {
 			currentEntry = QuickfixEntry{}
 			inErrorBlock = true
@@ -48,6 +54,7 @@ func processLines(lines []string) []QuickfixEntry {
 
 		if inErrorBlock {
 			if matches := errorRegex.FindStringSubmatch(line); len(matches) > 1 {
+				hasFailure = true
 				errorMsg := strings.TrimSpace(matches[1])
 				currentEntry.Message = errorMsg
 
@@ -59,10 +66,10 @@ func processLines(lines []string) []QuickfixEntry {
 		}
 	}
 
-	return entries
+	return entries, hasFailure
 }
 
-func processOutput(reader io.Reader) []QuickfixEntry {
+func processOutput(reader io.Reader) ([]QuickfixEntry, bool) {
 	var lines []string
 	scanner := bufio.NewScanner(reader)
 
@@ -90,7 +97,7 @@ func streamAndCapture(reader io.Reader, writer io.Writer, lines *[]string, mu *s
 	}
 }
 
-func writeQuickfixFile(entries []QuickfixEntry) error {
+func writeQuickfixFile(entries []QuickfixEntry, hasFailure bool) error {
 	if err := os.MkdirAll(qfDir, 0755); err != nil {
 		return fmt.Errorf("failed to create directory %s: %v", qfDir, err)
 	}
@@ -113,15 +120,23 @@ func writeQuickfixFile(entries []QuickfixEntry) error {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "\n📝 Wrote %d entries to %s\n", len(entries), qfPath)
+	if len(entries) > 0 {
+		fmt.Fprintf(os.Stderr, "\033[31m\nWrote %d entries to %s\033[0m\n", len(entries), qfPath)
+	} else if hasFailure {
+		fmt.Fprintf(os.Stderr, "\033[33m\nFailure occurred running tests!\033[0m\n")
+	} else {
+		fmt.Fprintf(os.Stderr, "\033[32m\nTests passed!\033[0m\n")
+	}
+
 	return nil
 }
 
 func convertToQuickfix(cmd *cobra.Command, args []string) {
 	var entries []QuickfixEntry
+	var hasFailure bool
 
 	if len(args) == 0 {
-		entries = processOutput(os.Stdin)
+		entries, hasFailure = processOutput(os.Stdin)
 	} else {
 		command := args[0]
 		cmdArgs := args[1:]
@@ -159,11 +174,10 @@ func convertToQuickfix(cmd *cobra.Command, args []string) {
 			fmt.Fprintf(os.Stderr, "Command failed: %v\n", err)
 		}
 
-		entries = processLines(allLines)
+		entries, hasFailure = processLines(allLines)
 	}
 
-	if err := writeQuickfixFile(entries); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	if err := writeQuickfixFile(entries, hasFailure); err != nil {
 		os.Exit(1)
 	}
 }
