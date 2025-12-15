@@ -14,6 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+/* This tool captures errors from a Go test run and syncs them to the .qf directory */
+
 type QuickfixEntry struct {
 	File    string
 	Line    string
@@ -80,7 +82,7 @@ func streamAndCapture(reader io.Reader, writer io.Writer, lines *[]string, mu *s
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		fmt.Fprintln(writer, line)
+		_, _ = fmt.Fprintln(writer, line)
 
 		mu.Lock()
 		*lines = append(*lines, line)
