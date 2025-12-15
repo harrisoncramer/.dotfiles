@@ -3,11 +3,13 @@ package qf
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/spf13/cobra"
 )
@@ -23,36 +25,7 @@ var (
 	qfFile string
 )
 
-// convertToQuickfix is the main logic for converting test output to quickfix format
-func convertToQuickfix(cmd *cobra.Command, args []string) {
-	if len(args) == 0 {
-		fmt.Fprintf(os.Stderr, "Error: No command specified\n")
-		os.Exit(1)
-	}
-
-	if err := os.MkdirAll(qfDir, 0755); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create directory %s: %v\n", qfDir, err)
-		os.Exit(1)
-	}
-
-	command := args[0]
-	cmdArgs := args[1:]
-
-	execCmd := exec.Command(command, cmdArgs...)
-	execCmd.Stderr = execCmd.Stdout // Redirect stderr to stdout
-
-	stdout, err := execCmd.StdoutPipe()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create stdout pipe: %v\n", err)
-		os.Exit(1)
-	}
-
-	if err := execCmd.Start(); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to start command: %v\n", err)
-		os.Exit(1)
-	}
-
-	scanner := bufio.NewScanner(stdout)
+func processLines(lines []string) []QuickfixEntry {
 	var entries []QuickfixEntry
 
 	inErrorBlock := false
@@ -61,11 +34,7 @@ func convertToQuickfix(cmd *cobra.Command, args []string) {
 	traceRegex := regexp.MustCompile(`Error Trace:\s+(.+):(\d+)`)
 	errorRegex := regexp.MustCompile(`Error:\s+(.+)`)
 
-	for scanner.Scan() {
-		line := scanner.Text()
-
-		fmt.Println(line)
-
+	for _, line := range lines {
 		if matches := traceRegex.FindStringSubmatch(line); len(matches) > 2 {
 			currentEntry = QuickfixEntry{}
 			inErrorBlock = true
@@ -88,24 +57,46 @@ func convertToQuickfix(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading command output: %v\n", err)
-		os.Exit(1)
+	return entries
+}
+
+func processOutput(reader io.Reader) []QuickfixEntry {
+	var lines []string
+	scanner := bufio.NewScanner(reader)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println(line)
+		lines = append(lines, line)
 	}
 
-	if err := execCmd.Wait(); err != nil {
-		fmt.Fprintf(os.Stderr, "Command failed: %v\n", err)
-	}
+	return processLines(lines)
+}
 
-	if len(entries) == 0 {
-		return
+func streamAndCapture(reader io.Reader, writer io.Writer, lines *[]string, mu *sync.Mutex, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		line := scanner.Text()
+
+		fmt.Fprintln(writer, line)
+
+		mu.Lock()
+		*lines = append(*lines, line)
+		mu.Unlock()
+	}
+}
+
+func writeQuickfixFile(entries []QuickfixEntry) error {
+	if err := os.MkdirAll(qfDir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory %s: %v", qfDir, err)
 	}
 
 	qfPath := filepath.Join(qfDir, qfFile)
 	file, err := os.Create(qfPath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create quickfix file %s: %v\n", qfPath, err)
-		os.Exit(1)
+		return fmt.Errorf("failed to create quickfix file %s: %v", qfPath, err)
 	}
 	defer func() {
 		err = file.Close()
@@ -120,19 +111,74 @@ func convertToQuickfix(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	fmt.Printf("\nWrote %d entries to %s\n", len(entries), qfPath)
+	fmt.Fprintf(os.Stderr, "\n📝 Wrote %d entries to %s\n", len(entries), qfPath)
+	return nil
+}
+
+func convertToQuickfix(cmd *cobra.Command, args []string) {
+	var entries []QuickfixEntry
+
+	if len(args) == 0 {
+		entries = processOutput(os.Stdin)
+	} else {
+		command := args[0]
+		cmdArgs := args[1:]
+
+		execCmd := exec.Command(command, cmdArgs...)
+
+		stdout, err := execCmd.StdoutPipe()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to create stdout pipe: %v\n", err)
+			os.Exit(1)
+		}
+
+		stderr, err := execCmd.StderrPipe()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to create stderr pipe: %v\n", err)
+			os.Exit(1)
+		}
+
+		if err := execCmd.Start(); err != nil {
+			fmt.Fprintf(os.Stderr, "Failed to start command: %v\n", err)
+			os.Exit(1)
+		}
+
+		var allLines []string
+		var mu sync.Mutex
+		var wg sync.WaitGroup
+
+		wg.Add(2)
+		go streamAndCapture(stdout, os.Stdout, &allLines, &mu, &wg)
+		go streamAndCapture(stderr, os.Stderr, &allLines, &mu, &wg)
+
+		wg.Wait()
+
+		if err := execCmd.Wait(); err != nil {
+			fmt.Fprintf(os.Stderr, "Command failed: %v\n", err)
+		}
+
+		entries = processLines(allLines)
+	}
+
+	if err := writeQuickfixFile(entries); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 var TestToQuickfix = &cobra.Command{
-	Use:   "qf [flags] <command> [args...]",
-	Short: "Run command and convert Go test errors to quickfix format",
-	Long: `Run a command (typically go test) and parse its output to create a quickfix file
-that can be loaded into Neovim. The command captures Error Trace lines and formats
-them for easy navigation to test failures.
+	Use:   "qf [flags] [command] [args...]",
+	Short: "Convert Go test errors to quickfix format",
+	Long: `Convert Go test output to quickfix format that can be loaded into Neovim.
+Can be used in two ways:
 
-Examples:
-  qf go test ./...
-  qf --dir .quickfix --file errors.qf go test -v ./pkg/...`,
+1. Run a command and capture its output:
+   qf go test ./...
+
+2. Process piped input:
+   go test ./... | qf
+
+The command captures Error Trace lines and formats them for easy navigation.`,
 	Run: convertToQuickfix,
 }
 
