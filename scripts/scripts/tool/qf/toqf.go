@@ -122,8 +122,10 @@ func writeQuickfixFile(entries []QuickfixEntry, hasFailure bool) error {
 
 	if len(entries) > 0 {
 		fmt.Fprintf(os.Stderr, "\033[31m\nWrote %d entries to %s\033[0m\n", len(entries), qfPath)
+		os.Exit(1)
 	} else if hasFailure {
 		fmt.Fprintf(os.Stderr, "\033[33m\nFailure occurred running tests!\033[0m\n")
+		os.Exit(1)
 	} else {
 		fmt.Fprintf(os.Stderr, "\033[32m\nTests passed!\033[0m\n")
 	}
