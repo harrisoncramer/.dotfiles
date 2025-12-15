@@ -2,5 +2,5 @@
 pgcli/.config/pgcli/history
 pgcli/.config/pgcli/log
 gpt/.config/gpt-cli/history
-scripts/tool/tool
+scripts/scripts/tool/tool
 nvim/*

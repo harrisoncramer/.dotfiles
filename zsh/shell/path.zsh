@@ -8,6 +8,8 @@ done
 # Add golang executables
 export PATH="$HOME/go/bin:$PATH"
 
+export PATH="$HOME/chariot/chariot/local:$PATH"
+
 # Add tool executables
 export PATH="$HOME/.dotfiles/scripts/tool:$PATH"
 

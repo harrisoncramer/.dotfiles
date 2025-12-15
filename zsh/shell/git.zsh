@@ -2,14 +2,17 @@
 
 alias mono="cd $MONO_DIR"
 alias proto="cd $PROTO_DIR"
-alias commit="mono && yarn commit"
 alias g="git"
-alias gb="git rev-parse --abbrev-ref HEAD"
 alias pr="gh pr view --web"
 alias gs="git status"
 alias gc='git commit -m '
 alias gd='git diff'
 alias gp='git push'
+
+unalias gf 2>/dev/null || true
+gf () {
+  git fetch origin staging:staging
+}
 
 # Creates a new blank Github Repository and Switches into it
 project () {

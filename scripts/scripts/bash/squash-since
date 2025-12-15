@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z "$1" ]; then
+  echo "Usage: squash_since <branch>"
+  exit 1
+fi
+
+git fetch origin "$1:$1" || exit 1 # Pulls down target branch
+COMMIT_COUNT=$(git rev-list --count "$1"..HEAD)
+if [ "$COMMIT_COUNT" -eq 0 ]; then
+  echo "No commits to squash."
+  exit 1
+fi
+
+git reset --soft "HEAD~$COMMIT_COUNT" && git commit -m "$(git log --format=%B "HEAD..HEAD@{1}")"
