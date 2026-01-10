@@ -13,7 +13,7 @@ zstyle ':fzf-tab:*' fzf-bindings ctrl-n:down ctrl-p:up tab:toggle enter:accept
 zstyle ':fzf-tab:*' continuous-trigger '/'
 
 # FZF
-FZF_RELOAD='reload:rg --column --color=always --smart-case {q} || :'
+FZF_RELOAD='reload:rg --vimgrep --color=always --smart-case {q} || :'
 FZF_OPENER='[ $FZF_SELECT_COUNT -eq 0 ] && /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2} || /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}'
 FZF_COPIER='echo {} | pbcopy'
 FZF_FILE_WRITER='printf "%s\n" {+} > /tmp/fzf-quickfix'

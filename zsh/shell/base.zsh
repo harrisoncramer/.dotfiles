@@ -3,6 +3,8 @@
 # These commands run AFTER ZSH finishes
 zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 
+setopt EXTENDED_GLOB
+
 # Writing
 alias todo="v /Users/harrisoncramer/Library/Mobile\ Documents/iCloud\~ee\~xero\~Paper/Documents/todo.md"
 
