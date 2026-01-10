@@ -15,3 +15,5 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
 else
   source ~/.zshrc-personal
 fi
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

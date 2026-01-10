@@ -124,6 +124,7 @@ done
 # Dependency installs
 if [ -n "$HOMEBREW" ]; then
   echo "Installing brews..."
+  export HOMEBREW_NO_AUTO_UPDATE=1
   brew install $(cat deps/homebrew)
   brew cleanup
   yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
