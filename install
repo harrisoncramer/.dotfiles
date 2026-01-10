@@ -122,7 +122,7 @@ for dir in "$(pwd)"/*/; do
 done
 
 # Dependency installs
-if [ -n "$HOMEBREW" ]; then
+if $HOMEBREW; then
   echo "Installing brews..."
   export HOMEBREW_NO_AUTO_UPDATE=1
   brew install $(cat deps/homebrew)
