@@ -385,6 +385,14 @@
 
     local res
 
+    if [[ -n $VCS_STATUS_WORKDIR && -f ${VCS_STATUS_WORKDIR}/.git ]]; then
+      local git_file_content=$(<${VCS_STATUS_WORKDIR}/.git)
+      if [[ $git_file_content == gitdir:* ]]; then
+        local worktree_name=${VCS_STATUS_WORKDIR:t}
+        res+="${meta}🌴${clean}${worktree_name//\%/%%}${meta} "
+      fi
+    fi
+
     if [[ -n $VCS_STATUS_LOCAL_BRANCH ]]; then
       local branch=${(V)VCS_STATUS_LOCAL_BRANCH}
       # If local branch name is at most 32 characters long, show it in full.
@@ -1721,3 +1729,5 @@ typeset -g POWERLEVEL9K_CONFIG_FILE=${${(%):-%x}:a}
 
 (( ${#p10k_config_opts} )) && setopt ${p10k_config_opts[@]}
 'builtin' 'unset' 'p10k_config_opts'
+
+
