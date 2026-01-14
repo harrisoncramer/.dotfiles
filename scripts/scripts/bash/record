@@ -19,8 +19,6 @@ TEMP_GIF="${TEMP_FILE%.cast}.gif"
 OUTPUT_FILE="${TEMP_FILE%.cast}.mp4"
 
 echo "Starting asciinema recording..."
-echo "Press Ctrl+D or type 'exit' when done recording."
-echo ""
 
 asciinema rec "$TEMP_FILE"
 
