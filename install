@@ -125,7 +125,9 @@ done
 if $HOMEBREW; then
   echo "Installing brews..."
   export HOMEBREW_NO_AUTO_UPDATE=1
-  brew install "$(cat deps/homebrew)"
+  while IFS= read -r package; do
+    brew install "$package"
+  done <deps/homebrew
   brew cleanup
   yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
 fi
