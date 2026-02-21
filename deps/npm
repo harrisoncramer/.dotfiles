@@ -7,3 +7,5 @@ vite
 turbo
 @anthropic-ai/claude-code
 @zed-industries/claude-code-acp
+claude
+claude-code-acp

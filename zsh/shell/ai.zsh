@@ -13,3 +13,4 @@ function answer() {
   echo -n "$@" | sgpt
 }
 
+alias claude="claude --dangerously-skip-permissions"

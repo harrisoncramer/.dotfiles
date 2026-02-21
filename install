@@ -6,6 +6,7 @@ source "./utils"
 
 NPM=false
 GO=false
+CLAUDE=false
 HOMEBREW=false
 NVIM=false
 TMUX=false
@@ -16,14 +17,15 @@ function usage() {
 Installs dependencies for my development environment.
 
 Options:
-  --all   Installs all dependencies
-  --brew  Installs brew dependencies (required for other installs)
-  --go    Installs Go packages
-  --npm   Installs Go packages
-  --mise  Installs languages/tools through Mise
-  --nvim  Installs Neovim
-  --q     Mutes all logs
-  --help  Prints this help
+  --all     Installs all dependencies
+  --brew    Installs brew dependencies (required for other installs)
+  --go      Installs Go packages
+  --npm     Installs Go packages
+  --mise    Installs languages/tools through Mise
+  --claude  Configures Claude
+  --nvim    Installs Neovim
+  --q       Mutes all logs
+  --help    Prints this help
   "
 }
 
@@ -35,7 +37,9 @@ while test $# != 0; do
     NPM=true
     NVIM=true
     MISE=true
+    CLAUDE=true
     ;;
+  --claude) CLAUDE=true ;;
   --brew) HOMEBREW=true ;;
   --nvim) NVIM=true ;;
   --go) GO=true ;;
@@ -114,6 +118,7 @@ for dir in "$(pwd)"/*/; do
   gpg)
     echo "TODO: GPG installation not automated. Please copy these files to ~/.gnupg"
     ;;
+  claude) ;;
   *)
     stow "$DIR_NAME"
     pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
@@ -138,6 +143,12 @@ if $NPM; then
       npm i -g "$package"
     fi
   done <deps/npm
+fi
+
+# Claude
+if $CLAUDE; then
+  echo "Installing Claude Code"
+  ./claude/install
 fi
 
 mkdir -p ~/.tmux/plugins

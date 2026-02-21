@@ -46,7 +46,7 @@ if [ "$HOST_NAME" = "harry-work-computer" ]; then
   fi
 
   if [ -z "$ANTHROPIC_API_KEY" ]; then
-    export ANTHROPIC_API_KEY=$(op item get 'Anthropic API Token' --fields 'api_token' --reveal)
+    # export ANTHROPIC_API_KEY=$(op item get 'Anthropic API Token' --fields 'api_token' --reveal)
   fi
 else
   source ~/.zshrc-personal
