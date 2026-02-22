@@ -1,1 +1,1 @@
-alias claude="claude --dangerously-skip-permissions"
+alias claude="claude --dangerously-skip-permissions --model opus"
