@@ -42,3 +42,7 @@ function zvm_vi_yank() {
 }
 
 export GPG_TTY=$(tty)
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
