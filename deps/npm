@@ -6,6 +6,6 @@ typescript
 vite
 turbo
 @anthropic-ai/claude-code
-@zed-industries/claude-code-acp
+@zed-industries/claude-agent-acp
 claude
 claude-code-acp
