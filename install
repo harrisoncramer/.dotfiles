@@ -126,6 +126,7 @@ for dir in "$(pwd)"/*/; do
   claude)
     mkdir -p ~/.claude
     linker "$(pwd)/claude/settings.json" ~/.claude/settings.json
+    linker "$(pwd)/claude/CLAUDE.md" ~/.claude/CLAUDE.md
     ;;
   *)
     stow "$DIR_NAME"
