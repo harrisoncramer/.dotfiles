@@ -1,7 +1,5 @@
 #!/bin/zsh
 
-alias mono="cd $MONO_DIR"
-alias proto="cd $PROTO_DIR"
 alias g="git"
 alias pr="gh pr view --web"
 alias gs="git status"

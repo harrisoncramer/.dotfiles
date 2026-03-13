@@ -20,19 +20,19 @@ export PATH="$HOME/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 
 # Configure environments
-export PATH="~/nv:$PATH"
+export PATH="$HOME/nv:$PATH"
 
 # Adding libpq
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 # Adding Mise stuff
-export PATH="~/.local/share/mise/installs/golangci-lint/v2.4.0/golangci-lint-2.4.0-darwin-arm64/:$PATH"
+export PATH="$HOME/.local/share/mise/installs/golangci-lint/v2.4.0/golangci-lint-2.4.0-darwin-arm64/:$PATH"
 
 # bun
 export PATH="$HOME/.bun/bin:$PATH"
 
 # pnpm
-export PNPM_HOME="/Users/harrisoncramer/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 export PATH="$PNPM_HOME:$PATH"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;

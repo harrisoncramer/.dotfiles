@@ -13,13 +13,14 @@ zstyle ':fzf-tab:*' fzf-bindings ctrl-n:down ctrl-p:up tab:toggle enter:accept
 zstyle ':fzf-tab:*' continuous-trigger '/'
 
 # FZF
+NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
 FZF_RELOAD='reload:rg --vimgrep --color=always --smart-case {q} || :'
-FZF_OPENER='[ $FZF_SELECT_COUNT -eq 0 ] && /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim {1} +{2} || /Users/harrisoncramer/.local/bin/nvim-macos/bin/nvim +cw -q {+f}'
+FZF_OPENER="[ \$FZF_SELECT_COUNT -eq 0 ] && $NVIM {1} +{2} || $NVIM +cw -q {+f}"
 FZF_COPIER='echo {} | pbcopy'
 FZF_FILE_WRITER='printf "%s\n" {+} > /tmp/fzf-quickfix'
-FZF_NEOVIM_QUICKFIX_OPENER='~/.local/bin/nvim-macos/bin/nvim -c "cfile /tmp/fzf-quickfix" -c "copen"'
+FZF_NEOVIM_QUICKFIX_OPENER="$NVIM -c \"cfile /tmp/fzf-quickfix\" -c \"copen\""
 FZF_FILE_WRITER_FILES="printf '%s\n' {+} | sed 's|$|:1:from_fzf|' > /tmp/fzf-quickfix-files"
-FZF_NEOVIM_QUICKFIX_OPENER_FILES='~/.local/bin/nvim-macos/bin/nvim -c "cfile /tmp/fzf-quickfix-files" -c "copen"'
+FZF_NEOVIM_QUICKFIX_OPENER_FILES="$NVIM -c \"cfile /tmp/fzf-quickfix-files\" -c \"copen\""
 
 # Recent directories: https://junegunn.github.io/fzf/examples/directory-navigation/
 . /opt/homebrew/etc/profile.d/z.sh
