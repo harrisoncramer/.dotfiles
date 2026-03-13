@@ -1,8 +1,6 @@
 #!/bin/bash
 
-# Clear Claude ready indicator when popup opens
-ROOT_SESSION="${TMUX_POPUP_SESSION_ID%%/*}"
-tmux set -g @claude_ready "" -t "$ROOT_SESSION" 2>/dev/null || tmux set -g @claude_ready ""
+[ -n "$MAIN_SESSION" ] && tmux -L default set -t "$MAIN_SESSION" @claude_status "" 2>/dev/null || true
 
 # Disable automatic window renaming so titles persist in the popup session
 tmux set-option automatic-rename off

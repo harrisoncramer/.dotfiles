@@ -1,11 +1,5 @@
 #!/bin/bash
 set -euo pipefail
 
-npm i -g claude
+npm i -g @anthropic-ai/claude-code
 npm i -g claude-code-acp
-
-claude mcp add --scope user --transport http linear-server https://mcp.linear.app/mcp
-claude mcp add --scope user --transport http figma-remote-mcp https://mcp.figma.com/mcp
-claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
-
-echo "Run /mcp inside Claude Code to authenticate each server."

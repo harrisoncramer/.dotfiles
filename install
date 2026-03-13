@@ -118,7 +118,10 @@ for dir in "$(pwd)"/*/; do
   gpg)
     echo "TODO: GPG installation not automated. Please copy these files to ~/.gnupg"
     ;;
-  claude) ;;
+  claude)
+    mkdir -p ~/.claude
+    linker "$(pwd)/claude/settings.json" ~/.claude/settings.json
+    ;;
   *)
     stow "$DIR_NAME"
     pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
