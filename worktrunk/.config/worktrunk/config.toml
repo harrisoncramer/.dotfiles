@@ -1,0 +1,7 @@
+worktree-path = "{{ repo_path }}/.worktrees/{{ branch | sanitize }}"
+
+[post-start]
+say_hello = "echo 'hi'"
+
+[commit.generation]
+command = "MAX_THINKING_TOKENS=0 claude -p --model=haiku --tools='' --disable-slash-commands --setting-sources='' --system-prompt=''"

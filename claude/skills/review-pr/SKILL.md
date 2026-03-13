@@ -1,17 +1,4 @@
----
-name: review-pr
-description: "Phase 1: Generate a PR review file for iteration"
-disable-model-invocation: true
-allowed-tools: Bash(*)
----
-
-# Review a Pull Request (Phase 1 - Generate)
-
-Run the setup script to create a worktree, pull the PR, and get the diff against the base branch. The first argument is the PR number and the second (optional) argument is the base branch (defaults to staging).
-
-!`bash ~/.claude/skills/review-pr/setup.sh $ARGUMENTS`
-
-Review the diff output above. You are a senior software engineer giving feedback to another engineer. Check for:
+You are a senior software engineer reviewing a pull request. Check for:
 
 - Potential bugs or issues
 - Performance considerations
@@ -23,9 +10,11 @@ Be precise with your feedback, referencing specific file paths and line numbers.
 
 Write feedback in a casual, human tone. Use softeners like "hmm", "I think", "looks like", "not sure but", "might be worth", etc. Avoid sounding robotic or authoritative. You are a colleague, not a linter.
 
-At the top of your review give a summary paragraph of the changes, e.g. "The point of these changes is to refactor the payments service to do X Y and Z. This is achieved by refactoring the service X to do Y. Most of the complexity..."
+At the top of your review give a detailed summary of the changes. For larger PRs this should be multiple paragraphs. The first paragraph should explain the purpose and motivation. Subsequent paragraphs should walk through the key areas of the change, e.g. new services, API routes, data models, infrastructure wiring. The reader should be able to understand the full scope of the PR from the summary alone without reading the diff.
 
-After completing the review, write a summary file to `/tmp/reviews/<pr-number>.md` explaining what the PR does in broad strokes. It should include a section for all of the above feedback that you have.
+After the feedback section, include a "Review Comment" section. This is the top-level comment that gets posted alongside the line-level feedback when the review is submitted. It should comment on the overall approach and structure of the PR -- not repeat individual feedback points, but give higher-level observations about the architecture, patterns used, and how the pieces fit together. A few paragraphs. Casual tone, same as the feedback.
+
+Write the review to `/tmp/reviews/<pr-number>.md`. It should include all of the above sections.
 
 Here is an example of a good review file:
 
@@ -34,11 +23,11 @@ Here is an example of a good review file:
 
 ## Summary
 
-These changes add retry logic to the payment processing pipeline. The core change is a new `RetryPolicy` struct in the payments service that wraps outbound API calls with exponential backoff. 
+These changes add retry logic to the payment processing pipeline. When outbound API calls to payment providers fail transiently, the system currently surfaces the error immediately to the caller. This PR introduces configurable retry behavior so that transient failures are handled transparently.
 
-Most of the complexity is in `services/payments/retry.go` where the backoff intervals and jitter are calculated. 
+The core change is a new `RetryPolicy` struct in `services/payments/retry.go` that wraps outbound API calls with exponential backoff and jitter. It accepts a `RetryConfig` with max retries, base delay, and max delay. The backoff calculation uses full jitter to avoid thundering herd problems when multiple requests fail simultaneously.
 
-The PR also updates the webhook handler to surface retry metadata in responses.
+The webhook handler in `services/payments/webhook.go` is updated to surface retry metadata (attempt count, total elapsed time) in responses, so callers can observe when a response required retries. The config is loaded from the service's existing YAML configuration under a new `retry` key.
 
 ## Feedback
 
@@ -56,6 +45,10 @@ Looks like `attemptCount` is incremented without synchronization but `RetryPolic
 File: services/payments/config.go, line 31
 
 Not sure if this is intentional, but `ParseDuration` can return an error for malformed config values and the error is assigned to `_`. I think a typo in config would silently fall back to the zero duration, which would collapse all backoff intervals to zero and hammer the downstream API with no delay.
-```
 
-Stop here. The user will review the file, iterate with you on feedback points, and then run `/post-review` when ready.
+## Review Comment
+
+Nice approach centralizing retry at the `RetryPolicy` level rather than per-callsite. Config loading is clean too.
+
+One thing I'd think about is whether `RetryPolicy` should live in the payments package or get pulled into something shared. The integrations service has a similar pattern with external API calls that could benefit from the same backoff logic. Not necessarily for this PR, but worth keeping in mind.
+```

@@ -1,0 +1,14 @@
+[projects."github.com/chariot-giving/chariot"]
+approved-commands = [
+    "cd {{ worktree_path }} && mise trust --yes",
+    "mise run wt:ports {{ branch | sanitize }}",
+    "mise run wt:link {{ branch | sanitize }}",
+    "cd {{ worktree_path }} && yarn install",
+    "cd {{ worktree_path }} && mise axle:build-plugins",
+    "cd {{ worktree_path }} && mise go:build-linter",
+    "cd {{ worktree_path }} && mise docker:up db && mise db:wait",
+    "cd {{ worktree_path }} && mise db:migrate --yes",
+    "cd {{ worktree_path }} && mise docker:down 2>/dev/null || true",
+    "mise run wt:cleanup-ports {{ branch | sanitize }}",
+]
+

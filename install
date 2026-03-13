@@ -123,6 +123,13 @@ for dir in "$(pwd)"/*/; do
     bat cache --build
     pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
     ;;
+  worktrunk)
+    stow "$DIR_NAME"
+    if command -v worktrunk >/dev/null 2>&1; then
+      brew install worktrunk
+      worktrunk config shell install
+    fi
+    ;;
   claude)
     mkdir -p ~/.claude
     linker "$(pwd)/claude/settings.json" ~/.claude/settings.json
@@ -147,9 +154,6 @@ if $HOMEBREW; then
   done <deps/homebrew
   brew cleanup
   yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
-
-  ## Specific follow-up steps
-  wt config shell install
 fi
 
 if $NPM; then
