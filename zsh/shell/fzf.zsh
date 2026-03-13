@@ -15,6 +15,7 @@ zstyle ':fzf-tab:*' continuous-trigger '/'
 # FZF
 NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
 FZF_RELOAD='reload:rg --vimgrep --color=always --smart-case {q} || :'
+FZF_RELOAD_ALL='reload:rg --vimgrep --color=always --smart-case --no-ignore --hidden {q} || :'
 FZF_OPENER="[ \$FZF_SELECT_COUNT -eq 0 ] && $NVIM {1} +{2} || $NVIM +cw -q {+f}"
 FZF_COPIER='echo {} | pbcopy'
 FZF_FILE_WRITER='printf "%s\n" {+} > /tmp/fzf-quickfix'
@@ -100,6 +101,23 @@ ch-widget() {
   zle reset-prompt
 }
 
+FZF_RELOAD_ALL='reload:rg --vimgrep --color=always --smart-case --no-ignore --hidden {q} || :'
+
+ffa() {
+  fzf --disabled --ansi --multi \
+      --layout reverse \
+      --bind "start:$FZF_RELOAD_ALL" --bind "change:$FZF_RELOAD_ALL" \
+      --bind "enter:execute-silent:$FZF_COPIER" \
+      --bind "ctrl-e:become:$FZF_OPENER" \
+      --bind "ctrl-q:select-all+execute($FZF_FILE_WRITER)+execute($FZF_NEOVIM_QUICKFIX_OPENER)+abort" \
+      --bind 'ctrl-o:toggle-all,ctrl-/:toggle-preview' \
+      --bind 'esc:abort' \
+      --delimiter : \
+      --preview 'bat --style=full --color=always --highlight-line {2} {1}' \
+      --preview-window 'up,~4,+{2}+4/3,<80(down)' \
+      --query "$*"
+}
+
 bind_keys() {
   zle -N ff-widget ff
   bindkey -r '^F'
@@ -116,6 +134,10 @@ bind_keys() {
   zle -N ch-widget
   bindkey -r '^H'
   bindkey '^H' ch-widget
+
+  zle -N ffa-widget ffa
+  bindkey -r '^G'
+  bindkey '^G' ffa-widget
 }
 
 add-zsh-hook -d precmd bind_keys
