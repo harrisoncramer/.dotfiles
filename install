@@ -127,6 +127,7 @@ for dir in "$(pwd)"/*/; do
     mkdir -p ~/.claude
     linker "$(pwd)/claude/settings.json" ~/.claude/settings.json
     linker "$(pwd)/claude/CLAUDE.md" ~/.claude/CLAUDE.md
+    linker "$(pwd)/claude/skills" ~/.claude/skills
     ;;
   *)
     stow "$DIR_NAME"
@@ -164,7 +165,8 @@ fi
 # Claude
 if $CLAUDE; then
   echo "Installing Claude Code"
-  ./claude/install
+  npm i -g @anthropic-ai/claude-code
+  npm i -g claude-code-acp
 fi
 
 mkdir -p ~/.tmux/plugins

@@ -1,5 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-
-npm i -g @anthropic-ai/claude-code
-npm i -g claude-code-acp
