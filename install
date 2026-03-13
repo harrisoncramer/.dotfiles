@@ -145,6 +145,9 @@ if $HOMEBREW; then
   done <deps/homebrew
   brew cleanup
   yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
+
+  ## Specific follow-up steps
+  wt config shell install
 fi
 
 if $NPM; then
