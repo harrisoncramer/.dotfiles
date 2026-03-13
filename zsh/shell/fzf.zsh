@@ -70,6 +70,36 @@ f() {
 
 autoload -Uz add-zsh-hook
 
+ch-widget() {
+  local session_id
+  session_id=$(
+    while IFS= read -r f; do
+      jq -r --arg f "$f" --arg s "$(basename "$f" .jsonl)" '
+        select(.type == "user") |
+        [ $s,
+          (.timestamp // ""),
+          (.message.content | if type == "array" then map(select(.type=="text") | .text) | join(" ") else . end),
+          $f
+        ] | @tsv
+      ' "$f" 2>/dev/null
+    done < <(find "$HOME/.claude/projects" -name "*.jsonl" | sort) \
+    | sort -t$'\t' -k2 -r \
+    | fzf \
+        --delimiter $'\t' \
+        --with-nth '2,3' \
+        --preview '~/.dotfiles/zsh/shell/claude-preview {4}' \
+        --preview-window 'up:60%,wrap' \
+        --layout reverse \
+        --bind 'ctrl-/:toggle-preview' \
+    | cut -f1
+  )
+  if [[ -n "$session_id" ]]; then
+    BUFFER="claude --resume $session_id"
+    zle accept-line
+  fi
+  zle reset-prompt
+}
+
 bind_keys() {
   zle -N ff-widget ff
   bindkey -r '^F'
@@ -82,6 +112,10 @@ bind_keys() {
   zle -N recent-dirs-widget z
   bindkey -r '^Z'
   bindkey '^Z' recent-dirs-widget
+
+  zle -N ch-widget
+  bindkey -r '^H'
+  bindkey '^H' ch-widget
 }
 
 add-zsh-hook -d precmd bind_keys

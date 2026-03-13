@@ -118,6 +118,11 @@ for dir in "$(pwd)"/*/; do
   gpg)
     echo "TODO: GPG installation not automated. Please copy these files to ~/.gnupg"
     ;;
+  bat)
+    stow "$DIR_NAME"
+    bat cache --build
+    pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
+    ;;
   claude)
     mkdir -p ~/.claude
     linker "$(pwd)/claude/settings.json" ~/.claude/settings.json
@@ -132,8 +137,12 @@ done
 # Dependency installs
 if $HOMEBREW; then
   echo "Installing brews..."
-  export HOMEBREW_NO_AUTO_UPDATE=1
-  brew install "$(cat deps/homebrew)"
+  brew update
+  while IFS= read -r package; do
+    if [[ -n "$package" ]]; then
+      brew install "$package" || echo "  warning: failed to install $package"
+    fi
+  done <deps/homebrew
   brew cleanup
   yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
 fi
