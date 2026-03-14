@@ -1,5 +1,4 @@
 {
-  "skipDangerousModePermissionPrompt": true,
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -23,5 +22,7 @@
         ]
       }
     ]
-  }
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "model": "sonnet"
 }
