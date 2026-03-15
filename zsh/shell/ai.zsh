@@ -33,7 +33,7 @@ ch() {
     | fzf \
         --delimiter $'\t' \
         --with-nth '2,3' \
-        --preview '~/.dotfiles/zsh/shell/claude-preview {4}' \
+        --preview '~/.dotfiles/zsh/shell/claude-preview.zsh {4}' \
         --preview-window 'up:60%,wrap' \
         --layout reverse \
         --bind 'ctrl-/:toggle-preview' \

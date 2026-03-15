@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/zsh
+
 # Preview a Claude session JSONL file as readable markdown for fzf
 jq -r '
   select(.type == "user" or .type == "assistant") |

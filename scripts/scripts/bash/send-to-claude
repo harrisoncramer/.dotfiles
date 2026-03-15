@@ -1,0 +1,27 @@
+#!/bin/bash
+# Send a message to the last tracked Claude pane via tmux send-keys.
+message="$*"
+
+if [ -z "$message" ]; then
+    tmux display-message "send-to-claude: no message provided"
+    exit 1
+fi
+
+pane=$(tmux show-option -gv @claude_last_pane 2>/dev/null)
+if [ -z "$pane" ]; then
+    track-claude-pane
+    pane=$(tmux show-option -gv @claude_last_pane 2>/dev/null)
+fi
+
+if [ -z "$pane" ]; then
+    tmux display-message "No Claude pane found."
+    exit 0
+fi
+
+if ! tmux list-panes -a -F '#{pane_id}' | grep -qF "$pane"; then
+    tmux display-message "Tracked Claude pane no longer exists."
+    tmux set-option -gu @claude_last_pane
+    exit 1
+fi
+
+tmux send-keys -t "$pane" "$message" Enter
