@@ -171,6 +171,8 @@ if $CLAUDE; then
   echo "Installing Claude Code"
   npm i -g @anthropic-ai/claude-code
   npm i -g claude-code-acp
+  claude plugin marketplace add max-sixty/worktrunk
+  claude plugin install worktrunk@worktrunk
 fi
 
 mkdir -p ~/.tmux/plugins

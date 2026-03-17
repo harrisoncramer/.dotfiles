@@ -10,5 +10,7 @@ approved-commands = [
     "cd {{ worktree_path }} && mise db:migrate --yes",
     "cd {{ worktree_path }} && mise docker:down 2>/dev/null || true",
     "mise run wt:cleanup-ports {{ branch | sanitize }}",
+    "mise run wt:cleanup-ports {{ branch | sanitize }} || true",
+    "docker compose -p chariot-{{ branch | sanitize }} down 2>/dev/null || true",
+    "rm -rf {{ worktree_path }}",
 ]
-
