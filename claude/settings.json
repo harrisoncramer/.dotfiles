@@ -1,5 +1,4 @@
 {
-  "model": "sonnet",
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -28,6 +27,9 @@
     "type": "command",
     "command": "wt list statusline --format=claude-code"
   },
+  "enabledPlugins": {
+    "worktrunk@worktrunk": true
+  },
   "extraKnownMarketplaces": {
     "worktrunk": {
       "source": {
@@ -36,8 +38,5 @@
       }
     }
   },
-  "skipDangerousModePermissionPrompt": true,
-  "enabledPlugins": {
-    "worktrunk@worktrunk": true
-  }
+  "skipDangerousModePermissionPrompt": true
 }

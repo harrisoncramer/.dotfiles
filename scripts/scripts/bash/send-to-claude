@@ -1,5 +1,5 @@
 #!/bin/bash
-# Send a message to the last tracked Claude pane via tmux send-keys.
+# Send a message to the Claude pane in the current tmux window via send-keys.
 message="$*"
 
 if [ -z "$message" ]; then
@@ -7,21 +7,18 @@ if [ -z "$message" ]; then
     exit 1
 fi
 
-pane=$(tmux show-option -gv @claude_last_pane 2>/dev/null)
-if [ -z "$pane" ]; then
-    track-claude-pane
-    pane=$(tmux show-option -gv @claude_last_pane 2>/dev/null)
-fi
+# Find a pane running claude in the current window
+pane=""
+while IFS=: read -r pane_id pane_tty; do
+    if ps -o comm= -t "$pane_tty" 2>/dev/null | grep -qE "^claude$"; then
+        pane="$pane_id"
+        break
+    fi
+done < <(tmux list-panes -F '#{pane_id}:#{pane_tty}')
 
 if [ -z "$pane" ]; then
-    tmux display-message "No Claude pane found."
+    tmux display-message "No Claude pane in this window."
     exit 0
-fi
-
-if ! tmux list-panes -a -F '#{pane_id}' | grep -qF "$pane"; then
-    tmux display-message "Tracked Claude pane no longer exists."
-    tmux set-option -gu @claude_last_pane
-    exit 1
 fi
 
 tmux send-keys -t "$pane" "$message" Enter
