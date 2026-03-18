@@ -1,7 +1,8 @@
 #!/bin/zsh
 
 alias g="git"
-alias pr="gh pr view --web"
+alias pr="gh pr view --json url | jq -r .url | tr -d '\n' | pbcopy"
+alias prw="gh pr view --web"
 alias gs="git status"
 alias gc='git commit -m '
 alias gd='git diff'
