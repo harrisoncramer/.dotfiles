@@ -10,9 +10,7 @@ source "$HOME/.zshrc-work" 2>/dev/null || true
 
 REPO="$1"
 NUM="$2"
-# TODO: uncomment to use real author
-# GH_USER="$3"
-GH_USER="harrisoncramer"
+GH_USER="$3"
 URL="$4"
 
 CHOICE=$(gum choose --header "Are you sure you want to approve PR #$NUM?" "Yes" "No" < /dev/tty)

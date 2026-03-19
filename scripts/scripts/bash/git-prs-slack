@@ -28,9 +28,7 @@ if [[ -z "${(k)GITHUB_TO_SLACK[@]:-}" ]]; then
   exit 1
 fi
 
-# TODO: uncomment to use real reviewers
-# REVIEWERS=$(gh pr view "$NUM" --repo "$REPO" --json reviewRequests --jq '.reviewRequests[].login')
-REVIEWERS="harrisoncramer"
+REVIEWERS=$(gh pr view "$NUM" --repo "$REPO" --json reviewRequests --jq '.reviewRequests[].login')
 
 if [[ -z "$REVIEWERS" ]]; then
   exit 0

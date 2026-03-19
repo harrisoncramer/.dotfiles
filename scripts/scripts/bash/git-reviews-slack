@@ -8,9 +8,7 @@ set -euo pipefail
 
 source "$HOME/.zshrc-work" 2>/dev/null || true
 
-# TODO: uncomment to use real author
-# GH_USER="$1"
-GH_USER="harrisoncramer"
+GH_USER="$1"
 URL="$2"
 
 if [[ -z "${SLACK_USER_TOKEN:-}" ]]; then
