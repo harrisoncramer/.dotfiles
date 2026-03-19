@@ -1,0 +1,74 @@
+#!/bin/bash
+set -euo pipefail
+
+if ! command -v gh &>/dev/null; then
+  echo "Error: gh CLI is not installed" >&2
+  exit 1
+fi
+
+if ! gh auth status &>/dev/null; then
+  echo "Error: Not logged into GitHub CLI" >&2
+  exit 1
+fi
+
+ORG="chariot-giving"
+USER=$(gh api user --jq '.login')
+
+# shellcheck disable=SC2016
+QUERY='
+query($q: String!) {
+  search(query: $q, type: ISSUE, first: 100) {
+    nodes {
+      ... on PullRequest {
+        number
+        title
+        isDraft
+        reviewDecision
+        repository { nameWithOwner }
+      }
+    }
+  }
+}'
+
+# shellcheck disable=SC2016
+PRS=$(gh api graphql \
+  -f query="$QUERY" \
+  -f q="type:pr state:open author:$USER org:$ORG" \
+  --jq '.data.search.nodes[] |
+    (if .isDraft then "🔧 draft"
+     elif .reviewDecision == "APPROVED" then "✅ approved"
+     elif .reviewDecision == "CHANGES_REQUESTED" then "🔴 needs work"
+     elif .reviewDecision == "REVIEW_REQUIRED" then "👀 in review"
+     else "🔧 in development" end) as $status |
+    [$status, .repository.nameWithOwner, (.number | tostring), .title] | @tsv')
+
+if [[ -z "$PRS" ]]; then
+  echo "No open PRs found in $ORG"
+  exit 0
+fi
+
+PREVIEW_SCRIPT="$(dirname "$0")/git-prs-preview"
+# shellcheck disable=SC2016
+PREVIEW_CMD='repo=$(echo {} | cut -f2); num=$(echo {} | cut -f3); '"$PREVIEW_SCRIPT"' "$repo" "$num"'
+
+CHOICE=$(echo "$PRS" | fzf \
+  --delimiter $'\t' \
+  --with-nth '1,4' \
+  --preview "$PREVIEW_CMD" \
+  --preview-window 'right:60%,wrap' \
+  --layout reverse \
+  --border \
+  --prompt "PRs> " \
+  --header "enter: view in browser" \
+  --bind 'ctrl-/:toggle-preview' \
+  --bind 'esc:abort' \
+  --exit-0)
+
+if [[ -z "$CHOICE" ]]; then
+  exit 0
+fi
+
+REPO=$(echo "$CHOICE" | cut -f2)
+NUM=$(echo "$CHOICE" | cut -f3)
+
+gh pr view "$NUM" --repo "$REPO" --web
