@@ -4,6 +4,12 @@ set -euo pipefail
 # DMs PR reviewers via Slack asking them to take a look.
 # Called from git-prs via C-s. Tracks bumped PRs in /tmp/git-prs-bumped.
 # Requires SLACK_USER_TOKEN and GITHUB_TO_SLACK in ~/.zshrc-work.
+# E.g. 
+# typeset -A GITHUB_TO_SLACK
+# GITHUB_TO_SLACK=(
+# [harrisoncramer]='U123'
+# )
+#
 # Usage: git-prs-slack <repo> <pr-number> <pr-url>
 
 source "$HOME/.zshrc-work" 2>/dev/null || true
