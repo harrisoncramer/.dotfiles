@@ -7,6 +7,8 @@ alias gs="git status"
 alias gc='git commit -m '
 alias gd='git diff'
 alias gp='git push'
+alias gm='git mine'
+alias gr='git mine'
 
 unalias gf 2>/dev/null || true
 gf () {
