@@ -109,7 +109,7 @@ echo "$DATA" | jq -r '.data.search.nodes[] |
   "---END:" + (.number | tostring) + "---"
 ' | while IFS= read -r line; do
   if [[ "$line" =~ ^---END:([0-9]+)---$ ]]; then
-    echo "$content" > "$PREVIEW_DIR/${BASH_REMATCH[1]}.md"
+    echo "$content" >"$PREVIEW_DIR/${BASH_REMATCH[1]}.md"
     content=""
   else
     content="${content:+$content
