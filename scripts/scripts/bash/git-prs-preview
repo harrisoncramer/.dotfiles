@@ -6,10 +6,10 @@ tmpfile="/tmp/git-prs-preview-$num.md"
 
 gh pr view "$num" --repo "$repo" --json title,body,reviewDecision,reviews,statusCheckRollup \
   | jq -r '
-    (if .reviewDecision == "APPROVED" then "✅ Approved"
-     elif .reviewDecision == "CHANGES_REQUESTED" then "🔴 Needs Work"
-     elif .reviewDecision == "REVIEW_REQUIRED" then "👀 In Review"
-     else "🔧 In Development" end) as $st |
+    (if .reviewDecision == "APPROVED" then "✅"
+     elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
+     elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
+     else "🔧" end) as $st |
 
     (.reviews
      | map(select(.state != "COMMENTED"))
@@ -17,17 +17,18 @@ gh pr view "$num" --repo "$repo" --json title,body,reviewDecision,reviews,status
      | map(sort_by(.submittedAt) | last)
      | map(
          (if .state == "APPROVED" then "✅"
-          elif .state == "CHANGES_REQUESTED" then "🔴"
-          else "👀" end) + " " + .author.login)
+          elif .state == "CHANGES_REQUESTED" then "👎"
+          elif .state == "REVIEW_REQUIRED" then "🕑"
+          else "🔧" end) + " " + .author.login)
      | join("\n")) as $revs |
 
     (.statusCheckRollup
      | if . == null or length == 0 then "No checks"
        else map(
          (if .conclusion == "SUCCESS" then "✅"
-          elif .conclusion == "FAILURE" then "❌"
-          elif .status == "IN_PROGRESS" then "🔄"
-          else "⏳" end) + " " + .name)
+          elif .conclusion == "FAILURE" then "🔻"
+          elif .status == "IN_PROGRESS" then "🕑"
+          else "🔧" end) + " " + .name)
        | join("\n") end) as $checks |
 
     "# " + .title + "\n\n" +
