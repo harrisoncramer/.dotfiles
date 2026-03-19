@@ -13,6 +13,9 @@ fi
 
 ORG="chariot-giving"
 USER=$(gh api user --jq '.login')
+PREVIEW_DIR="/tmp/git-prs-preview"
+rm -rf "$PREVIEW_DIR"
+mkdir -p "$PREVIEW_DIR"
 
 # shellcheck disable=SC2016
 QUERY='
@@ -22,39 +25,102 @@ query($q: String!) {
       ... on PullRequest {
         number
         title
+        body
         isDraft
         reviewDecision
         repository { nameWithOwner }
+        assignees(first: 10) { nodes { login } }
+        reviewRequests(first: 10) { nodes { requestedReviewer { ... on User { login } ... on Team { name } } } }
+        reviews(last: 20) { nodes { state author { login } submittedAt } }
+        commits(last: 1) {
+          nodes {
+            commit {
+              statusCheckRollup {
+                state
+                contexts(first: 50) {
+                  nodes {
+                    ... on CheckRun { name conclusion }
+                    ... on StatusContext { context state }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
 }'
 
-# shellcheck disable=SC2016
-PRS=$(gh api graphql \
+DATA=$(gh api graphql \
   -f query="$QUERY" \
-  -f q="type:pr state:open author:$USER org:$ORG" \
-  --jq '.data.search.nodes[] |
-    (if .isDraft then "🖊️"
-     elif .reviewDecision == "APPROVED" then "✅"
-     elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
-     elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
-     else "🔧" end) as $status |
-    [$status + " " + .title, .repository.nameWithOwner, (.number | tostring)] | @tsv')
+  -f q="type:pr state:open author:$USER org:$ORG")
+
+# shellcheck disable=SC2016
+PRS=$(echo "$DATA" | jq -r '.data.search.nodes[] |
+  (.commits.nodes[0].commit.statusCheckRollup.state // "NONE") as $checks |
+  (if .isDraft then "🖊️"
+   elif ($checks == "FAILURE" or $checks == "ERROR") then "🔻"
+   elif .reviewDecision == "APPROVED" then "✅"
+   elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
+   elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
+   else "🔧" end) as $status |
+  [$status + " " + .title, .repository.nameWithOwner, (.number | tostring)] | @tsv')
 
 if [[ -z "$PRS" ]]; then
   echo "No open PRs found in $ORG"
   exit 0
 fi
 
-PREVIEW_SCRIPT="$(dirname "$0")/git-prs-preview"
 # shellcheck disable=SC2016
-PREVIEW_CMD='repo=$(echo {} | cut -f2); num=$(echo {} | cut -f3); '"$PREVIEW_SCRIPT"' "$repo" "$num"'
+echo "$DATA" | jq -r '.data.search.nodes[] |
+  (.reviews.nodes
+   | map(select(.state != "COMMENTED"))
+   | group_by(.author.login)
+   | map(sort_by(.submittedAt) | last)
+   | map(
+       (if .state == "APPROVED" then "✅"
+        elif .state == "CHANGES_REQUESTED" then "👎"
+        else "🕑" end) + " " + .author.login)
+  ) as $reviewers |
+
+  (.reviewRequests.nodes
+   | map("🕑 " + (.requestedReviewer.login // .requestedReviewer.name // "unknown"))
+  ) as $requested |
+
+  (.assignees.nodes | map("👤 " + .login)) as $assignees |
+
+  ($reviewers + $requested + $assignees | unique | join("\n")) as $people |
+
+  (.commits.nodes[0].commit.statusCheckRollup.contexts.nodes
+   | if . == null then []
+     else map(
+       if .conclusion != null then {name: .name, conclusion: .conclusion}
+       else {name: .context, conclusion: .state} end
+     ) | map(select(.conclusion == "FAILURE"))
+     end
+   | map("🔻 " + .name)
+   | join("\n")) as $failing |
+
+  "# " + .title + "\n\n" +
+  (.body // "No description") +
+  (if ($people | length) > 0 then "\n\n---\n\n## People\n\n" + $people else "" end) +
+  (if ($failing | length) > 0 then "\n\n## Failing Checks\n\n" + $failing else "" end),
+  "---END:" + (.number | tostring) + "---"
+' | while IFS= read -r line; do
+  if [[ "$line" =~ ^---END:([0-9]+)---$ ]]; then
+    echo "$content" > "$PREVIEW_DIR/${BASH_REMATCH[1]}.md"
+    content=""
+  else
+    content="${content:+$content
+}$line"
+  fi
+done
 
 CHOICE=$(echo "$PRS" | fzf \
   --delimiter $'\t' \
   --with-nth 1 \
-  --preview "$PREVIEW_CMD" \
+  --preview "bat --style=plain --color=always --language=markdown $PREVIEW_DIR/{3}.md" \
   --preview-window 'right:60%,wrap' \
   --layout reverse \
   --border \
