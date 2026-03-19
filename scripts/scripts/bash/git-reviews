@@ -46,6 +46,7 @@ query($q: String!) {
         body
         url
         headRefName
+        isDraft
         reviewDecision
         author { login __typename }
         repository { nameWithOwner }
@@ -77,7 +78,11 @@ DATA=$(gh api graphql \
   -f q="type:pr state:open review-requested:$USER org:$ORG")
 
 # shellcheck disable=SC2016
-PRS=$(echo "$DATA" | jq -r '.data.search.nodes[] | select(.author.__typename != "Bot") |
+PRS=$(echo "$DATA" | jq -r --arg user "$USER" '.data.search.nodes[] | select(.author.__typename != "Bot") | select(.isDraft != true) |
+  select(
+    (([.reviewRequests.nodes[].requestedReviewer | (.login // .name // empty)] +
+      [.reviews.nodes[].author.login]) | unique | length) <= 4
+  ) |
   (.commits.nodes[0].commit.statusCheckRollup.state // "NONE") as $checks |
   (if ($checks == "FAILURE" or $checks == "ERROR") then "🔻"
    elif .reviewDecision == "APPROVED" then "✅"
@@ -92,7 +97,11 @@ if [[ -z "$PRS" ]]; then
 fi
 
 # shellcheck disable=SC2016
-echo "$DATA" | jq -r '.data.search.nodes[] | select(.author.__typename != "Bot") |
+echo "$DATA" | jq -r --arg user "$USER" '.data.search.nodes[] | select(.author.__typename != "Bot") | select(.isDraft != true) |
+  select(
+    (([.reviewRequests.nodes[].requestedReviewer | (.login // .name // empty)] +
+      [.reviews.nodes[].author.login]) | unique | length) <= 4
+  ) |
   (.author.login) as $author |
 
   (.reviews.nodes
@@ -145,10 +154,11 @@ echo "$PRS" | fzf \
   --layout reverse \
   --border \
   --prompt "Reviews> " \
-  --header "<cr>: copy | C-o: open | C-a: approve | C-s: changes" \
+  --header "<cr>: copy | C-o: open | C-a: approve | C-s: changes | C-r: review" \
   --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
   --bind 'ctrl-o:execute-silent(open {4})' \
   --bind 'ctrl-a:execute(git-prs-approve {2} {3} {6} {4})' \
+  --bind 'ctrl-r:execute(git-reviews-review {4})' \
   --bind 'ctrl-s:become(git-reviews-slack {6} {4})' \
   --bind 'ctrl-/:toggle-preview' \
   --bind 'esc:abort' \
