@@ -27,6 +27,8 @@ query($q: String!) {
         title
         body
         isDraft
+        url
+        headRefName
         reviewDecision
         repository { nameWithOwner }
         assignees(first: 10) { nodes { login } }
@@ -65,7 +67,7 @@ PRS=$(echo "$DATA" | jq -r '.data.search.nodes[] |
    elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
    elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
    else "🔧" end) as $status |
-  [$status + " " + .title, .repository.nameWithOwner, (.number | tostring)] | @tsv')
+  [$status + " " + .title, .repository.nameWithOwner, (.number | tostring), .url, .headRefName] | @tsv')
 
 if [[ -z "$PRS" ]]; then
   echo "No open PRs found in $ORG"
@@ -103,8 +105,8 @@ echo "$DATA" | jq -r '.data.search.nodes[] |
    | join("\n")) as $failing |
 
   "# " + .title + "\n\n" +
+  (if ($people | length) > 0 then "## People\n\n" + $people + "\n\n---\n\n" else "" end) +
   (.body // "No description") +
-  (if ($people | length) > 0 then "\n\n---\n\n## People\n\n" + $people else "" end) +
   (if ($failing | length) > 0 then "\n\n## Failing Checks\n\n" + $failing else "" end),
   "---END:" + (.number | tostring) + "---"
 ' | while IFS= read -r line; do
@@ -117,7 +119,7 @@ echo "$DATA" | jq -r '.data.search.nodes[] |
   fi
 done
 
-CHOICE=$(echo "$PRS" | fzf \
+echo "$PRS" | fzf \
   --delimiter $'\t' \
   --with-nth 1 \
   --preview "bat --style=plain --color=always --language=markdown $PREVIEW_DIR/{3}.md" \
@@ -125,16 +127,12 @@ CHOICE=$(echo "$PRS" | fzf \
   --layout reverse \
   --border \
   --prompt "PRs> " \
-  --header "enter: view in browser" \
+  --header "enter: copy | C-o: open | C-g: merge | C-x: close" \
+  --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
+  --bind 'ctrl-o:execute-silent(open {4})' \
+  --bind 'ctrl-e:become(git checkout {5})' \
+  --bind 'ctrl-g:execute(git-prs-merge {2} {3})' \
+  --bind 'ctrl-x:become(git-prs-close {2} {3})' \
   --bind 'ctrl-/:toggle-preview' \
   --bind 'esc:abort' \
-  --exit-0)
-
-if [[ -z "$CHOICE" ]]; then
-  exit 0
-fi
-
-REPO=$(echo "$CHOICE" | cut -f2)
-NUM=$(echo "$CHOICE" | cut -f3)
-
-gh pr view "$NUM" --repo "$REPO" --web
+  --exit-0
