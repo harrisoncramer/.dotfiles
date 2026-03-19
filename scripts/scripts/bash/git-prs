@@ -35,12 +35,12 @@ PRS=$(gh api graphql \
   -f query="$QUERY" \
   -f q="type:pr state:open author:$USER org:$ORG" \
   --jq '.data.search.nodes[] |
-    (if .isDraft then "🔧 draft"
-     elif .reviewDecision == "APPROVED" then "✅ approved"
-     elif .reviewDecision == "CHANGES_REQUESTED" then "🔴 needs work"
-     elif .reviewDecision == "REVIEW_REQUIRED" then "👀 in review"
-     else "🔧 in development" end) as $status |
-    [$status, .repository.nameWithOwner, (.number | tostring), .title] | @tsv')
+    (if .isDraft then "🖊️"
+     elif .reviewDecision == "APPROVED" then "✅"
+     elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
+     elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
+     else "🔧" end) as $status |
+    [$status + " " + .title, .repository.nameWithOwner, (.number | tostring)] | @tsv')
 
 if [[ -z "$PRS" ]]; then
   echo "No open PRs found in $ORG"
@@ -53,7 +53,7 @@ PREVIEW_CMD='repo=$(echo {} | cut -f2); num=$(echo {} | cut -f3); '"$PREVIEW_SCR
 
 CHOICE=$(echo "$PRS" | fzf \
   --delimiter $'\t' \
-  --with-nth '1,4' \
+  --with-nth 1 \
   --preview "$PREVIEW_CMD" \
   --preview-window 'right:60%,wrap' \
   --layout reverse \
