@@ -127,7 +127,7 @@ for dir in "$(pwd)"/*/; do
     stow "$DIR_NAME"
     if ! command -v worktrunk >/dev/null 2>&1; then
       brew install worktrunk
-      worktrunk config shell install
+      # worktrunk config shell install
     fi
     ;;
   claude)

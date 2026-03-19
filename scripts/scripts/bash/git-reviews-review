@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+
+# Opens an Octo PR review in a new Neovim instance via Diffview.
+# Called from git-reviews via C-r.
+# Usage: git-reviews-review <pr-url>
+
+URL="$1"
+NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
+
+"$NVIM" -c "autocmd FileType octo ++once lua vim.cmd('Octo review')" -c "Octo $URL"

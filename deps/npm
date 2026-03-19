@@ -9,3 +9,5 @@ turbo
 @zed-industries/claude-agent-acp
 claude
 claude-code-acp
+@typescript/native-preview
+

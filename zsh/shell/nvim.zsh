@@ -4,11 +4,15 @@ export NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
 export EDITOR="$NVIM"
 alias nvim="$HOME/.local/bin/nvim-macos/bin/nvim"
 
+export NVIM_SOCK_FILE="/tmp/nvim-active-sock"
+
 v () {
+  local sock="/tmp/nvim-$$.sock"
+  echo "$sock" > "$NVIM_SOCK_FILE"
   if [ "$#" -eq 0 ]; then
-    nvim .
+    nvim --listen "$sock" .
   else
-    $HOME/.local/bin/nvim-macos/bin/nvim "$@"
+    nvim --listen "$sock" "$@"
   fi
 }
 
