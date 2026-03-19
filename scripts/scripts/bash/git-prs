@@ -127,12 +127,13 @@ echo "$PRS" | fzf \
   --layout reverse \
   --border \
   --prompt "PRs> " \
-  --header "enter: copy | C-o: open | C-g: merge | C-x: close" \
+  --header "enter: copy | C-o: open | C-g: merge | C-x: close | C-s: slack msg" \
   --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
   --bind 'ctrl-o:execute-silent(open {4})' \
   --bind 'ctrl-e:become(git checkout {5})' \
   --bind 'ctrl-g:execute(git-prs-merge {2} {3})' \
   --bind 'ctrl-x:become(git-prs-close {2} {3})' \
+  --bind 'ctrl-s:execute-silent(git-prs-slack {4})' \
   --bind 'ctrl-/:toggle-preview' \
   --bind 'esc:abort' \
   --exit-0

@@ -1,0 +1,25 @@
+#!/bin/bash
+set -euo pipefail
+
+URL="$1"
+
+PHRASES=(
+  "hey, do you mind taking a look at this"
+  "would love your eyes on this when you have a sec"
+  "do you mind giving this a review?"
+  "got a sec to review this?"
+  "hey hey, appreciate a review here when you have a sec"
+  "could you take a peek at this?"
+  "this is ready when you have a moment"
+  "no rush, would love a review here"
+  "let me know your thoughts when you get a chance"
+  "would you mind reviewing this?"
+  "feedback appreciated whenever you're free"
+  "please review when convenient"
+  "take your time, but a review would be great"
+)
+
+IDX=$((RANDOM % ${#PHRASES[@]}))
+MSG="${PHRASES[$IDX]} $URL"
+
+echo -n "$MSG" | pbcopy

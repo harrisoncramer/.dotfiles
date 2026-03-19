@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+
+REPO="$1"
+NUM="$2"
+
+CHOICE=$(gum choose --header "Are you sure you want to close PR #$NUM?" "Yes" "No" < /dev/tty)
+if [[ "$CHOICE" == "Yes" ]]; then
+  gh pr close "$NUM" --repo "$REPO"
+fi
