@@ -46,6 +46,7 @@ query($q: String!) {
         body
         url
         headRefName
+        baseRefName
         isDraft
         reviewDecision
         author { login __typename }
@@ -89,7 +90,7 @@ PRS=$(echo "$DATA" | jq -r --arg user "$USER" '.data.search.nodes[] | select(.au
    elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
    elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
    else "🔧" end) as $status |
-  [$status + " (@" + .author.login + ") " + .title, .repository.nameWithOwner, (.number | tostring), .url, .headRefName, .author.login] | @tsv')
+  [$status + " (@" + .author.login + ") " + .title, .repository.nameWithOwner, (.number | tostring), .url, .headRefName, .author.login, .baseRefName] | @tsv')
 
 if [[ -z "$PRS" ]]; then
   echo "No PRs to review in $ORG"
@@ -158,7 +159,7 @@ echo "$PRS" | fzf \
   --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
   --bind 'ctrl-o:execute-silent(open {4})' \
   --bind 'ctrl-a:execute(git-prs-approve {2} {3} {6} {4})' \
-  --bind 'ctrl-r:execute(git-reviews-review {4})' \
+  --bind 'ctrl-r:execute(git-reviews-review {4} {2} {5} {7})' \
   --bind 'ctrl-s:become(git-reviews-slack {6} {4})' \
   --bind 'ctrl-/:toggle-preview' \
   --bind 'esc:abort' \

@@ -41,7 +41,7 @@ PHRASES=(
   "signed off on this"
 )
 
-IDX=$((RANDOM % ${#PHRASES[@]}))
+IDX=$((RANDOM % ${#PHRASES[@]} + 1))
 MSG="${PHRASES[$IDX]} $URL"
 
 CHANNEL=$(curl -s -X POST "https://slack.com/api/conversations.open" \
