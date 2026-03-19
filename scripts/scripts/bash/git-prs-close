@@ -1,10 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
+# Closes a PR without merging.
+# Called from git-prs via C-x. Prompts for confirmation via gum.
+# Usage: git-prs-close <repo> <pr-number>
+
 REPO="$1"
 NUM="$2"
 
 CHOICE=$(gum choose --header "Are you sure you want to close PR #$NUM?" "Yes" "No" < /dev/tty)
 if [[ "$CHOICE" == "Yes" ]]; then
   gh pr close "$NUM" --repo "$REPO"
+  gum log --level info "Closed PR #$NUM"
 fi

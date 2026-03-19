@@ -1,6 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
+# Fetches all open PRs authored by me in the chariot-giving org via a single
+# GraphQL call, renders markdown preview files, and presents them in fzf.
+#
+# Status priority (highest wins):
+#   🖊️  draft
+#   🔻  failing checks
+#   ✅  approved
+#   👎  changes requested
+#   👀  bumped (slack message sent via C-s)
+#   🕑  review required (not yet bumped)
+#   🔧  in development
+#
+# Keybindings:
+#   enter  copy PR link
+#   C-o    open in browser
+#   C-g    merge (with confirmation)
+#   C-x    close (with confirmation)
+#   C-s    send slack DM to reviewers
+#   C-/    toggle preview
+#   esc    quit
+
 if ! command -v gh &>/dev/null; then
   echo "Error: gh CLI is not installed" >&2
   exit 1
@@ -14,8 +35,10 @@ fi
 ORG="chariot-giving"
 USER=$(gh api user --jq '.login')
 PREVIEW_DIR="/tmp/git-prs-preview"
+BUMPS_FILE="/tmp/git-prs-bumped"
 rm -rf "$PREVIEW_DIR"
 mkdir -p "$PREVIEW_DIR"
+touch "$BUMPS_FILE"
 
 # shellcheck disable=SC2016
 QUERY='
@@ -58,13 +81,18 @@ DATA=$(gh api graphql \
   -f query="$QUERY" \
   -f q="type:pr state:open author:$USER org:$ORG")
 
+BUMPS=$(cat "$BUMPS_FILE")
+
 # shellcheck disable=SC2016
-PRS=$(echo "$DATA" | jq -r '.data.search.nodes[] |
+PRS=$(echo "$DATA" | jq -r --arg bumps "$BUMPS" '.data.search.nodes[] |
   (.commits.nodes[0].commit.statusCheckRollup.state // "NONE") as $checks |
+  ((.repository.nameWithOwner + ":" + (.number | tostring)) as $key |
+   ($bumps | split("\n") | any(. == $key))) as $bumped |
   (if .isDraft then "🖊️"
    elif ($checks == "FAILURE" or $checks == "ERROR") then "🔻"
    elif .reviewDecision == "APPROVED" then "✅"
    elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
+   elif $bumped then "👀"
    elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
    else "🔧" end) as $status |
   [$status + " " + .title, .repository.nameWithOwner, (.number | tostring), .url, .headRefName] | @tsv')
@@ -127,13 +155,12 @@ echo "$PRS" | fzf \
   --layout reverse \
   --border \
   --prompt "PRs> " \
-  --header "enter: copy | C-o: open | C-g: merge | C-x: close | C-s: slack msg" \
+  --header "<cr>: copy | C-o: open | C-g: merge | C-x: close | C-s: bump" \
   --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
   --bind 'ctrl-o:execute-silent(open {4})' \
-  --bind 'ctrl-e:become(git checkout {5})' \
   --bind 'ctrl-g:execute(git-prs-merge {2} {3})' \
   --bind 'ctrl-x:become(git-prs-close {2} {3})' \
-  --bind 'ctrl-s:execute-silent(git-prs-slack {4})' \
+  --bind 'ctrl-s:become(git-prs-slack {2} {3} {4})' \
   --bind 'ctrl-/:toggle-preview' \
   --bind 'esc:abort' \
   --exit-0

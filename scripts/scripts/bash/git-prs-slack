@@ -1,7 +1,34 @@
-#!/bin/bash
+#!/bin/zsh
 set -euo pipefail
 
-URL="$1"
+# DMs PR reviewers via Slack asking them to take a look.
+# Called from git-prs via C-s. Tracks bumped PRs in /tmp/git-prs-bumped.
+# Requires SLACK_USER_TOKEN and GITHUB_TO_SLACK in ~/.zshrc-work.
+# Usage: git-prs-slack <repo> <pr-number> <pr-url>
+
+source "$HOME/.zshrc-work" 2>/dev/null || true
+
+REPO="$1"
+NUM="$2"
+URL="$3"
+
+if [[ -z "${SLACK_USER_TOKEN:-}" ]]; then
+  echo "Error: SLACK_USER_TOKEN not set" >&2
+  exit 1
+fi
+
+if [[ -z "${(k)GITHUB_TO_SLACK[@]:-}" ]]; then
+  echo "Error: GITHUB_TO_SLACK not set" >&2
+  exit 1
+fi
+
+# TODO: uncomment to use real reviewers
+# REVIEWERS=$(gh pr view "$NUM" --repo "$REPO" --json reviewRequests --jq '.reviewRequests[].login')
+REVIEWERS="harrisoncramer"
+
+if [[ -z "$REVIEWERS" ]]; then
+  exit 0
+fi
 
 PHRASES=(
   "hey, do you mind taking a look at this"
@@ -19,7 +46,32 @@ PHRASES=(
   "take your time, but a review would be great"
 )
 
-IDX=$((RANDOM % ${#PHRASES[@]}))
-MSG="${PHRASES[$IDX]} $URL"
+for gh_user in $REVIEWERS; do
+  slack_id="${GITHUB_TO_SLACK[$gh_user]:-""}"
+  if [[ -z "$slack_id" ]]; then
+    continue
+  fi
 
-echo -n "$MSG" | pbcopy
+  IDX=$((RANDOM % ${#PHRASES[@]}))
+  MSG="${PHRASES[$IDX]} $URL"
+
+  CHANNEL=$(curl -s -X POST "https://slack.com/api/conversations.open" \
+    -H "Authorization: Bearer $SLACK_USER_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"users\": \"$slack_id\"}" | jq -r '.channel.id')
+
+  if [[ -n "$CHANNEL" && "$CHANNEL" != "null" ]]; then
+    curl -s -X POST "https://slack.com/api/chat.postMessage" \
+      -H "Authorization: Bearer $SLACK_USER_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d "{\"channel\": \"$CHANNEL\", \"text\": \"$MSG\"}" > /dev/null
+  fi
+done
+
+BUMPS_FILE="/tmp/git-prs-bumped"
+touch "$BUMPS_FILE"
+if ! grep -qx "$REPO:$NUM" "$BUMPS_FILE"; then
+  echo "$REPO:$NUM" >> "$BUMPS_FILE"
+fi
+
+gum log --level info "Sent slack bump for PR #$NUM"

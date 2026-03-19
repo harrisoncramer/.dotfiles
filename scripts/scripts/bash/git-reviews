@@ -1,42 +1,155 @@
 #!/bin/bash
+set -euo pipefail
 
-if ! [ -x "$(command -v glab)" ]; then
-  echo "ERROR: Gitlab Cli is not installed"
-  return
-fi
+# Shows PRs where I'm requested as a reviewer across the chariot-giving org.
+# Single GraphQL call, markdown preview files, fzf picker.
+#
+# Status (check state of the PR):
+#   🔻  failing checks
+#   ✅  approved
+#   👎  changes requested
+#   🕑  awaiting review
+#   🔧  no review requested
+#
+# Keybindings:
+#   enter  copy PR link
+#   C-o    open in browser
+#   C-a    approve
+#   C-s    slack author that you left a review
+#   C-/    toggle preview
+#   esc    quit
 
-LOGGED_IN=$(glab auth status 2>&1)
-
-if [ $? -ne 0 ]; then
-  echo "Error: Not logged into Gitlab CLI"
+if ! command -v gh &>/dev/null; then
+  echo "Error: gh CLI is not installed" >&2
   exit 1
 fi
 
-USER=$(echo "$LOGGED_IN" | awk '{ print $7 }' | head -2 | tail -1)
-
-if [[ -z $USER ]]; then
-  echo "Error: Gitlab user could not be detected"
+if ! gh auth status &>/dev/null; then
+  echo "Error: Not logged into GitHub CLI" >&2
   exit 1
 fi
 
-git pull --quiet
+ORG="chariot-giving"
+USER=$(gh api user --jq '.login')
+PREVIEW_DIR="/tmp/git-reviews-preview"
+rm -rf "$PREVIEW_DIR"
+mkdir -p "$PREVIEW_DIR"
 
-ASSIGNEES=$(glab mr list --assignee "$USER" | cat | grep '(main)')
-REVIEWERS=$(glab mr list --reviewer "$USER" | cat | grep '(main)')
-ALL=$(paste -d'\n' <(echo "$ASSIGNEES") <(echo "$REVIEWERS") | sort -u | awk NF)
+# shellcheck disable=SC2016
+QUERY='
+query($q: String!) {
+  search(query: $q, type: ISSUE, first: 100) {
+    nodes {
+      ... on PullRequest {
+        number
+        title
+        body
+        url
+        headRefName
+        reviewDecision
+        author { login __typename }
+        repository { nameWithOwner }
+        assignees(first: 10) { nodes { login } }
+        reviewRequests(first: 10) { nodes { requestedReviewer { ... on User { login } ... on Team { name } } } }
+        reviews(last: 20) { nodes { state author { login } submittedAt } }
+        commits(last: 1) {
+          nodes {
+            commit {
+              statusCheckRollup {
+                state
+                contexts(first: 50) {
+                  nodes {
+                    ... on CheckRun { name conclusion }
+                    ... on StatusContext { context state }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}'
 
-if [[ -z $ALL ]]; then
-  echo "Error: You are not an assignee or reviewer for anything in this repository"
-  exit 1
-fi
+DATA=$(gh api graphql \
+  -f query="$QUERY" \
+  -f q="type:pr state:open review-requested:$USER org:$ORG")
 
-CHOICE=$(echo "$ALL" | fzf --prompt "Choose Your MR: " --height=~50% --layout=reverse --border --exit-0)
+# shellcheck disable=SC2016
+PRS=$(echo "$DATA" | jq -r '.data.search.nodes[] | select(.author.__typename != "Bot") |
+  (.commits.nodes[0].commit.statusCheckRollup.state // "NONE") as $checks |
+  (if ($checks == "FAILURE" or $checks == "ERROR") then "🔻"
+   elif .reviewDecision == "APPROVED" then "✅"
+   elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
+   elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
+   else "🔧" end) as $status |
+  [$status + " (@" + .author.login + ") " + .title, .repository.nameWithOwner, (.number | tostring), .url, .headRefName, .author.login] | @tsv')
 
-if [[ -z $CHOICE ]]; then
+if [[ -z "$PRS" ]]; then
+  echo "No PRs to review in $ORG"
   exit 0
 fi
 
-MR=$(echo "$CHOICE" | awk '{ print $NF }' | tr -d '()')
+# shellcheck disable=SC2016
+echo "$DATA" | jq -r '.data.search.nodes[] | select(.author.__typename != "Bot") |
+  (.author.login) as $author |
 
-git checkout --quiet "$MR"
-git pull --quiet
+  (.reviews.nodes
+   | map(select(.state != "COMMENTED"))
+   | group_by(.author.login)
+   | map(sort_by(.submittedAt) | last)
+   | map(
+       (if .state == "APPROVED" then "✅"
+        elif .state == "CHANGES_REQUESTED" then "👎"
+        else "🕑" end) + " " + .author.login)
+  ) as $reviewers |
+
+  (.reviewRequests.nodes
+   | map("🕑 " + (.requestedReviewer.login // .requestedReviewer.name // "unknown"))
+  ) as $requested |
+
+  ($reviewers + $requested | unique | join("\n")) as $people |
+
+  (.commits.nodes[0].commit.statusCheckRollup.contexts.nodes
+   | if . == null then []
+     else map(
+       if .conclusion != null then {name: .name, conclusion: .conclusion}
+       else {name: .context, conclusion: .state} end
+     ) | map(select(.conclusion == "FAILURE"))
+     end
+   | map("🔻 " + .name)
+   | join("\n")) as $failing |
+
+  "# " + .title + "\n\n" +
+  "**Author:** " + $author + "\n\n" +
+  (if ($people | length) > 0 then "## Reviewers\n\n" + $people + "\n\n---\n\n" else "" end) +
+  (.body // "No description") +
+  (if ($failing | length) > 0 then "\n\n## Failing Checks\n\n" + $failing else "" end),
+  "---END:" + (.number | tostring) + "---"
+' | while IFS= read -r line; do
+  if [[ "$line" =~ ^---END:([0-9]+)---$ ]]; then
+    echo "$content" >"$PREVIEW_DIR/${BASH_REMATCH[1]}.md"
+    content=""
+  else
+    content="${content:+$content
+}$line"
+  fi
+done
+
+echo "$PRS" | fzf \
+  --delimiter $'\t' \
+  --with-nth 1 \
+  --preview "bat --style=plain --color=always --language=markdown $PREVIEW_DIR/{3}.md" \
+  --preview-window 'right:60%,wrap' \
+  --layout reverse \
+  --border \
+  --prompt "Reviews> " \
+  --header "<cr>: copy | C-o: open | C-a: approve | C-s: notify author" \
+  --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
+  --bind 'ctrl-o:execute-silent(open {4})' \
+  --bind 'ctrl-a:execute(git-prs-approve {2} {3} {6} {4})' \
+  --bind 'ctrl-s:become(git-reviews-slack {6} {4})' \
+  --bind 'ctrl-/:toggle-preview' \
+  --bind 'esc:abort' \
+  --exit-0

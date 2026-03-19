@@ -1,10 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
+# Squash-merges a PR and deletes the remote branch.
+# Called from git-prs via C-g. Prompts for confirmation via gum.
+# Usage: git-prs-merge <repo> <pr-number>
+
 REPO="$1"
 NUM="$2"
 
 CHOICE=$(gum choose --header "Are you sure you want to merge PR #$NUM?" "Yes" "No" < /dev/tty)
 if [[ "$CHOICE" == "Yes" ]]; then
   gh pr merge "$NUM" --repo "$REPO" --squash --delete-branch
+  gum log --level info "Merged PR #$NUM"
 fi
