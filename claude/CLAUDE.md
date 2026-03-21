@@ -12,6 +12,13 @@
 - Almost all errors should be returned with additional context with fmt.Errorf, e.g. `return fmt.Errorf("failed to get user by ID: %w", err)`
 - Prefer to use a "nil, err" pattern as the return type for most functions.
 
+# Neovim MCP
+
+The Neovim MCP is connected to my editor. Use it to switch around focus in the editor, which is what I'll see, and to show me stuff, files, changes, etc where necessary (and highlight lines in visual mode) but don't use it to edit files. 
+
+- Use the Neovim MCP for navigation: opening files, switching buffers, jumping to locations, and showing me things in the editor.
+- Never use the Neovim MCP to edit files. Use the standard Claude Code Read/Edit/Write tools for all file modifications.
+
 # Markdown
 
 - Do not use emojis, bold, or other complex formatting, just headers and paragraphs.

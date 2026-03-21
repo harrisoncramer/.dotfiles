@@ -1,0 +1,16 @@
+{
+  "linear-server": {
+    "type": "http",
+    "url": "https://mcp.linear.app/mcp"
+  },
+  "figma-remote-mcp": {
+    "type": "http",
+    "url": "https://mcp.figma.com/mcp"
+  },
+  "MCP Neovim Server": {
+    "command": "/Users/harrisoncramer/.dotfiles/claude/mcp-neovim-wrapper.sh",
+    "env": {
+      "ALLOW_SHELL_COMMANDS": "true"
+    }
+  }
+}

@@ -135,6 +135,10 @@ for dir in "$(pwd)"/*/; do
     linker "$(pwd)/claude/settings.json" ~/.claude/settings.json
     linker "$(pwd)/claude/CLAUDE.md" ~/.claude/CLAUDE.md
     linker "$(pwd)/claude/skills" ~/.claude/skills
+    if command -v jq >/dev/null 2>&1 && [ -f ~/.claude.json ]; then
+      jq --slurpfile mcp "$(pwd)/claude/mcp.json" '.mcpServers += $mcp[0]' ~/.claude.json > /tmp/claude.json.tmp && mv /tmp/claude.json.tmp ~/.claude.json
+      pOnSuccess "  merged MCP servers into ~/.claude.json" "  could not merge MCP servers!"
+    fi
     ;;
   *)
     stow "$DIR_NAME"
