@@ -1,0 +1,55 @@
+#!/bin/bash
+set -euo pipefail
+
+# Schedule-sends a standup file to Slack for tomorrow at 8:46am.
+# Called by Claude from within the standup session.
+#
+# Usage: standup-send <file>
+
+eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
+
+FILE="${1:-}"
+if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+  echo "Error: file not found: $FILE" >&2
+  exit 1
+fi
+
+if [[ -z "${SLACK_USER_TOKEN:-}" ]]; then
+  echo "Error: SLACK_USER_TOKEN not set" >&2
+  exit 1
+fi
+
+STANDUP_CHANNEL="${STANDUP_CHANNEL:-C09NJKR16E4}"
+TEXT=$(cat "$FILE")
+
+if [[ -z "$TEXT" ]]; then
+  echo "Error: file is empty" >&2
+  exit 1
+fi
+
+TOMORROW_846=$(date -v+1d -j -f "%Y-%m-%d %H:%M:%S" "$(date -v+1d +%Y-%m-%d) 08:46:00" +%s)
+
+PAYLOAD=$(jq -n \
+  --arg channel "$STANDUP_CHANNEL" \
+  --arg text "$TEXT" \
+  --argjson post_at "$TOMORROW_846" \
+  '{channel: $channel, text: $text, post_at: $post_at}')
+
+HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://slack.com/api/chat.scheduleMessage" \
+  -H "Authorization: Bearer $SLACK_USER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "$PAYLOAD")
+
+HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -n1)
+RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+OK=$(echo "$RESPONSE_BODY" | jq -r '.ok // false')
+
+if [[ "$HTTP_CODE" -ge 200 && "$HTTP_CODE" -lt 300 && "$OK" == "true" ]]; then
+  SCHEDULED=$(date -r "$TOMORROW_846" "+%Y-%m-%d %H:%M")
+  echo "Standup scheduled for $SCHEDULED"
+else
+  echo "Error: Failed to schedule standup (HTTP $HTTP_CODE)" >&2
+  echo "$RESPONSE_BODY" >&2
+  exit 1
+fi

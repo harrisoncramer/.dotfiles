@@ -1,0 +1,82 @@
+#!/bin/bash
+set -euo pipefail
+
+# Fetches your PRs from today, opens an interactive Claude session to draft
+# a standup, and lets Claude schedule-send it to Slack via standup-send.
+#
+# Requires:
+#   SLACK_USER_TOKEN   Slack user/bot token with chat:write scope
+#   ANTHROPIC_API_KEY  For Claude
+#
+# Usage:
+#   standup
+
+if ! command -v gh &>/dev/null; then
+  echo "Error: gh CLI is not installed" >&2
+  exit 1
+fi
+
+if ! command -v claude &>/dev/null; then
+  echo "Error: claude CLI is not installed" >&2
+  exit 1
+fi
+
+# Source work env vars; skip zsh-only syntax errors (typeset -A, etc.)
+eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
+
+GITHUB_USER="harrisoncramer"
+TODAY=$(date +%Y-%m-%d)
+
+AUTHORED=$(gh pr list \
+  --repo chariot-giving/chariot \
+  --author "$GITHUB_USER" \
+  --state all \
+  --search "updated:>=$TODAY" \
+  --json number,title,state,body,url,isDraft,updatedAt,mergedAt,labels \
+  --limit 50 2>/dev/null || echo "[]")
+
+PR_COUNT=$(echo "$AUTHORED" | jq 'length')
+
+if [[ "$PR_COUNT" -eq 0 ]]; then
+  echo "No PR activity found for $GITHUB_USER on $TODAY"
+  exit 0
+fi
+
+echo "Found $PR_COUNT PRs with activity today"
+
+CONTEXT_FILE=$(mktemp /tmp/standup-context-XXXXXX)
+OUTPUT_FILE="/tmp/standup-$(date +%Y%m%d-%H%M%S).md"
+
+{
+  echo "# PR Activity for $GITHUB_USER on $TODAY"
+  echo
+  echo '```json'
+  echo "$AUTHORED" | jq '.'
+  echo '```'
+} > "$CONTEXT_FILE"
+
+SYSTEM_PROMPT='You are helping the user write their daily standup update for Slack.
+
+Read the PR activity file, then draft a casual standup in Slack mrkdwn format:
+
+*What I did yesterday:*
+- 3 bullets max of what got done
+- Write like a human talking to coworkers, not a report
+- e.g. "Ripped out the old conductor flow and switched CI to use GitHub deployment objects"
+
+*What'"'"'s in progress:*
+- 3 bullets max for open/draft work
+- e.g. "Still working on the compliance ConnectRPC server, should land today"
+
+Rules:
+- No PR numbers or URLs
+- No headers, just the bold labels above
+- Keep bullets short and conversational
+- Merged PRs go under yesterday, open/draft under in progress
+- Combine related PRs into one bullet
+
+Show the user your draft. Let them refine it interactively. When they are happy with it, write the final version to '"$OUTPUT_FILE"' and then run `standup-send '"$OUTPUT_FILE"'` to schedule it for tomorrow morning.'
+
+exec claude --append-system-prompt "$SYSTEM_PROMPT" \
+  --allowedTools "Read,Write,Bash" \
+  -- "Read the PR activity at $CONTEXT_FILE and draft my standup. When I approve, write it to $OUTPUT_FILE and run standup-send $OUTPUT_FILE to schedule it."
