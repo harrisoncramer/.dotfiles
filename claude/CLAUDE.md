@@ -23,3 +23,10 @@ The Neovim MCP is connected to my editor. Use it to switch around focus in the e
 
 - Do not use emojis, bold, or other complex formatting, just headers and paragraphs.
 - Prefer terse, concise, and straightforward explanations whenever possible.
+
+# Github
+
+- Use the `gh` CLI for all Github interactions
+- Keep your tone causal and sentences short in PR descriptions
+- Use semantic commits
+- Do not add "authored by" or any other claude additions to PRs
