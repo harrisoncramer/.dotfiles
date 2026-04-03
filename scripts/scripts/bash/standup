@@ -71,11 +71,12 @@ Read the PR activity file, then draft a casual standup in Slack mrkdwn format:
 - e.g. "Still working on the compliance ConnectRPC server, should land today"
 
 Rules:
-- No PR numbers or URLs
+- Link PRs using Slack mrkdwn link syntax: <url|text> e.g. <https://github.com/chariot-giving/chariot/pull/123|compliance server PR>
+- Every bullet that references a PR should include a link
 - No headers, just the bold labels above
 - Keep bullets short and conversational
 - Merged PRs go under yesterday, open/draft under in progress
-- Combine related PRs into one bullet
+- Combine related PRs into one bullet (link the primary one)
 
 Show the user your draft. Let them refine it interactively. When they are happy with it, write the final version to '"$OUTPUT_FILE"' and then run `slack-send '"$STANDUP_CHANNEL"' '"$OUTPUT_FILE"'` to post it immediately.'
 

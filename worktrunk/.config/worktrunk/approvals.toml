@@ -20,4 +20,5 @@ approved-commands = [
     "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-merge ] && {{ primary_worktree_path }}/local/custom-hooks/post-merge || true",
     "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-remove ] && {{ primary_worktree_path }}/local/custom-hooks/pre-remove || true",
     "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-remove ] && {{ primary_worktree_path }}/local/custom-hooks/post-remove || true",
+    "cd {{ worktree_path }} && mise connect:build-plugins",
 ]
