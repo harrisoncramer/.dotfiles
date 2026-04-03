@@ -1,14 +1,21 @@
 #!/bin/bash
 set -euo pipefail
 
-# Schedule-sends a standup file to Slack for tomorrow at 8:46am.
-# Called by Claude from within the standup session.
+# Posts the contents of a file to a Slack channel immediately.
 #
-# Usage: standup-send <file>
+# Usage: slack-send <channel-id> <file>
 
 eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
 
-FILE="${1:-}"
+CHANNEL="${1:-}"
+FILE="${2:-}"
+
+if [[ -z "$CHANNEL" ]]; then
+  echo "Error: channel ID is required" >&2
+  echo "Usage: slack-send <channel-id> <file>" >&2
+  exit 1
+fi
+
 if [[ -z "$FILE" || ! -f "$FILE" ]]; then
   echo "Error: file not found: $FILE" >&2
   exit 1
@@ -19,7 +26,6 @@ if [[ -z "${SLACK_USER_TOKEN:-}" ]]; then
   exit 1
 fi
 
-STANDUP_CHANNEL="${STANDUP_CHANNEL:-C09NJKR16E4}"
 TEXT=$(cat "$FILE")
 
 if [[ -z "$TEXT" ]]; then
@@ -27,15 +33,12 @@ if [[ -z "$TEXT" ]]; then
   exit 1
 fi
 
-TOMORROW_846=$(date -v+1d -j -f "%Y-%m-%d %H:%M:%S" "$(date -v+1d +%Y-%m-%d) 08:46:00" +%s)
-
 PAYLOAD=$(jq -n \
-  --arg channel "$STANDUP_CHANNEL" \
+  --arg channel "$CHANNEL" \
   --arg text "$TEXT" \
-  --argjson post_at "$TOMORROW_846" \
-  '{channel: $channel, text: $text, post_at: $post_at}')
+  '{channel: $channel, text: $text}')
 
-HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://slack.com/api/chat.scheduleMessage" \
+HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://slack.com/api/chat.postMessage" \
   -H "Authorization: Bearer $SLACK_USER_TOKEN" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD")
@@ -46,10 +49,9 @@ RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
 OK=$(echo "$RESPONSE_BODY" | jq -r '.ok // false')
 
 if [[ "$HTTP_CODE" -ge 200 && "$HTTP_CODE" -lt 300 && "$OK" == "true" ]]; then
-  SCHEDULED=$(date -r "$TOMORROW_846" "+%Y-%m-%d %H:%M")
-  echo "Standup scheduled for $SCHEDULED"
+  echo "Message posted to Slack channel $CHANNEL"
 else
-  echo "Error: Failed to schedule standup (HTTP $HTTP_CODE)" >&2
+  echo "Error: Failed to post message (HTTP $HTTP_CODE)" >&2
   echo "$RESPONSE_BODY" >&2
   exit 1
 fi
