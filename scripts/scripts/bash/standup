@@ -25,19 +25,29 @@ fi
 eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
 
 GITHUB_USER="harrisoncramer"
-STANDUP_CHANNEL="C09NJKR16E4"
+STANDUP_CHANNEL="C0AG583T6BG"
 YESTERDAY=$(date -v-1d +%Y-%m-%d)
 TODAY=$(date +%Y-%m-%d)
 
-AUTHORED=$(gh pr list \
-  --repo chariot-giving/chariot \
-  --author "$GITHUB_USER" \
-  --state all \
-  --search "updated:>=$YESTERDAY" \
-  --json number,title,state,body,url,isDraft,updatedAt,mergedAt,labels \
-  --limit 50 2>/dev/null || echo "[]")
+REPOS=(
+  "chariot-giving/chariot"
+  "chariot-giving/deploy"
+  "chariot-giving/ops"
+)
 
-PR_COUNT=$(echo "$AUTHORED" | jq 'length')
+ALL_PRS="[]"
+for REPO in "${REPOS[@]}"; do
+  PRS=$(gh pr list \
+    --repo "$REPO" \
+    --author "$GITHUB_USER" \
+    --state all \
+    --search "updated:>=$YESTERDAY" \
+    --json number,title,state,body,url,isDraft,updatedAt,mergedAt,labels \
+    --limit 50 2>/dev/null || echo "[]")
+  ALL_PRS=$(echo "$ALL_PRS" "$PRS" | jq -s '.[0] + .[1]')
+done
+
+PR_COUNT=$(echo "$ALL_PRS" | jq 'length')
 
 if [[ "$PR_COUNT" -eq 0 ]]; then
   echo "No PR activity found for $GITHUB_USER since $YESTERDAY"
@@ -53,9 +63,9 @@ OUTPUT_FILE="/tmp/standup-$(date +%Y%m%d-%H%M%S).md"
   echo "# PR Activity for $GITHUB_USER from $YESTERDAY through $TODAY"
   echo
   echo '```json'
-  echo "$AUTHORED" | jq '.'
+  echo "$ALL_PRS" | jq '.'
   echo '```'
-} > "$CONTEXT_FILE"
+} >"$CONTEXT_FILE"
 
 SYSTEM_PROMPT='You are helping the user write their daily standup update for Slack.
 
