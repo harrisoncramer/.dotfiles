@@ -26,8 +26,17 @@ eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
 
 GITHUB_USER="harrisoncramer"
 STANDUP_CHANNEL="C0AG583T6BG"
-YESTERDAY=$(date -v-1d +%Y-%m-%d)
 TODAY=$(date +%Y-%m-%d)
+DOW=$(date +%u) # 1=Mon … 7=Sun
+if [[ "$DOW" -eq 1 ]]; then
+  SINCE=$(date -v-3d +%Y-%m-%d) # Monday → Friday
+elif [[ "$DOW" -eq 7 ]]; then
+  SINCE=$(date -v-2d +%Y-%m-%d) # Sunday → Friday
+elif [[ "$DOW" -eq 6 ]]; then
+  SINCE=$(date -v-1d +%Y-%m-%d) # Saturday → Friday
+else
+  SINCE=$(date -v-1d +%Y-%m-%d) # Tue–Fri → previous day
+fi
 
 REPOS=(
   "chariot-giving/chariot"
@@ -41,7 +50,7 @@ for REPO in "${REPOS[@]}"; do
     --repo "$REPO" \
     --author "$GITHUB_USER" \
     --state all \
-    --search "updated:>=$YESTERDAY" \
+    --search "updated:>=$SINCE" \
     --json number,title,state,body,url,isDraft,updatedAt,mergedAt,labels \
     --limit 50 2>/dev/null || echo "[]")
   ALL_PRS=$(echo "$ALL_PRS" "$PRS" | jq -s '.[0] + .[1]')
@@ -50,7 +59,7 @@ done
 PR_COUNT=$(echo "$ALL_PRS" | jq 'length')
 
 if [[ "$PR_COUNT" -eq 0 ]]; then
-  echo "No PR activity found for $GITHUB_USER since $YESTERDAY"
+  echo "No PR activity found for $GITHUB_USER since $SINCE"
   exit 0
 fi
 
@@ -60,7 +69,7 @@ CONTEXT_FILE=$(mktemp /tmp/standup-context-XXXXXX)
 OUTPUT_FILE="/tmp/standup-$(date +%Y%m%d-%H%M%S).md"
 
 {
-  echo "# PR Activity for $GITHUB_USER from $YESTERDAY through $TODAY"
+  echo "# PR Activity for $GITHUB_USER from $SINCE through $TODAY"
   echo
   echo '```json'
   echo "$ALL_PRS" | jq '.'
