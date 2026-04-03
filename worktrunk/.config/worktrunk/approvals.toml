@@ -11,4 +11,13 @@ approved-commands = [
     "trash {{ worktree_path }}",
     "mise run docker:prune {{ branch | sanitize }}",
     "cd {{ worktree_path }} && mise wt:additional-steps",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-switch ] && {{ primary_worktree_path }}/local/custom-hooks/pre-switch || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-create ] && {{ primary_worktree_path }}/local/custom-hooks/post-create || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-start ] && {{ primary_worktree_path }}/local/custom-hooks/post-start || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-switch ] && {{ primary_worktree_path }}/local/custom-hooks/post-switch || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-commit ] && {{ primary_worktree_path }}/local/custom-hooks/pre-commit || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-merge ] && {{ primary_worktree_path }}/local/custom-hooks/pre-merge || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-merge ] && {{ primary_worktree_path }}/local/custom-hooks/post-merge || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-remove ] && {{ primary_worktree_path }}/local/custom-hooks/pre-remove || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-remove ] && {{ primary_worktree_path }}/local/custom-hooks/post-remove || true",
 ]
