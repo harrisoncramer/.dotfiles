@@ -14,6 +14,7 @@
   last = "! git-last"
   recent = "! git-recent"
   changed = "! git-changed"
+  mine = "! git-prs"
   squash-since = "! squash-since"
   dv = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
   dv-all = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
@@ -25,3 +26,9 @@
 	autoSetupRemote = true
 [url "git@github.com:"]
 	insteadOf = https://github.com/
+[credential "https://github.com"]
+	helper = 
+	helper = !/Users/harrisoncramer/.local/share/mise/installs/gh/2.86.0/gh_2.86.0_macOS_arm64/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/Users/harrisoncramer/.local/share/mise/installs/gh/2.86.0/gh_2.86.0_macOS_arm64/bin/gh auth git-credential

@@ -1,0 +1,57 @@
+#!/bin/bash
+set -euo pipefail
+
+# Posts the contents of a file to a Slack channel immediately.
+#
+# Usage: slack-send <channel-id> <file>
+
+eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
+
+CHANNEL="${1:-}"
+FILE="${2:-}"
+
+if [[ -z "$CHANNEL" ]]; then
+  echo "Error: channel ID is required" >&2
+  echo "Usage: slack-send <channel-id> <file>" >&2
+  exit 1
+fi
+
+if [[ -z "$FILE" || ! -f "$FILE" ]]; then
+  echo "Error: file not found: $FILE" >&2
+  exit 1
+fi
+
+if [[ -z "${SLACK_USER_TOKEN:-}" ]]; then
+  echo "Error: SLACK_USER_TOKEN not set" >&2
+  exit 1
+fi
+
+TEXT=$(cat "$FILE")
+
+if [[ -z "$TEXT" ]]; then
+  echo "Error: file is empty" >&2
+  exit 1
+fi
+
+PAYLOAD=$(jq -n \
+  --arg channel "$CHANNEL" \
+  --arg text "$TEXT" \
+  '{channel: $channel, text: $text}')
+
+HTTP_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://slack.com/api/chat.postMessage" \
+  -H "Authorization: Bearer $SLACK_USER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "$PAYLOAD")
+
+HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -n1)
+RESPONSE_BODY=$(echo "$HTTP_RESPONSE" | sed '$d')
+
+OK=$(echo "$RESPONSE_BODY" | jq -r '.ok // false')
+
+if [[ "$HTTP_CODE" -ge 200 && "$HTTP_CODE" -lt 300 && "$OK" == "true" ]]; then
+  echo "Message posted to Slack channel $CHANNEL"
+else
+  echo "Error: Failed to post message (HTTP $HTTP_CODE)" >&2
+  echo "$RESPONSE_BODY" >&2
+  exit 1
+fi

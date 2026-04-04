@@ -1,21 +1,24 @@
 #!/bin/bash
 set -euo pipefail
 
-# Shows PRs where I'm requested as a reviewer across the chariot-giving org.
-# Single GraphQL call, markdown preview files, fzf picker.
+# Fetches all open PRs authored by me in the chariot-giving org via a single
+# GraphQL call, renders markdown preview files, and presents them in fzf.
 #
-# Status (check state of the PR):
+# Status priority (highest wins):
+#   🖊️  draft
 #   🔻  failing checks
 #   ✅  approved
 #   👎  changes requested
-#   🕑  awaiting review
-#   🔧  no review requested
+#   👀  bumped (slack message sent via C-s)
+#   🕑  review required (not yet bumped)
+#   🔧  in development
 #
 # Keybindings:
 #   enter  copy PR link
 #   C-o    open in browser
-#   C-a    approve
-#   C-s    slack author that you left a review
+#   C-g    merge (with confirmation)
+#   C-x    close (with confirmation)
+#   C-s    send slack DM to reviewers
 #   C-/    toggle preview
 #   esc    quit
 
@@ -31,9 +34,11 @@ fi
 
 ORG="chariot-giving"
 USER=$(gh api user --jq '.login')
-PREVIEW_DIR="/tmp/git-reviews-preview"
+PREVIEW_DIR="/tmp/git-prs-preview"
+BUMPS_FILE="/tmp/git-prs-bumped"
 rm -rf "$PREVIEW_DIR"
 mkdir -p "$PREVIEW_DIR"
+touch "$BUMPS_FILE"
 
 # shellcheck disable=SC2016
 QUERY='
@@ -44,12 +49,10 @@ query($q: String!) {
         number
         title
         body
+        isDraft
         url
         headRefName
-        baseRefName
-        isDraft
         reviewDecision
-        author { login __typename }
         repository { nameWithOwner }
         assignees(first: 10) { nodes { login } }
         reviewRequests(first: 10) { nodes { requestedReviewer { ... on User { login } ... on Team { name } } } }
@@ -76,35 +79,31 @@ query($q: String!) {
 
 DATA=$(gh api graphql \
   -f query="$QUERY" \
-  -f q="type:pr state:open review-requested:$USER org:$ORG")
+  -f q="type:pr state:open author:$USER org:$ORG")
+
+BUMPS=$(cat "$BUMPS_FILE")
 
 # shellcheck disable=SC2016
-PRS=$(echo "$DATA" | jq -r --arg user "$USER" '.data.search.nodes[] | select(.author.__typename != "Bot") | select(.isDraft != true) |
-  select(
-    (([.reviewRequests.nodes[].requestedReviewer | (.login // .name // empty)] +
-      [.reviews.nodes[].author.login]) | unique | length) <= 4
-  ) |
+PRS=$(echo "$DATA" | jq -r --arg bumps "$BUMPS" '.data.search.nodes[] |
   (.commits.nodes[0].commit.statusCheckRollup.state // "NONE") as $checks |
-  (if ($checks == "FAILURE" or $checks == "ERROR") then "🔻"
+  ((.repository.nameWithOwner + ":" + (.number | tostring)) as $key |
+   ($bumps | split("\n") | any(. == $key))) as $bumped |
+  (if .isDraft then "🖊️"
+   elif ($checks == "FAILURE" or $checks == "ERROR") then "🔻"
    elif .reviewDecision == "APPROVED" then "✅"
    elif .reviewDecision == "CHANGES_REQUESTED" then "👎"
+   elif $bumped then "👀"
    elif .reviewDecision == "REVIEW_REQUIRED" then "🕑"
    else "🔧" end) as $status |
-  [$status + " (@" + .author.login + ") " + .title, .repository.nameWithOwner, (.number | tostring), .url, .headRefName, .author.login, .baseRefName] | @tsv')
+  [$status + " " + .title, .repository.nameWithOwner, (.number | tostring), .url, .headRefName] | @tsv')
 
 if [[ -z "$PRS" ]]; then
-  echo "No PRs to review in $ORG"
+  echo "No open PRs found in $ORG"
   exit 0
 fi
 
 # shellcheck disable=SC2016
-echo "$DATA" | jq -r --arg user "$USER" '.data.search.nodes[] | select(.author.__typename != "Bot") | select(.isDraft != true) |
-  select(
-    (([.reviewRequests.nodes[].requestedReviewer | (.login // .name // empty)] +
-      [.reviews.nodes[].author.login]) | unique | length) <= 4
-  ) |
-  (.author.login) as $author |
-
+echo "$DATA" | jq -r '.data.search.nodes[] |
   (.reviews.nodes
    | map(select(.state != "COMMENTED"))
    | group_by(.author.login)
@@ -119,7 +118,9 @@ echo "$DATA" | jq -r --arg user "$USER" '.data.search.nodes[] | select(.author._
    | map("🕑 " + (.requestedReviewer.login // .requestedReviewer.name // "unknown"))
   ) as $requested |
 
-  ($reviewers + $requested | unique | join("\n")) as $people |
+  (.assignees.nodes | map("👤 " + .login)) as $assignees |
+
+  ($reviewers + $requested + $assignees | unique | join("\n")) as $people |
 
   (.commits.nodes[0].commit.statusCheckRollup.contexts.nodes
    | if . == null then []
@@ -132,8 +133,7 @@ echo "$DATA" | jq -r --arg user "$USER" '.data.search.nodes[] | select(.author._
    | join("\n")) as $failing |
 
   "# " + .title + "\n\n" +
-  "**Author:** " + $author + "\n\n" +
-  (if ($people | length) > 0 then "## Reviewers\n\n" + $people + "\n\n---\n\n" else "" end) +
+  (if ($people | length) > 0 then "## People\n\n" + $people + "\n\n---\n\n" else "" end) +
   (.body // "No description") +
   (if ($failing | length) > 0 then "\n\n## Failing Checks\n\n" + $failing else "" end),
   "---END:" + (.number | tostring) + "---"
@@ -154,13 +154,13 @@ echo "$PRS" | fzf \
   --preview-window 'right:60%,wrap' \
   --layout reverse \
   --border \
-  --prompt "Reviews> " \
-  --header "<cr>: copy | C-o: open | C-a: approve | C-s: changes | C-r: review" \
+  --prompt "PRs> " \
+  --header "<cr>: copy | C-o: open | C-g: merge | C-x: close | C-s: bump" \
   --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
   --bind 'ctrl-o:execute-silent(open {4})' \
-  --bind 'ctrl-a:execute(git-prs-approve {2} {3} {6} {4})' \
-  --bind 'ctrl-r:execute(git-reviews-review {4} {2} {5} {7})' \
-  --bind 'ctrl-s:become(git-reviews-slack {6} {4})' \
+  --bind 'ctrl-g:execute(git-prs-merge {2} {3})' \
+  --bind 'ctrl-x:become(git-prs-close {2} {3})' \
+  --bind 'ctrl-s:become(git-prs-slack {2} {3} {4})' \
   --bind 'ctrl-/:toggle-preview' \
   --bind 'esc:abort' \
   --exit-0

@@ -61,3 +61,6 @@ gpg
 act
 pinentry-mac
 pgformatter
+uv
+worktrunk
+minikube

@@ -1,0 +1,59 @@
+#!/bin/zsh
+set -euo pipefail
+
+# Approves a PR and DMs the author via Slack.
+# Called from git-reviews via C-a. Prompts for confirmation via gum.
+# Requires SLACK_USER_TOKEN and GITHUB_TO_SLACK in ~/.zshrc-work.
+# Usage: git-prs-approve <repo> <pr-number> <author-gh-login> <pr-url>
+
+source "$HOME/.zshrc-work" 2>/dev/null || true
+
+REPO="$1"
+NUM="$2"
+GH_USER="$3"
+URL="$4"
+
+CHOICE=$(gum choose --header "Are you sure you want to approve PR #$NUM?" "Yes" "No" < /dev/tty)
+if [[ "$CHOICE" != "Yes" ]]; then
+  exit 0
+fi
+
+gh pr review "$NUM" --repo "$REPO" --approve
+gum log --level info "Approved PR #$NUM"
+
+if [[ -z "${SLACK_USER_TOKEN:-}" || -z "${(k)GITHUB_TO_SLACK[@]:-}" ]]; then
+  exit 0
+fi
+
+slack_id="${GITHUB_TO_SLACK[$GH_USER]:-""}"
+if [[ -z "$slack_id" ]]; then
+  exit 0
+fi
+
+PHRASES=(
+  "approved this, good to go"
+  "lgtm, approved"
+  "looks good, stamped it"
+  "approved, ship it"
+  "all good, approved"
+  "gave it the thumbs up"
+  "approved, nice work"
+  "signed off on this"
+)
+
+IDX=$((RANDOM % ${#PHRASES[@]} + 1))
+MSG="${PHRASES[$IDX]} $URL"
+
+CHANNEL=$(curl -s -X POST "https://slack.com/api/conversations.open" \
+  -H "Authorization: Bearer $SLACK_USER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "{\"users\": \"$slack_id\"}" | jq -r '.channel.id')
+
+if [[ -n "$CHANNEL" && "$CHANNEL" != "null" ]]; then
+  curl -s -X POST "https://slack.com/api/chat.postMessage" \
+    -H "Authorization: Bearer $SLACK_USER_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d "{\"channel\": \"$CHANNEL\", \"text\": \"$MSG\"}" > /dev/null
+fi
+
+gum log --level info "Notified @$GH_USER"

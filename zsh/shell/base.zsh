@@ -6,7 +6,7 @@ zvm_after_init_commands+=('[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh')
 setopt EXTENDED_GLOB
 
 # Writing
-alias todo="v /Users/harrisoncramer/Library/Mobile\ Documents/iCloud\~ee\~xero\~Paper/Documents/todo.md"
+alias todo="v $HOME/Library/Mobile\ Documents/iCloud\~ee\~xero\~Paper/Documents/todo.md"
 
 # Activate mise
 eval "$(mise activate zsh)"
@@ -26,7 +26,7 @@ plugins=(fzf-tab fast-syntax-highlighting zsh-autosuggestions git git-open fzf z
 source ~/.oh-my-zsh/oh-my-zsh.sh
 export ZVM_VI_EDITOR="nvim"
 
-export MANPAGER='~/.local/bin/nvim-macos/bin/nvim +Man!'
+export MANPAGER="$HOME/.local/bin/nvim-macos/bin/nvim +Man!"
 
 # Autosuggest accept (instead of right arrow key)
 bindkey '^ ' autosuggest-accept
@@ -42,3 +42,7 @@ function zvm_vi_yank() {
 }
 
 export GPG_TTY=$(tty)
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'

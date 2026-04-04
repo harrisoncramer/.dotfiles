@@ -1,0 +1,99 @@
+#!/bin/bash
+set -euo pipefail
+
+# Fetches your PRs from today, opens an interactive Claude session to draft
+# a standup, and lets Claude schedule-send it to Slack via standup-send.
+#
+# Requires:
+#   SLACK_USER_TOKEN   Slack user/bot token with chat:write scope
+#   ANTHROPIC_API_KEY  For Claude
+#
+# Usage:
+#   standup
+
+if ! command -v gh &>/dev/null; then
+  echo "Error: gh CLI is not installed" >&2
+  exit 1
+fi
+
+if ! command -v claude &>/dev/null; then
+  echo "Error: claude CLI is not installed" >&2
+  exit 1
+fi
+
+# Source work env vars; skip zsh-only syntax errors (typeset -A, etc.)
+eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
+
+GITHUB_USER="harrisoncramer"
+STANDUP_CHANNEL="C0AG583T6BG"
+TODAY=$(date +%Y-%m-%d)
+DOW=$(date +%u) # 1=Mon … 7=Sun
+if [[ "$DOW" -eq 1 ]]; then
+  SINCE=$(date -v-3d +%Y-%m-%d) # Monday → Friday
+elif [[ "$DOW" -eq 7 ]]; then
+  SINCE=$(date -v-2d +%Y-%m-%d) # Sunday → Friday
+elif [[ "$DOW" -eq 6 ]]; then
+  SINCE=$(date -v-1d +%Y-%m-%d) # Saturday → Friday
+else
+  SINCE=$(date -v-1d +%Y-%m-%d) # Tue–Fri → previous day
+fi
+
+REPOS=(
+  "chariot-giving/chariot"
+  "chariot-giving/deploy"
+  "chariot-giving/ops"
+)
+
+ALL_PRS="[]"
+for REPO in "${REPOS[@]}"; do
+  PRS=$(gh pr list \
+    --repo "$REPO" \
+    --author "$GITHUB_USER" \
+    --state all \
+    --search "updated:>=$SINCE" \
+    --json number,title,state,body,url,isDraft,updatedAt,mergedAt,labels \
+    --limit 50 2>/dev/null || echo "[]")
+  ALL_PRS=$(echo "$ALL_PRS" "$PRS" | jq -s '.[0] + .[1]')
+done
+
+PR_COUNT=$(echo "$ALL_PRS" | jq 'length')
+
+if [[ "$PR_COUNT" -eq 0 ]]; then
+  echo "No PR activity found for $GITHUB_USER since $SINCE"
+  exit 0
+fi
+
+echo "Found $PR_COUNT PRs with activity since yesterday"
+
+CONTEXT_FILE=$(mktemp /tmp/standup-context-XXXXXX)
+OUTPUT_FILE="/tmp/standup-$(date +%Y%m%d-%H%M%S).md"
+
+{
+  echo "# PR Activity for $GITHUB_USER from $SINCE through $TODAY"
+  echo
+  echo '```json'
+  echo "$ALL_PRS" | jq '.'
+  echo '```'
+} >"$CONTEXT_FILE"
+
+SYSTEM_PROMPT='You are helping the user write their daily standup update for Slack.
+
+Read the PR activity file, then draft a casual standup in Slack mrkdwn format:
+
+- 5 bullets max, flat list, no sections or headers
+- Pick the biggest ticket items — skip trivial fixes or minor cleanup
+- Write like a human talking to coworkers, not a report
+- e.g. "Ripped out the old conductor flow and switched CI to use GitHub deployment objects"
+- e.g. "Still working on the compliance ConnectRPC server, should land today"
+
+Rules:
+- Link PRs using Slack mrkdwn link syntax: <url|text> e.g. <https://github.com/chariot-giving/chariot/pull/123|compliance server PR>
+- Every bullet that references a PR should include a link
+- Keep bullets short and conversational
+- Combine related PRs into one bullet (link the primary one)
+
+Show the user your draft. Let them refine it interactively. When they are happy with it, write the final version to '"$OUTPUT_FILE"' and then run `slack-send '"$STANDUP_CHANNEL"' '"$OUTPUT_FILE"'` to post it immediately.'
+
+exec claude --append-system-prompt "$SYSTEM_PROMPT" \
+  --allowedTools "Read,Write,Bash" \
+  -- "Read the PR activity at $CONTEXT_FILE and draft my standup. When I approve, write it to $OUTPUT_FILE and run slack-send $STANDUP_CHANNEL $OUTPUT_FILE to post it."

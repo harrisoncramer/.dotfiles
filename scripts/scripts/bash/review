@@ -1,0 +1,67 @@
+#!/bin/bash
+set -euo pipefail
+
+if [ -n "${1:-}" ]; then
+  PR_NUMBER="$1"
+else
+  PR_NUMBER=$(gh pr view --json number --jq '.number' 2>/dev/null) || {
+    echo "No PR number provided and no PR found for the current branch." >&2
+    exit 1
+  }
+fi
+BASE_BRANCH="${2:-staging}"
+
+HEAD_BRANCH=$(gh pr view "$PR_NUMBER" --json headRefName --jq '.headRefName')
+
+BRANCH_NAME="review-pr-${PR_NUMBER}"
+wt switch --create "$BRANCH_NAME" 2>/dev/null || true
+
+WORKTREE_PATH=$(wt list --format=json | jq -r --arg b "$BRANCH_NAME" '.[] | select(.branch == $b) | .path')
+if [ -z "$WORKTREE_PATH" ]; then
+  echo "Failed to find worktree for $BRANCH_NAME" >&2
+  exit 1
+fi
+
+cd "$WORKTREE_PATH"
+
+git fetch origin "$BASE_BRANCH" "$HEAD_BRANCH"
+git reset --hard "origin/$HEAD_BRANCH"
+
+MERGE_BASE=$(git merge-base "origin/$BASE_BRANCH" HEAD)
+
+DIFF=$(git diff --diff-filter=ADM "$MERGE_BASE"..HEAD -- \
+  ':(exclude)*go.mod' \
+  ':(exclude)*go.sum' \
+  ':(exclude)**/db/models/**' \
+  ':(exclude)**/jet/**' \
+  ':(exclude)**/*_grpc.pb.go' \
+  ':(exclude)**/*_grpc.go' \
+  ':(exclude)**/*.sql.go' \
+  ':(exclude)**/*.pb.go' \
+  ':(exclude)**/*_test.go' \
+  ':(exclude)**/*.connect.go' \
+  ':(exclude)*yarn.lock')
+
+PR_INFO=$(gh pr view "$PR_NUMBER" --json title,body --jq '"Title: " + .title + "\nDescription:\n" + .body')
+
+SKILL_DIR="$HOME/.claude/skills/review-pr"
+PROMPT=$(cat "$SKILL_DIR/SKILL.md")
+
+mkdir -p /tmp/reviews
+
+INPUT_FILE="/tmp/reviews/${PR_NUMBER}-claude-input.md"
+cat <<EOF > "$INPUT_FILE"
+$PROMPT
+
+# PR #$PR_NUMBER
+
+$PR_INFO
+
+# Diff
+
+$DIFF
+EOF
+
+claude --dangerously-skip-permissions --model opus \
+  --allowedTools "Read Write Glob Grep" \
+  "Review PR #${PR_NUMBER}. Read the full prompt and diff from ${INPUT_FILE}"

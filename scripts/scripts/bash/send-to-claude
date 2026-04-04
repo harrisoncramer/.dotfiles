@@ -1,0 +1,24 @@
+#!/bin/bash
+# Send a message to the Claude pane in the current tmux window via send-keys.
+message="$*"
+
+if [ -z "$message" ]; then
+    tmux display-message "send-to-claude: no message provided"
+    exit 1
+fi
+
+# Find a pane running claude in the current window
+pane=""
+while IFS=: read -r pane_id pane_tty; do
+    if ps -o comm= -t "$pane_tty" 2>/dev/null | grep -qE "^claude$"; then
+        pane="$pane_id"
+        break
+    fi
+done < <(tmux list-panes -F '#{pane_id}:#{pane_tty}')
+
+if [ -z "$pane" ]; then
+    tmux display-message "No Claude pane in this window."
+    exit 0
+fi
+
+tmux send-keys -t "$pane" "$message" Enter

@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+
+# Opens an Octo PR review in a new Neovim instance via Diffview,
+# using the local filesystem via a "reviews" worktree.
+# Called from git-reviews via C-r.
+# Usage: git-reviews-review <pr-url> <owner/repo> <branch> <base-branch>
+
+URL="$1"
+REPO_FULL="$2"
+BRANCH="$3"
+BASE_BRANCH="${4:-main}"
+NVIM="$HOME/.local/bin/nvim-macos/bin/nvim"
+
+REPO_NAME="${REPO_FULL#*/}"
+WORKTREE="$HOME/chariot/$REPO_NAME/.worktrees/reviews"
+
+if [[ ! -d "$WORKTREE" ]]; then
+  echo "Error: worktree not found at $WORKTREE" >&2
+  exit 1
+fi
+
+git -C "$WORKTREE" fetch origin "$BRANCH" "$BASE_BRANCH"
+git -C "$WORKTREE" checkout "$BRANCH"
+git -C "$WORKTREE" reset --hard "origin/$BRANCH"
+git -C "$WORKTREE" merge "origin/$BASE_BRANCH" --no-edit
+
+cd "$WORKTREE"
+"$NVIM" -c "autocmd FileType octo ++once lua vim.cmd('Octo review')" -c "Octo $URL"
