@@ -88,7 +88,7 @@ if $HOMEBREW; then
   echo "Installing Homebrew packages..."
   while IFS= read -r PACKAGE; do
     [ -z "$PACKAGE" ] && continue
-    brew install "$PACKAGE" 2>/dev/null || echo "  warning: failed to install $PACKAGE"
+    brew install "$PACKAGE" </dev/null || echo "  warning: failed to install $PACKAGE"
   done <deps/homebrew
 fi
 
