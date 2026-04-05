@@ -1,5 +1,12 @@
 #!/bin/zsh
 
+# Add homebrew
+if [ -d "/opt/homebrew" ]; then
+  export PATH="/opt/homebrew/bin:$PATH"
+elif [ -d "$HOME/homebrew" ]; then
+  export PATH="$HOME/homebrew/bin:$PATH"
+fi
+
 # Add scripts (from scripts directory)
 for DIR in ~/scripts/*; do
   PATH="$PATH:$DIR"
