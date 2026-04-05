@@ -196,7 +196,7 @@ fi
 # ----------------------
 if $GO; then
   while IFS= read -r PACKAGE; do
-    go install "$PACKAGE"
+    go install "$PACKAGE" </dev/null
   done <deps/golang
 fi
 
@@ -205,7 +205,7 @@ fi
 # ----------------------
 if $NPM; then
   while IFS= read -r PACKAGE; do
-    npm i -g "$PACKAGE"
+    npm i -g "$PACKAGE" </dev/null
   done <deps/npm
 fi
 
