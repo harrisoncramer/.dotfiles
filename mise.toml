@@ -3,7 +3,7 @@ experimental = true # Required for Go backend
 
 [tools]
 go = "1.25.1"
-node = "22.0.0"
+node = "24.0.0"
 yarn = "1.22.19"
 rust = "1.85.0"
 air = "1.61.7"
