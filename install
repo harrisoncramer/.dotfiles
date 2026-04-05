@@ -86,10 +86,9 @@ if $HOMEBREW; then
   echo "Updating Homebrew..."
   brew update
   echo "Installing Homebrew packages..."
-  while IFS= read -r PACKAGE <&3; do
-    [ -z "$PACKAGE" ] && continue
+  for PACKAGE in $(cat deps/homebrew); do
     brew install "$PACKAGE" || echo "  warning: failed to install $PACKAGE"
-  done 3<deps/homebrew
+  done
 fi
 
 # ----------------------
@@ -195,18 +194,18 @@ fi
 # Go packages
 # ----------------------
 if $GO; then
-  while IFS= read -r PACKAGE <&3; do
+  for PACKAGE in $(cat deps/golang); do
     go install "$PACKAGE"
-  done 3<deps/golang
+  done
 fi
 
 # ----------------------
 # NPM packages
 # ----------------------
 if $NPM; then
-  while IFS= read -r PACKAGE <&3; do
+  for PACKAGE in $(cat deps/npm); do
     npm i -g "$PACKAGE"
-  done 3<deps/npm
+  done
 fi
 
 # ----------------------
