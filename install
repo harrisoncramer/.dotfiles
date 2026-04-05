@@ -16,7 +16,7 @@ MISE=false
 # ----------------------
 # Homebrew install location
 # ----------------------
-BREW_PREFIX="/opt/homebrew"
+BREW_PREFIX="$HOME/homebrew"
 export PATH="$BREW_PREFIX/bin:$HOME/.local/bin:$PATH"
 
 # Ensure local bin exists
@@ -79,9 +79,9 @@ done
 # ----------------------
 if $HOMEBREW; then
   if ! command -v brew &>/dev/null; then
-    echo "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    eval "$($BREW_PREFIX/bin/brew shellenv)"
+    echo "Installing Homebrew to $BREW_PREFIX..."
+    git clone https://github.com/Homebrew/brew "$BREW_PREFIX"
+    export PATH="$BREW_PREFIX/bin:$PATH"
   fi
   echo "Updating Homebrew..."
   brew update
