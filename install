@@ -16,7 +16,11 @@ MISE=false
 # ----------------------
 # Homebrew install location
 # ----------------------
-BREW_PREFIX="$HOME/homebrew"
+if [ -d "/opt/homebrew" ] && [ -w "/opt/homebrew" ]; then
+  BREW_PREFIX="/opt/homebrew"
+else
+  BREW_PREFIX="$HOME/homebrew"
+fi
 export PATH="$BREW_PREFIX/bin:$HOME/.local/bin:$PATH"
 
 # Ensure local bin exists
