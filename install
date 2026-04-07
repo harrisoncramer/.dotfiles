@@ -1,9 +1,10 @@
 #!/bin/bash
 set -eu -o pipefail
 
-# Source common commands
+# Source common utility functions
 source "./utils"
 
+# Flags
 NPM=false
 GO=false
 CLAUDE=false
@@ -12,6 +13,22 @@ NVIM=false
 TMUX=false
 MISE=false
 
+# ----------------------
+# Homebrew install location
+# ----------------------
+if [ -d "/opt/homebrew" ] && [ -w "/opt/homebrew" ]; then
+  BREW_PREFIX="/opt/homebrew"
+else
+  BREW_PREFIX="$HOME/homebrew"
+fi
+export PATH="$BREW_PREFIX/bin:$HOME/.local/bin:$PATH"
+
+# Ensure local bin exists
+mkdir -p "$HOME/.local/bin"
+
+# ----------------------
+# Usage function
+# ----------------------
 function usage() {
   echo "Usage: ./install [OPTIONS]
 Installs dependencies for my development environment.
@@ -20,15 +37,18 @@ Options:
   --all     Installs all dependencies
   --brew    Installs brew dependencies (required for other installs)
   --go      Installs Go packages
-  --npm     Installs Go packages
+  --npm     Installs NPM packages
   --mise    Installs languages/tools through Mise
   --claude  Configures Claude
   --nvim    Installs Neovim
-  --q       Mutes all logs
+  --tmux    Installs TPM for tmux
   --help    Prints this help
-  "
+"
 }
 
+# ----------------------
+# Parse command line options
+# ----------------------
 while test $# != 0; do
   case "$1" in
   --all)
@@ -58,40 +78,75 @@ while test $# != 0; do
   shift
 done
 
-if ! command -v stow &>/dev/null; then
+# ----------------------
+# Homebrew installation (skip if already installed)
+# ----------------------
+if $HOMEBREW; then
+  if ! command -v brew &>/dev/null; then
+    echo "Installing Homebrew to $BREW_PREFIX..."
+    git clone https://github.com/Homebrew/brew "$BREW_PREFIX"
+    export PATH="$BREW_PREFIX/bin:$PATH"
+  fi
+  echo "Updating Homebrew..."
+  brew update
+  echo "Installing Homebrew packages..."
+  for PACKAGE in $(cat deps/homebrew); do
+    brew install "$PACKAGE" || echo "  warning: failed to install $PACKAGE"
+  done
+fi
+
+# ----------------------
+# Install stow and Mise via Homebrew
+# ----------------------
+if ! command -v stow &>/dev/null && $HOMEBREW; then
   echo "Installing stow..."
   brew install stow
 fi
 
-if ! command -v mise &>/dev/null; then
+if ! command -v mise &>/dev/null && $HOMEBREW; then
   echo "Installing mise..."
   brew install mise
 fi
 
 if $MISE; then
-  echo "Installing all languages..."
+  echo "Installing languages/tools through Mise..."
   linker "$(pwd)/mise.toml" ~/mise.toml
   mise trust -q
   mise install
 fi
 
-# Ensure certain files/folders exist
+# ----------------------
+# Prepare dotfiles & local config
+# ----------------------
 touch ~/.zshrc-personal
 mkdir -p ~/.local/bin
+linker "$(pwd)/.hushlogin" ~/.hushlogin
 
 HOST_NAME=$(hostname)
 
-# Touch login file
-linker "$(pwd)/.hushlogin" ~/.hushlogin
-
-# The configuration steps below are idempotent and run on every install.
-# By default we just use stow to install the directories as listed.
-# However, if any installations require customization, we can do that here.
+# ----------------------
+# Stow directories (skip Homebrew to avoid conflicts)
+# ----------------------
 for dir in "$(pwd)"/*/; do
   DIR_ROOT="${dir%*/}"
   DIR_NAME="${DIR_ROOT##*/}"
   echo "Configuring ${DIR_NAME}..."
+
   case $DIR_NAME in
+  deps)
+    echo "Processing deps..."
+    for dep_dir in "$DIR_ROOT"/*; do
+      dep_name=$(basename "$dep_dir")
+      if [ "$dep_name" = "homebrew" ]; then
+        echo "Skipping stow for Homebrew"
+        continue
+      fi
+      if [ -d "$dep_dir" ]; then
+        stow -t "$HOME" "deps/$dep_name"
+        echo "  stowed deps/$dep_name"
+      fi
+    done
+    ;;
   git)
     linker "$(pwd)/git/.gitignore" ~/.gitignore
     git config --global core.excludesfile ~/.gitignore
@@ -101,102 +156,72 @@ for dir in "$(pwd)"/*/; do
       linker "$(pwd)/git/.gitconfig" ~/.gitconfig
     fi
     git init
-    pOnSuccess "  updated git" "  could not update git!"
     ;;
   zsh)
-    export ZSH_DIR="$HOME/.oh-my-zsh"
+    ZSH_DIR="$HOME/.oh-my-zsh"
     cloneOrUpdate https://github.com/ohmyzsh/ohmyzsh.git "$ZSH_DIR"
     cloneOrUpdate https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_DIR/custom/plugins/zsh-syntax-highlighting"
     cloneOrUpdate https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_DIR/custom/plugins/zsh-autosuggestions"
-    cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode "$ZSH_DIR/custom/plugins/zsh-vi-mode"
+    cloneOrUpdate https://github.com/Aloxaf/fzf-tab.git "$ZSH_DIR/custom/plugins/fzf-tab"
+    cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/custom/plugins/fast-syntax-highlighting"
     cloneOrUpdate https://github.com/paulirish/git-open.git "$ZSH_DIR/custom/plugins/git-open"
+    cloneOrUpdate https://github.com/jeffreytse/zsh-vi-mode.git "$ZSH_DIR/custom/plugins/zsh-vi-mode"
     cloneOrUpdate https://github.com/romkatv/powerlevel10k.git "$ZSH_DIR/themes/powerlevel10k"
-    cloneOrUpdate https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZSH_DIR/plugins/fast-syntax-highlighting"
-    cloneOrUpdate https://github.com/Aloxaf/fzf-tab "${ZSH_DIR}/plugins/fzf-tab"
-    stow "$DIR_NAME"
-    ;;
-  gpg)
-    echo "TODO: GPG installation not automated. Please copy these files to ~/.gnupg"
-    ;;
-  bat)
-    stow "$DIR_NAME"
-    bat cache --build
-    pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
-    ;;
-  worktrunk)
-    stow "$DIR_NAME"
-    if ! command -v worktrunk >/dev/null 2>&1; then
-      brew install worktrunk
-      # worktrunk config shell install
-    fi
+    stow -t "$HOME" "$DIR_NAME"
     ;;
   claude)
     mkdir -p ~/.claude
     linker "$(pwd)/claude/settings.json" ~/.claude/settings.json
     linker "$(pwd)/claude/CLAUDE.md" ~/.claude/CLAUDE.md
     linker "$(pwd)/claude/skills" ~/.claude/skills
-    if command -v jq >/dev/null 2>&1 && [ -f ~/.claude.json ]; then
-      jq --slurpfile mcp "$(pwd)/claude/mcp.json" '.mcpServers += $mcp[0]' ~/.claude.json > /tmp/claude.json.tmp && mv /tmp/claude.json.tmp ~/.claude.json
-      pOnSuccess "  merged MCP servers into ~/.claude.json" "  could not merge MCP servers!"
-    fi
     ;;
   *)
-    stow "$DIR_NAME"
-    pOnSuccess "  stowed $DIR_NAME" "  could not stow $DIR_NAME!"
+    stow -t "$HOME" "$DIR_NAME"
     ;;
   esac
 done
 
-# Dependency installs
-if $HOMEBREW; then
-  echo "Installing brews..."
-  brew update
-  while IFS= read -r package; do
-    if [[ -n "$package" ]]; then
-      brew install "$package" || echo "  warning: failed to install $package"
-    fi
-  done <deps/homebrew
-  brew cleanup
-  yes | "$(brew --prefix)/opt/fzf/install" >/dev/null 2>&1
+# ----------------------
+# Install Neovim locally
+# ----------------------
+if $NVIM; then
+  ./nvim-install
 fi
 
-if $NPM; then
-  echo "Installing global npm dependencies..."
-  while IFS= read -r package; do
-    if [[ -n "$package" ]]; then
-      echo "Installing $package"
-      npm i -g "$package"
-    fi
-  done <deps/npm
-fi
-
-# Claude
-if $CLAUDE; then
-  echo "Installing Claude Code"
-  npm i -g @anthropic-ai/claude-code
-  npm i -g claude-code-acp
-  claude plugin marketplace add max-sixty/worktrunk
-  claude plugin install worktrunk@worktrunk
-fi
-
-mkdir -p ~/.tmux/plugins
+# ----------------------
+# TPM for tmux
+# ----------------------
 if $TMUX; then
+  mkdir -p ~/.tmux/plugins
   TPM_DIR="$HOME/.tmux/plugins/tpm"
+  echo "hi"
   cloneOrUpdate https://github.com/tmux-plugins/tpm.git "$TPM_DIR"
 fi
 
+# ----------------------
+# Go packages
+# ----------------------
 if $GO; then
-  echo "Installing golang modules..."
-  while IFS= read -r PACKAGE; do
+  for PACKAGE in $(cat deps/golang); do
     go install "$PACKAGE"
-  done <deps/golang
+  done
 fi
 
-if $NVIM; then
-  echo "Reinstalling Neovim binary..."
-  rm -rf ~/Downloads/nvim-macos-arm64.tar.gz ~/Downloads/nvim-macos-arm64 "$HOME/.local/bin/nvim-macos"
-  curl -sL https://github.com/neovim/neovim/releases/download/nightly/nvim-macos-arm64.tar.gz -o ~/Downloads/nvim-macos-arm64.tar.gz
-  xattr -c ~/Downloads/nvim-macos-arm64.tar.gz
-  tar xzf ~/Downloads/nvim-macos-arm64.tar.gz --directory="$HOME/Downloads"
-  mv ~/Downloads/nvim-macos-arm64 "$HOME/.local/bin/nvim-macos"
+# ----------------------
+# NPM packages
+# ----------------------
+if $NPM; then
+  for PACKAGE in $(cat deps/npm); do
+    npm i -g "$PACKAGE"
+  done
 fi
+
+# ----------------------
+# Claude Code
+# ----------------------
+if $CLAUDE; then
+  npm i -g @anthropic-ai/claude-code
+  npm i -g claude-code-acp
+fi
+
+echo "✅ Installation complete. Homebrew is at $BREW_PREFIX, everything else in your home directory."

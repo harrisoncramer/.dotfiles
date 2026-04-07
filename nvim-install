@@ -1,0 +1,44 @@
+#!/bin/bash
+set -euo pipefail
+
+# Paths
+NVIM_BIN="$HOME/.local/bin/nvim"
+LOCAL_BIN="$HOME/.local/bin"
+TMP_DL="$HOME/Downloads"
+
+mkdir -p "$LOCAL_BIN"
+
+# Detect architecture
+ARCH=$(uname -m)
+if [[ "$ARCH" == "arm64" ]]; then
+  NVIM_PAT="nvim-macos-arm64.tar.gz"
+else
+  NVIM_PAT="nvim-macos-x64.tar.gz"
+fi
+
+# Get latest stable release URL
+NVIM_URL=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest |
+  grep "browser_download_url.*$NVIM_PAT" |
+  head -n 1 |
+  cut -d '"' -f 4)
+
+if [[ -z "$NVIM_URL" ]]; then
+  echo "Error: Could not find Neovim download URL for $ARCH"
+  exit 1
+fi
+
+echo "Downloading Neovim from $NVIM_URL ..."
+rm -f "$TMP_DL/$NVIM_PAT"
+rm -rf "$LOCAL_BIN/nvim-macos"
+
+curl -L "$NVIM_URL" -o "$TMP_DL/$NVIM_PAT"
+
+# Extract tarball
+tar -xzf "$TMP_DL/$NVIM_PAT" -C "$TMP_DL"
+
+# Detect extracted folder dynamically
+EXTRACTED_DIR=$(tar -tzf "$TMP_DL/$NVIM_PAT" | head -1 | cut -f1 -d"/")
+mv "$TMP_DL/$EXTRACTED_DIR" "$LOCAL_BIN/nvim-macos"
+
+# Symlink for convenience
+ln -sf "$LOCAL_BIN/nvim-macos/bin/nvim" "$NVIM_BIN"
