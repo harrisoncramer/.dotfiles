@@ -25,7 +25,7 @@ fi
 eval "$(grep '^export ' "$HOME/.zshrc-work" 2>/dev/null)" || true
 
 GITHUB_USER="harrisoncramer"
-STANDUP_CHANNEL="C0AG583T6BG"
+STANDUP_CHANNEL="C09NJKR16E4"
 TODAY=$(date +%Y-%m-%d)
 DOW=$(date +%u) # 1=Mon … 7=Sun
 if [[ "$DOW" -eq 1 ]]; then
@@ -42,6 +42,7 @@ REPOS=(
   "chariot-giving/chariot"
   "chariot-giving/deploy"
   "chariot-giving/ops"
+  "chariot-giving/admin"
 )
 
 ALL_PRS="[]"

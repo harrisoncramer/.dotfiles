@@ -21,4 +21,10 @@ approved-commands = [
     "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-remove ] && {{ primary_worktree_path }}/local/custom-hooks/pre-remove || true",
     "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-remove ] && {{ primary_worktree_path }}/local/custom-hooks/post-remove || true",
     "cd {{ worktree_path }} && mise connect:build-plugins",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-switch ] && {{ primary_worktree_path }}/local/custom-hooks/pre-switch {{ worktree_path }} || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-create ] && {{ primary_worktree_path }}/local/custom-hooks/post-create {{ worktree_path }} || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-start ] && {{ primary_worktree_path }}/local/custom-hooks/post-start {{ worktree_path }} || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-switch ] && {{ primary_worktree_path }}/local/custom-hooks/post-switch {{ worktree_path }} || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/pre-remove ] && {{ primary_worktree_path }}/local/custom-hooks/pre-remove {{ worktree_path }} || true",
+    "[ -x {{ primary_worktree_path }}/local/custom-hooks/post-remove ] && {{ primary_worktree_path }}/local/custom-hooks/post-remove {{ worktree_path }} || true",
 ]
