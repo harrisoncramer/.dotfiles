@@ -50,7 +50,7 @@ PROMPT=$(cat "$SKILL_DIR/SKILL.md")
 mkdir -p /tmp/reviews
 
 INPUT_FILE="/tmp/reviews/${PR_NUMBER}-claude-input.md"
-cat <<EOF > "$INPUT_FILE"
+cat <<EOF >"$INPUT_FILE"
 $PROMPT
 
 # PR #$PR_NUMBER
@@ -64,4 +64,7 @@ EOF
 
 claude --dangerously-skip-permissions --model opus \
   --allowedTools "Read Write Glob Grep" \
-  "Review PR #${PR_NUMBER}. Read the full prompt and diff from ${INPUT_FILE}"
+  "Review PR #${PR_NUMBER}. \
+Read the full prompt and diff from ${INPUT_FILE}. \
+Only review code that changed as part of this pull request that are part of the diff, \
+rather than commenting on surrounding patterns."
