@@ -16,6 +16,7 @@
   changed = "! git-changed"
   mine = "! git-prs"
   squash-since = "! squash-since"
+  compact = "! git-compact"
   dv = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c DiffviewOpen $args"
   dv-all = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen @{u} HEAD^\""
   dv-unpushed = "! args=$@; shift $#; nvim --cmd 'let g:no_session = v:true' -c \"DiffviewOpen HEAD..@{u}\""

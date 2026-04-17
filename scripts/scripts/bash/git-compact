@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+base=$(gh pr view --json baseRefName -q '.baseRefName')
+git fetch origin "$base" --quiet
+merge_base=$(git merge-base "origin/$base" HEAD)
+commit_count=$(git rev-list --count "$merge_base"..HEAD)
+
+if [ "$commit_count" -le 1 ]; then
+  echo "Only $commit_count commit(s) ahead of origin/$base, nothing to squash."
+  exit 0
+fi
+
+echo "Squashing $commit_count commits on top of origin/$base..."
+git reset --soft "$merge_base"
+git commit
+git push --force-with-lease

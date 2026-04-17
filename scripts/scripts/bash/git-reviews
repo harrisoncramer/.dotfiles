@@ -155,7 +155,7 @@ echo "$PRS" | fzf \
   --layout reverse \
   --border \
   --prompt "Reviews> " \
-  --header "<cr>: copy | C-o: open | C-a: approve | C-s: changes | C-r: review" \
+  --header "<cr>: copy | C-o: open | C-a: approve | C-r: review | C-s: slack | C-/: preview" \
   --bind 'enter:execute-silent(echo -n {4} | pbcopy)' \
   --bind 'ctrl-o:execute-silent(open {4})' \
   --bind 'ctrl-a:execute(git-prs-approve {2} {3} {6} {4})' \
