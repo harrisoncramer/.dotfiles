@@ -12,5 +12,9 @@
     "env": {
       "ALLOW_SHELL_COMMANDS": "true"
     }
+  },
+  "slack": {
+    "type": "http",
+    "url": "https://mcp.slack.com/mcp"
   }
 }
