@@ -176,9 +176,9 @@ for dir in "$(pwd)"/*/; do
     linker "$(pwd)/claude/skills" ~/.claude/skills
     if [ -f "$(pwd)/claude/mcp.json" ]; then
       if [ -f ~/.claude.json ]; then
-        jq --slurpfile mcp "$(pwd)/claude/mcp.json" '.mcpServers = $mcp[0]' ~/.claude.json > ~/.claude.json.tmp && mv ~/.claude.json.tmp ~/.claude.json
+        jq --slurpfile mcp "$(pwd)/claude/mcp.json" '.mcpServers = $mcp[0]' ~/.claude.json >~/.claude.json.tmp && mv ~/.claude.json.tmp ~/.claude.json
       else
-        jq -n --slurpfile mcp "$(pwd)/claude/mcp.json" '{mcpServers: $mcp[0]}' > ~/.claude.json
+        jq -n --slurpfile mcp "$(pwd)/claude/mcp.json" '{mcpServers: $mcp[0]}' >~/.claude.json
       fi
       echo "  merged mcp.json into ~/.claude.json"
     fi
@@ -228,8 +228,8 @@ fi
 # Claude Code
 # ----------------------
 if $CLAUDE; then
-  npm i -g @anthropic-ai/claude-code
-  npm i -g claude-code-acp
+  npm i -g @anthropic-ai/claude-code --force
+  npm i -g claude-code-acp --force
 fi
 
 echo "✅ Installation complete. Homebrew is at $BREW_PREFIX, everything else in your home directory."
