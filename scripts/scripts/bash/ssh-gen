@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DEFAULT_KEY_TYPE="ed25519"
+DEFAULT_KEY_DIR="$HOME/.ssh"
+
+read -rp "Email for the key: " email
+read -rp "Key name (e.g. github, gitlab): " key_name
+read -rp "Key type [$DEFAULT_KEY_TYPE]: " key_type
+key_type="${key_type:-$DEFAULT_KEY_TYPE}"
+
+key_path="$DEFAULT_KEY_DIR/${key_name}_${key_type}"
+
+if [[ -f "$key_path" ]]; then
+  echo "Key already exists at $key_path, aborting."
+  exit 1
+fi
+
+mkdir -p "$DEFAULT_KEY_DIR"
+
+ssh-keygen -t "$key_type" -C "$email" -f "$key_path"
+
+eval "$(ssh-agent -s)" > /dev/null
+ssh-add --apple-use-keychain "$key_path" 2>/dev/null || ssh-add "$key_path"
+
+if ! grep -q "$key_path" "$DEFAULT_KEY_DIR/config" 2>/dev/null; then
+  cat >> "$DEFAULT_KEY_DIR/config" <<EOF
+
+Host *
+  AddKeysToAgent yes
+  UseKeychain yes
+  IdentityFile $key_path
+EOF
+  echo "Added entry to ~/.ssh/config"
+fi
+
+echo ""
+echo "--- Public key (copy this to GitHub/GitLab) ---"
+echo ""
+cat "${key_path}.pub"
+echo ""
